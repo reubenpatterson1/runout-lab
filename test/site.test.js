@@ -11,6 +11,15 @@ test('home links every legacy module in one tap', () => {
   for (const id of IDS) assert.ok(html.includes(`href="legacy/index.html#${id}"`), id);
   assert.ok(!/user-scalable=no|maximum-scale/.test(html));
 });
+test('home uses the legacy look: self-hosted fonts, shared header and tokens, hooks for home.js', () => {
+  const html = read('index.html');
+  assert.ok(html.includes('<link rel="stylesheet" href="fonts/fonts.css">'));
+  assert.ok(!/fonts\.googleapis\.com|fonts\.gstatic\.com/.test(html));
+  assert.ok(html.includes('<header class="top">') && html.includes('<div class="brand">RUN<span class="dot"></span><b>OUT</b> LAB</div>'));
+  for (const token of ['--bg:#0a0e0c', '--brass:#c8a24c', '--ink:#ece7d6']) assert.ok(html.includes(token), token);
+  for (const id of ['update', 'wl', 'wl-status']) assert.ok(html.includes(`id="${id}"`), id);
+  assert.ok(html.includes('<script type="module" src="src/home.js"></script>'));
+});
 test('legacy page is the old app, self-hosted fonts, deep links', () => {
   const html = read('legacy/index.html');
   assert.ok(html.includes("const TABS=[['plan','Diagnosis']"));

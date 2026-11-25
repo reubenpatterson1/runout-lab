@@ -9,30 +9,130 @@
 <link rel="apple-touch-icon" href="icons/apple-touch-icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Runout Lab">
+<link rel="stylesheet" href="fonts/fonts.css">
 <style>
-body{font-family:system-ui,sans-serif;max-width:40rem;margin:0 auto;padding:1rem;line-height:1.5}
-a{display:inline-block;min-height:44px;padding:10px 0}
+:root{
+  --bg:#0a0e0c; --panel:#101814; --panel2:#0c110e;
+  --brass:#c8a24c; --brass2:#ecd28a; --brass-dim:#8f7536;
+  --ink:#ece7d6; --muted:#899389; --faint:#5a655c;
+  --chalk:#54b6d6; --amber:#e7a23e; --green:#62b986;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
+  --shadow:0 22px 60px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 78% -8%, rgba(200,162,76,.10), transparent 60%),
+    radial-gradient(900px 600px at 8% 110%, rgba(34,90,64,.18), transparent 55%),
+    var(--bg);
+  color:var(--ink); font-family:"Archivo",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/></svg>");
+}
+.wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 18px 80px}
+header.top{
+  position:sticky; top:0; z-index:50; backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+  background:linear-gradient(180deg, rgba(10,14,12,.94), rgba(10,14,12,.72));
+  border-bottom:1px solid var(--line);
+}
+.bar{max-width:1180px; margin:0 auto; padding:14px 18px 0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+.brand{font-family:"Oswald"; font-weight:700; letter-spacing:.14em; font-size:1.45rem; text-transform:uppercase}
+.brand b{color:var(--brass2)}
+.brand .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--brass);margin:0 2px 0 1px;box-shadow:0 0 12px var(--brass)}
+.tagline{font-family:"Space Mono"; font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); margin-left:auto}
+nav.tabs{max-width:1180px;margin:0 auto;padding:10px 8px 0;display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto; color:var(--muted); text-decoration:none;
+  font-family:"Oswald"; font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-size:.82rem;
+  padding:11px 15px 13px; border-bottom:2px solid transparent; white-space:nowrap; transition:.18s;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--brass2); border-bottom-color:var(--brass)}
+.tab .ix{font-family:"Space Mono"; font-size:.62rem; color:var(--brass-dim); margin-right:6px}
+.hero{padding:38px 4px 8px}
+.kicker{font-family:"Space Mono";font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass-dim)}
+h1.title{font-family:"Oswald";font-weight:700;text-transform:uppercase;letter-spacing:.01em;font-size:clamp(1.9rem,5vw,3.1rem);line-height:1.02;margin:.25em 0 .15em}
+h1.title em{font-style:normal;color:var(--brass2)}
+.lede{max-width:62ch;color:var(--muted);font-size:1.02rem}
+h2.sec{font-family:"Oswald";font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:1.5rem;margin:34px 0 12px;display:flex;align-items:center;gap:12px}
+h2.sec::before{content:"";width:26px;height:2px;background:var(--brass);display:inline-block}
+h3.sub{font-family:"Oswald";font-weight:500;text-transform:uppercase;letter-spacing:.06em;font-size:1.06rem;color:var(--brass2);margin:0 0 6px}
+.note{color:var(--muted);font-size:.92rem;margin:0}
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g3{grid-template-columns:repeat(3,1fr)}
+@media(max-width:820px){.g3{grid-template-columns:1fr}}
+.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px;padding-bottom:18px}
+.pill{font-family:"Space Mono";font-size:.66rem;letter-spacing:.06em;border:1px solid var(--line2);border-radius:20px;padding:5px 11px;color:var(--ink)}
+.pill.good{border-color:rgba(98,185,134,.5);color:var(--green)}
+.pill.chalk{border-color:rgba(84,182,214,.5);color:var(--chalk)}
+.pill.amber{border-color:rgba(231,162,62,.5);color:var(--amber)}
+a.navcard{display:block;color:inherit;text-decoration:none;position:relative;transition:transform .14s ease, border-color .14s ease}
+a.navcard:hover{transform:translateY(-2px); border-color:var(--brass)}
+a.navcard:active{transform:translateY(0)}
+a.navcard:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+a.navcard::after{content:"open →"; position:absolute; right:14px; bottom:12px; font-family:"Space Mono"; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--brass-dim)}
+.btn{
+  cursor:pointer;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--ink);
+  font-family:"Oswald";font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;
+  min-height:44px;padding:9px 13px;border-radius:9px;transition:.15s;text-align:center;
+}
+.btn:hover{border-color:var(--brass-dim);color:var(--brass2)}
+.btn.active{background:var(--brass);color:#1a1206;border-color:var(--brass);font-weight:700}
+#update{display:block;width:100%;margin-top:18px}
+#update[hidden]{display:none}
+.hint{font-size:.82rem;color:var(--faint);font-family:"Space Mono";letter-spacing:.04em;margin:8px 0 0}
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:var(--faint);font-family:"Space Mono";font-size:.7rem;letter-spacing:.06em}
 </style>
 </head>
 <body>
-<main>
-<button id="update" hidden>New version available — tap to reload</button>
-<h1>Runout Lab</h1>
-<p>The new app is being built. Every module below opens the current version.</p>
-<h2>Study</h2>
-<ul>
-<li><a href="legacy/index.html#plan">Diagnosis</a></li>
-<li><a href="legacy/index.html#position">Position Lab</a></li>
-<li><a href="legacy/index.html#closer">The Closer</a></li>
-<li><a href="legacy/index.html#safety">Safety Studio</a></li>
-<li><a href="legacy/index.html#escape">Escape Trainer</a></li>
-<li><a href="legacy/index.html#decide">Run or Safe?</a></li>
-</ul>
-<h2>Table</h2>
-<ul>
-<li><a href="legacy/index.html#drills">Table Drills</a></li>
-</ul>
-<section><h2>Wake lock check</h2><button id="wl">Start wake-lock test</button> <span id="wl-status" role="status"></span></section>
+<header class="top">
+  <div class="bar">
+    <div class="brand">RUN<span class="dot"></span><b>OUT</b> LAB</div>
+    <div class="tagline">close the rack · win the safety battle</div>
+  </div>
+  <nav class="tabs" aria-label="Modules">
+    <a class="tab" href="legacy/index.html#plan"><span class="ix">00</span>Diagnosis</a>
+    <a class="tab" href="legacy/index.html#position"><span class="ix">01</span>Position Lab</a>
+    <a class="tab" href="legacy/index.html#closer"><span class="ix">02</span>The Closer</a>
+    <a class="tab" href="legacy/index.html#safety"><span class="ix">03</span>Safety Studio</a>
+    <a class="tab" href="legacy/index.html#escape"><span class="ix">04</span>Escape Trainer</a>
+    <a class="tab" href="legacy/index.html#decide"><span class="ix">05</span>Run or Safe?</a>
+    <a class="tab" href="legacy/index.html#drills"><span class="ix">06</span>Table Drills</a>
+  </nav>
+</header>
+
+<main class="wrap">
+<button id="update" class="btn active" hidden>New version available — tap to reload</button>
+
+<div class="hero">
+  <div class="kicker">Training hub · new version in progress</div>
+  <h1 class="title">Close the rack.<br><em>Win the safety battle.</em></h1>
+  <p class="lede">The new app is being built. Every module below opens the current version.</p>
+</div>
+
+<h2 class="sec">Study</h2>
+<div class="grid g3">
+  <a class="panel navcard" href="legacy/index.html#plan"><h3 class="sub">Diagnosis</h3><p class="note">Your two leaks and the training plan: why the last two balls and the 8 stall out, and the safety play that lets opponents back in.</p><div class="pillrow"><span class="pill good">start here</span></div></a>
+  <a class="panel navcard" href="legacy/index.html#position"><h3 class="sub">Position Lab</h3><p class="note">Drag a cut shot and watch the tangent line, the 30° natural angle, and where draw/stun/follow send the cue ball. This is the engine behind never getting out of line.</p><div class="pillrow"><span class="pill chalk">90° rule</span><span class="pill amber">30° rule</span></div></a>
+  <a class="panel navcard" href="legacy/index.html#closer"><h3 class="sub">The Closer</h3><p class="note">End-of-rack layouts. Pick your shot order, get graded against a model runout, and learn key-ball selection and breaking problems early.</p><div class="pillrow"><span class="pill">key ball</span><span class="pill">work backward</span></div></a>
+  <a class="panel navcard" href="legacy/index.html#safety"><h3 class="sub">Safety Studio</h3><p class="note">Drag the cue ball into a hook and get a live score on the three safety ingredients. Learn what a tight, low-risk safety actually looks like.</p><div class="pillrow"><span class="pill">hide</span><span class="pill">distance</span><span class="pill">rail</span></div></a>
+  <a class="panel navcard" href="legacy/index.html#escape"><h3 class="sub">Escape Trainer</h3><p class="note">A live mirror / 2-to-1 kick calculator. See the equal-angles aim point, test your own guess, and build kick intuition.</p><div class="pillrow"><span class="pill chalk">mirror system</span></div></a>
+  <a class="panel navcard" href="legacy/index.html#decide"><h3 class="sub">Run or Safe?</h3><p class="note">Decision reps. Read a layout, commit to attack or defend, then check the reasoning a strong player would use.</p><div class="pillrow"><span class="pill">decisions</span></div></a>
+</div>
+
+<h2 class="sec">Table</h2>
+<div class="grid g3">
+  <a class="panel navcard" href="legacy/index.html#drills"><h3 class="sub">Table Drills</h3><p class="note">Eight take-to-the-table drills with scoring and a built-in practice log so you can track real improvement.</p><div class="pillrow"><span class="pill good">log + track</span></div></a>
+  <section class="panel"><h3 class="sub">Wake lock check</h3><p class="note">Keeps the screen on while you're at the table.</p><p style="margin:12px 0 0"><button id="wl" class="btn">Start wake-lock test</button></p><p id="wl-status" class="hint" role="status"></p></section>
+</div>
+
+<footer>Runout Lab · works offline once loaded</footer>
 </main>
 <script type="module" src="src/home.js"></script>
 </body>
