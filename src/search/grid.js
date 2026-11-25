@@ -38,6 +38,13 @@ export const DIFFICULTY_GRID = {
   spins: [{ x: 0, y: -0.8 }, { x: 0, y: 0 }, { x: 0, y: 0.8 }],
 };
 
+/** Numeric compare when both ids are numeric, else string compare (R29). @param {string} a @param {string} b */
+function idCmp(a, b) {
+  const na = Number(a), nb = Number(b);
+  if (a !== '' && b !== '' && !Number.isNaN(na) && !Number.isNaN(nb)) return na - nb;
+  return a < b ? -1 : a > b ? 1 : 0;
+}
+
 /**
  * @param {import('../types.js').Layout} layout
  * @param {Grid} grid
@@ -49,7 +56,7 @@ export function candidateShots(layout, grid) {
     .filter((b) => layout.rules.legalIds.includes(b.id))
     .map((b) => ({ b, v: visibility(cue, b, layout.balls, [layout.cueId]) }))
     .filter((t) => t.v >= 0.25)
-    .sort((p, q) => q.v - p.v || (p.b.id < q.b.id ? -1 : p.b.id > q.b.id ? 1 : 0))
+    .sort((p, q) => q.v - p.v || idCmp(p.b.id, q.b.id))
     .slice(0, 2)
     .map((t) => t.b);
   const offsets = targets.length === 1 ? grid.offsets : grid.offsets2;
