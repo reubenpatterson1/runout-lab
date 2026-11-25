@@ -1,6 +1,6 @@
 // @ts-check
-import { R, DT, MAX_T, MAX_EVENTS, MAX_ZERO_TIME, E_BALL, EPS_V, EPS_D, V_REST } from './constants.js';
-import { CUSHIONS } from './table.js';
+import { R, DT, MAX_T, MAX_EVENTS, MAX_ZERO_TIME, E_BALL, EPS_V, EPS_D, V_REST, POCKET_NEAR } from './constants.js';
+import { CUSHIONS, JAWS, POCKETS, mouthDistance } from './table.js';
 import { validateLayout } from './layout.js';
 import { strike, advanceBall } from './motion.js';
 import { cushionRebound } from './cushion.js';
@@ -8,7 +8,7 @@ import { cushionRebound } from './cushion.js';
 /** @typedef {import('./motion.js').BallState} BallState */
 
 const TIE = 1e-12;
-const TYPE_BALL = 1, TYPE_CUSHION = 2;
+const TYPE_POCKET = 0, TYPE_BALL = 1, TYPE_CUSHION = 2, TYPE_JAW = 3;
 
 /** @param {BallState} b */
 const moving = (b) => b.state === 'sliding' || b.state === 'rolling';
@@ -16,7 +16,8 @@ const moving = (b) => b.state === 'sliding' || b.state === 'rolling';
 /**
  * Event-driven simulation on a fixed outer step DT. Within a step, the earliest ball or cushion contact
  * is found from chord velocities, then accepted only if the instantaneous normal approach speed
- * exceeds EPS_V (R3a). Pockets, scratch and jaws are added by a later task.
+ * exceeds EPS_V (R3a). Pocket mouths capture a ball whose centre crosses the mouth line; jaw points are
+ * round contacts accepted under the same approach rule (R3a/R3d).
  * @param {import('../types.js').Layout} layout
  * @param {import('../types.js').Shot} shot
  * @param {{record?: boolean, stopAtFirstContact?: boolean, maxCushions?: number}} [opts]
@@ -56,6 +57,9 @@ export function simulate(layout, shot, opts = {}) {
   let railsAfterContact = 0, cueRails = 0, zeroRun = 0;
   let lastCueCushion = { idx: /** @type {number|null} */ (null), t: -1 };
   let halted = false;
+  /** @type {string[]} */
+  const pocketed = [];
+  let scratch = false;
 
   /** Advance every ball by dt, pushing roll/stop events at their instants.
    * @param {number} dt */
@@ -117,6 +121,7 @@ export function simulate(layout, shot, opts = {}) {
       // ball pairs
       for (let i = 0; i < n; i++) {
         for (let j = i + 1; j < n; j++) {
+          if (bs[i].state === 'pocketed' || bs[j].state === 'pocketed') continue;
           if (!moving(bs[i]) && !moving(bs[j])) continue;
           const dx = bs[j].x - bs[i].x, dy = bs[j].y - bs[i].y;
           const d = Math.hypot(dx, dy);
@@ -166,8 +171,42 @@ export function simulate(layout, shot, opts = {}) {
           if (!(si.vx * c.nx + si.vy * c.ny > EPS_V)) continue;
           if (better(tau, TYPE_CUSHION, i, k)) best = { tau, type: TYPE_CUSHION, i, j: k };
         }
-        // Jaw points slot in here under the same rule (R3a/R3d): accept only if the instantaneous
-        // approach speed toward the jaw point exceeds EPS_V.
+        // pocket mouths: centre crosses the mouth line moving outward
+        for (let k = 0; k < POCKETS.length; k++) {
+          const pk = POCKETS[k];
+          if (Math.hypot(p.x - pk.x, p.y - pk.y) > POCKET_NEAR) continue;
+          const m0 = mouthDistance(p.x, p.y, k);
+          const co = cx[i] * pk.out.x + cy[i] * pk.out.y;
+          if (!(m0 <= 0 && co > EPS_V)) continue;
+          const tau = -m0 / co;
+          if (tau > rem) continue;
+          if (better(tau, TYPE_POCKET, i, k)) best = { tau, type: TYPE_POCKET, i, j: k };
+        }
+        // jaw points (R3a/R3d): accept only if the instantaneous approach speed toward the point exceeds EPS_V
+        for (let k = 0; k < JAWS.length; k++) {
+          const J = JAWS[k];
+          const dx = p.x - J.x, dy = p.y - J.y;
+          if (Math.hypot(dx, dy) > POCKET_NEAR) continue;
+          const d = Math.hypot(dx, dy);
+          let tau;
+          if (d <= R + EPS_D) {
+            tau = 0;
+          } else {
+            const b2 = dx * cx[i] + dy * cy[i];
+            if (!(b2 < -EPS_V)) continue;
+            const a2 = cx[i] * cx[i] + cy[i] * cy[i];
+            const disc = b2 * b2 - a2 * (d * d - R * R);
+            if (disc < 0) continue;
+            tau = Math.max(0, (-b2 - Math.sqrt(disc)) / a2);
+            if (tau > rem) continue;
+          }
+          if (best && tau > best.tau + TIE) continue;
+          const si = stateAt(i, tau);
+          const ex = si.x - J.x, ey = si.y - J.y, ed = Math.hypot(ex, ey);
+          if (ed === 0) continue;
+          if (!(-(si.vx * ex + si.vy * ey) / ed > EPS_V)) continue;
+          if (better(tau, TYPE_JAW, i, k)) best = { tau, type: TYPE_JAW, i, j: k };
+        }
       }
 
       if (!best) {
@@ -203,10 +242,27 @@ export function simulate(layout, shot, opts = {}) {
           firstContactT = t;
           if (opts.stopAtFirstContact) halted = true;
         }
+      } else if (ev.type === TYPE_POCKET) {
+        const b = bs[ev.i];
+        b.state = 'pocketed';
+        b.vx = 0; b.vy = 0; b.wx = 0; b.wy = 0; b.wz = 0;
+        pocketed.push(b.id);
+        if (ev.i === cueIdx) scratch = true;
+        events.push({ t, type: 'pocket', a: b.id, b: ev.j, x: b.x, y: b.y });
+        sample(ev.i);
       } else {
         const b = bs[ev.i];
-        const c = CUSHIONS[ev.j];
-        const nx = c.nx, ny = c.ny, tx = ny, ty = -nx;
+        const isJaw = ev.type === TYPE_JAW;
+        let nx, ny;
+        if (isJaw) {
+          const J = JAWS[ev.j];
+          const dj = Math.hypot(J.x - b.x, J.y - b.y);
+          nx = (J.x - b.x) / dj; ny = (J.y - b.y) / dj;
+        } else {
+          nx = CUSHIONS[ev.j].nx; ny = CUSHIONS[ev.j].ny;
+        }
+        const tx = ny, ty = -nx;
+        const ridx = isJaw ? 100 + ev.j : ev.j; // jaw indices kept distinct from cushion indices for the cue-rail dedupe
         const vn = b.vx * nx + b.vy * ny, vt = b.vx * tx + b.vy * ty;
         const r = cushionRebound({ vn, vt, wz: b.wz });
         b.vx = r.vt * tx + r.vn * nx;
@@ -218,12 +274,12 @@ export function simulate(layout, shot, opts = {}) {
         }
         settleState(b);
         touched.add(ev.i);
-        events.push({ t, type: 'cushion', a: b.id, b: ev.j, x: b.x, y: b.y });
+        events.push({ t, type: isJaw ? 'jaw' : 'cushion', a: b.id, b: ev.j, x: b.x, y: b.y });
         sample(ev.i);
         if (t >= firstContactT) railsAfterContact++;
         if (ev.i === cueIdx && firstContactId === null) {
-          if (!(lastCueCushion.idx === ev.j && t - lastCueCushion.t <= 0.1)) cueRails++;
-          lastCueCushion = { idx: ev.j, t };
+          if (!(lastCueCushion.idx === ridx && t - lastCueCushion.t <= 0.1)) cueRails++;
+          lastCueCushion = { idx: ridx, t };
         }
         if (cueRails > maxCushions) halted = true;
       }
@@ -246,8 +302,8 @@ export function simulate(layout, shot, opts = {}) {
     firstContactId,
     railsAfterContact,
     cueRailsBeforeContact: cueRails,
-    pocketed: [],
-    scratch: false,
+    pocketed,
+    scratch,
     duration: t,
     settled,
   };

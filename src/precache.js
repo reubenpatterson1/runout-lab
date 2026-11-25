@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 9;
-export const HASH = '1291948dd85a7aface2f4a7030afa8fe3f08b53a7aa5874cba56019640e684dd';
+export const VERSION = 10;
+export const HASH = 'e3449676cfa4d47d7e20fd116819d32af527e568314321fb127569f6be6895ca';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',

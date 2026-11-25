@@ -38,8 +38,9 @@ test('Cushions (engine): running english lengthens off the top rail', () => {
   assert.ok(xAt(0.8) > xAt(0) && xAt(0) > xAt(-0.8));
 });
 test('Kicks: firm one-rail mirror kick misses the mirror target by more than one ball-width', () => {
-  const target = { x: 75, y: 15 }, aim = aimAt({ x: 25, y: 15 }, { x: 75, y: 2 * (50 - R) - 15 });
-  const s = simulate(L([B('cue', 25, 15)], []), shot(aim, 120)), k = ev(s, (e) => e.type === 'cushion' && e.a === 'cue');
+  const target = { x: 45, y: 15 }, aim = aimAt({ x: 15, y: 15 }, { x: 45, y: 2 * (50 - R) - 15 });
+  const s = simulate(L([B('cue', 15, 15)], []), shot(aim, 120)), k = ev(s, (e) => e.type === 'cushion' && e.a === 'cue');
+  assert.ok(k, 'cue must hit a cushion');
   assert.ok(polylineDistance(s.trajectories.cue.filter((q) => q.t >= k.t), target) > 2 * R);
 });
 test('Blockers in the path get hit and move', () => {
