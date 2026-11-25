@@ -85,3 +85,36 @@ test('Determinism and termination: 200 random shots settle in bounded time', () 
     if (i < 20) assert.deepEqual(simulate(lay, sh), s);
   }
 });
+
+test('stopAtFirstContact halts at the first contact', () => {
+  const s = simulate(L([B('cue', 20, 25), B('ob', 40, 25)]), shot(0, 60), { stopAtFirstContact: true });
+  assert.equal(s.firstContactId, 'ob'); assert.equal(s.settled, false);
+  assert.equal(s.events.filter((e) => e.type === 'ball').length, 1);
+});
+test('maxCushions 0 halts on the first cushion with settled=false', () => {
+  const s = simulate(L([B('cue', 30, 30)], []), shot(-45, 60), { maxCushions: 0 });
+  assert.equal(s.settled, false); assert.equal(s.cueRailsBeforeContact, 1);
+  assert.equal(s.events.filter((e) => e.type === 'cushion').length, 1);
+});
+test('record:false gives empty trajectories', () => {
+  const s = simulate(L([B('cue', 20, 25), B('ob', 40, 25)]), shot(0, 60), { record: false });
+  assert.deepEqual(s.trajectories, {}); assert.ok(s.settled);
+});
+test('one-rail kick reports cueRailsBeforeContact === 1', () => {
+  const aim = aimAt({ x: 25, y: 15 }, { x: 60, y: 2 * (50 - R) - 15 });
+  const k = ev(simulate(L([B('cue', 25, 15)], []), shot(aim, 100)), (e) => e.type === 'cushion');
+  const lane = simulate(L([B('cue', 25, 15)], []), shot(aim, 100)).trajectories.cue.find((q) => q.t > k.t && q.x >= 60);
+  const s = simulate(L([B('cue', 25, 15), B('ob', lane.x, lane.y)]), shot(aim, 100));
+  assert.equal(s.firstContactId, 'ob'); assert.equal(s.cueRailsBeforeContact, 1);
+});
+test('driving the OB into a rail gives railsAfterContact >= 1', () => {
+  const s = simulate(L([B('cue', 30, 25), B('ob', 40, 25)]), shot(0, 150));
+  assert.equal(s.firstContactId, 'ob'); assert.ok(s.railsAfterContact >= 1);
+});
+test('overlapping layout throws invalid layout: overlap', () => {
+  assert.throws(() => simulate(L([B('cue', 20, 25), B('ob', 21, 25)]), shot(0, 50)), /invalid layout: overlap/);
+});
+test('no trajectory has two consecutive samples with equal t', () => {
+  const s = simulate(L([B('cue', 20, 25), B('b1', 40, 25), B('ob', 60, 25)]), shot(0, 60));
+  for (const tr of Object.values(s.trajectories)) for (let i = 1; i < tr.length; i++) assert.notEqual(tr[i].t, tr[i - 1].t);
+});

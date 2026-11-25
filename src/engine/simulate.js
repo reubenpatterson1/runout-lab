@@ -43,7 +43,12 @@ export function simulate(layout, shot, opts = {}) {
   const trajectories = {};
   if (record) for (const b of bs) trajectories[b.id] = [{ t: 0, x: b.x, y: b.y }];
   /** @param {number} i */
-  const sample = (i) => { if (record) trajectories[bs[i].id].push({ t, x: bs[i].x, y: bs[i].y }); };
+  const sample = (i) => {
+    if (!record) return;
+    const tr = trajectories[bs[i].id];
+    if (tr[tr.length - 1].t === t) return;
+    tr.push({ t, x: bs[i].x, y: bs[i].y });
+  };
 
   /** @type {string|null} */
   let firstContactId = null;
@@ -87,7 +92,7 @@ export function simulate(layout, shot, opts = {}) {
   while (!halted && bs.some(moving) && t < MAX_T && events.length < MAX_EVENTS) {
     let rem = DT;
     const touched = new Set();
-    while (rem > 1e-12) {
+    while (rem > 1e-12 && events.length < MAX_EVENTS) {
       for (let i = 0; i < n; i++) if (moving(bs[i])) touched.add(i);
       // chord velocities over rem
       const cx = new Array(n).fill(0), cy = new Array(n).fill(0);
@@ -116,6 +121,8 @@ export function simulate(layout, shot, opts = {}) {
           const dx = bs[j].x - bs[i].x, dy = bs[j].y - bs[i].y;
           const d = Math.hypot(dx, dy);
           let tau;
+          // Touching pairs that are not approaching yet are skipped this step; the overlap that can build up
+          // is at most about 0.5*mu*g*DT^2 (~0.004 in), bounded, known, and below EPS_LAYOUT.
           if (d <= 2 * R + EPS_D) {
             tau = 0;
           } else {
@@ -225,6 +232,7 @@ export function simulate(layout, shot, opts = {}) {
       if (zeroRun > MAX_ZERO_TIME) halted = true;
       if (halted) break;
     }
+    if (events.length >= MAX_EVENTS && bs.some(moving)) halted = true; // inner loop may have tripped MAX_EVENTS
     if (record) for (const i of touched) sample(i);
   }
 

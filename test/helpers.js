@@ -3,8 +3,8 @@ import { R } from '../src/engine/constants.js';
 
 /**
  * @typedef {{x:number,y:number}} Pt
- * @typedef {{id:string,x:number,y:number}} Ball
- * @typedef {{balls:Ball[],cueId:string,rules:{kind:'designated'|'8ball'|'9ball',legalIds:string[],opponentIds?:string[]}}} Layout
+ * @typedef {import('../src/types.js').Ball} Ball
+ * @typedef {import('../src/types.js').Layout} Layout
  */
 
 /**
