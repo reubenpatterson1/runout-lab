@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 27;
-export const HASH = 'f200315676e865b8a5aecf5064088cefd5a77cd9346948b9ceae3156d9079c4a';
+export const VERSION = 28;
+export const HASH = 'a80b654bb0685605ee6d07dad7b5240d39ecf6793f9766e3c6d7c2d8a89c5ad8';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -22,6 +22,7 @@ export const FILES = [
   'legacy/index.html',
   'manifest.webmanifest',
   'runout-lab.html',
+  'src/deal/bank.js',
   'src/deal/families.js',
   'src/deal/fixed.js',
   'src/deal/prng.js',
