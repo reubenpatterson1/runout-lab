@@ -5,6 +5,7 @@ import { selectShots, classify } from '../src/search/search.js';
 import { prepareSafety, optimisticTotal, finishSafety } from '../src/eval/safety.js';
 import { kickLanes } from '../src/eval/kick.js';
 
+// R35: the 130 in/s cap applies to chosen/stored shots; robustness variants (x1.04) may exceed it (execution error).
 export const SPEED_CAP = 130;
 export const N_FULL = 200;
 export const TOP_N = 5;

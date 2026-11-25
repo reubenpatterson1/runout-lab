@@ -42,15 +42,34 @@ test('bankSearch: B&B + memo deep-equal the reference; best re-scores exactly; s
   const capped = bankSearch(lay, { grid: { ...TINY, speeds: [130] }, nFull: 1, nTop: 1 });
   assert.ok(capped.best && capped.best.shot.speed <= 130);
 });
-test('bankSearch: top-5 path (nTop 5) deep-equals the reference', () => {
-  const a = bankSearch(lay, { grid: TINY, nFull: 8, nTop: 5 });
-  const b = bankSearch(lay, { grid: TINY, nFull: 8, nTop: 5, reference: true });
-  assert.ok(a.top.length > 1, 'precondition: several top entries'); assert.deepEqual(a, b);
+test('bankSearch: non-degenerate B&B cut (top-N threshold break) deep-equals the reference; speeds ≤ 130', () => {
+  const layB = L([B('cue', 43.06, 35.83), B('ob', 62.17, 29.12), B('b2', 78.24, 35.9), B('b3', 85.35, 36.07)]);
+  const grid = { offsets: [-0.46, 0, 0.46], offsets2: [0], speeds: [40, 106, 130], spins: [{ x: 0, y: 0 }, { x: 0, y: 0.5 }] };
+  const fast = { full: 0 }, ref = { full: 0 };
+  const a = bankSearch(layB, { grid, nFull: 5, nTop: 2, stats: fast });
+  const b = bankSearch(layB, { grid, nFull: 5, nTop: 2, reference: true, stats: ref });
+  assert.equal(a.top.length, 2, 'precondition: top is full');
+  assert.ok(a.best && a.best.score.total > 0, 'precondition: non-zero best');
+  assert.ok(fast.full < ref.full, `precondition: a cut happened (${fast.full} < ${ref.full})`);
+  assert.deepEqual(a, b);
+  for (const t of [...a.top, a.best]) assert.ok(t.shot.speed <= 130);
 });
-test('modelHash: deterministic, changes when a model file changes', () => {
-  assert.match(modelHash(root), /^[0-9a-f]{64}$/); assert.equal(modelHash(root), modelHash(root));
+const copyTree = () => {
   const t = mkdtempSync(tmpdir() + '/mh-') + '/';
-  for (const d of ['src/engine', 'src/geometry', 'src/eval']) { mkdirSync(t + d, { recursive: true }); cpSync(root + d, t + d, { recursive: true }); }
+  for (const d of ['src/engine', 'src/geometry', 'src/eval', 'src/search']) { mkdirSync(t + d, { recursive: true }); cpSync(root + d, t + d, { recursive: true }); }
+  return t;
+};
+test('modelHash: deterministic, covers model + grid.js/search.js, framed by path and length', () => {
+  assert.match(modelHash(root), /^[0-9a-f]{64}$/); assert.equal(modelHash(root), modelHash(root));
+  const t = copyTree();
   assert.equal(modelHash(t), modelHash(root));
   writeFileSync(t + 'src/eval/position.js', '// changed\n', { flag: 'a' }); assert.notEqual(modelHash(t), modelHash(root));
+  const g = copyTree(); writeFileSync(g + 'src/search/grid.js', '// changed\n', { flag: 'a' });
+  assert.notEqual(modelHash(g), modelHash(root), 'grid.js is covered');
+  const u = copyTree(); writeFileSync(u + 'src/search/search.js', '// changed\n', { flag: 'a' });
+  assert.notEqual(modelHash(u), modelHash(root), 'search.js is covered');
+  // the same appended byte in two different files hashes differently (path framing)
+  const m2 = copyTree(); writeFileSync(m2 + 'src/eval/position.js', 'X', { flag: 'a' });
+  const m3 = copyTree(); writeFileSync(m3 + 'src/eval/safety.js', 'X', { flag: 'a' });
+  assert.notEqual(modelHash(m2), modelHash(m3));
 });
