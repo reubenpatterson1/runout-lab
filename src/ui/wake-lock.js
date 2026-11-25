@@ -10,6 +10,8 @@ export function createWakeLock(deps = {}) {
   let active = false, sent = false;
   /** @type {any} */
   let sentinel = null;
+  /** @type {Promise<boolean> | null} */
+  let pending = null;
 
   /** @param {'unsupported'|'denied'|'released'} reason */
   function signal(reason) {
@@ -18,11 +20,18 @@ export function createWakeLock(deps = {}) {
     if (deps.onFallback) deps.onFallback(reason);
   }
 
-  async function acquire() {
+  function acquire() {
+    if (pending) return pending;
+    pending = doAcquire().finally(() => { pending = null; });
+    return pending;
+  }
+
+  async function doAcquire() {
     if (!supported) { signal('unsupported'); return false; }
     if (doc.visibilityState !== 'visible') return false;
     try {
       const s = await nav.wakeLock.request('screen');
+      if (!active) { s.release().catch(() => {}); return false; }
       sentinel = s;
       s.addEventListener('release', () => {
         if (sentinel === s) sentinel = null;
@@ -42,6 +51,7 @@ export function createWakeLock(deps = {}) {
   return {
     supported,
     async start() {
+      if (active && sentinel) return true;
       active = true; sent = false;
       doc.addEventListener('visibilitychange', onVisibility);
       return acquire();

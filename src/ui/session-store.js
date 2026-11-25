@@ -1,6 +1,7 @@
 // @ts-check
 
 /**
+ * The value must be JSON-serializable.
  * @template T
  * @param {string} name
  * @param {T} initial
@@ -9,14 +10,15 @@
  */
 export function createSessionStore(name, initial, deps = {}) {
   const key = 'runout-lab:session:' + name;
-  const storage = deps.storage ?? globalThis.localStorage;
+  // Resolved lazily: the localStorage getter itself can throw (blocked storage); then degrade to memory-only.
+  const getStorage = () => deps.storage ?? globalThis.localStorage;
   /** @type {{value: T} | null} */
   let mem = null;
   return {
     load() {
       if (mem) return structuredClone(mem.value);
       try {
-        const raw = storage.getItem(key);
+        const raw = getStorage().getItem(key);
         if (raw != null) {
           const p = JSON.parse(raw);
           if (p && p.v === 1 && 'data' in p) return structuredClone(p.data);
@@ -26,11 +28,11 @@ export function createSessionStore(name, initial, deps = {}) {
     },
     save(value) {
       mem = { value: structuredClone(value) };
-      try { storage.setItem(key, JSON.stringify({ v: 1, data: value })); return true; } catch { return false; }
+      try { getStorage().setItem(key, JSON.stringify({ v: 1, data: value })); return true; } catch { return false; }
     },
     clear() {
       mem = null;
-      try { storage.removeItem(key); } catch { /* swallow */ }
+      try { getStorage().removeItem(key); } catch { /* swallow */ }
     },
   };
 }
