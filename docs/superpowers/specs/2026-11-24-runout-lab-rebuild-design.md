@@ -332,11 +332,14 @@ Each stage ships usable.
 1. Port and fix the other Study modules.
 2. Port the Table drills.
 3. Add new drills, in priority order:
-   1. **Execute the Close:** the last two balls plus the money ball, with the cue ball carried forward between shots, scored on runouts.
-   2. **Safety Battle** against a noisy bot.
-   3. **Two-way Shot Trainer.**
-   4. **Read-the-Hook quiz.**
-   5. **Speed-window safety plus table calibration.**
+   1. **Banking:** reading and executing bank shots in Study and at the table, spec in `2026-11-25-banking-design.md`.
+   2. **Execute the Close:** the last two balls plus the money ball, with the cue ball carried forward between shots, scored on runouts.
+   3. **Safety Battle** against a noisy bot.
+   4. **Two-way Shot Trainer.**
+   5. **Read-the-Hook quiz.**
+   6. **Speed-window safety plus table calibration.**
+
+Spec files for the later stages: `2026-11-25-stage1b-ui-design.md`, `2026-11-25-module-ports-design.md`, `2026-11-25-banking-design.md`, `2026-11-25-execute-the-close-design.md`, `2026-11-25-safety-battle-design.md`, `2026-11-25-two-way-shot-design.md`, `2026-11-25-read-the-hook-design.md`, `2026-11-25-speed-window-design.md`.
 
 ## 17. Backlog (not in Stage 1)
 
@@ -417,5 +420,6 @@ These follow the Task 13 investigation, `.superpowers/sdd/2026-11-24-runout-lab-
    - Family 1 is flagged as weak (0–2 valid layouts per sampled configuration) and goes to the owner through the coverage report, not silent tuning.
    - Backlog item added.
    - Sections 11, 16, 17, 18 and 18a.4.
+4. 2026-11-25 [OWNER]: Banking added as new drill priority 1, ahead of Execute the Close.
 
 Not edited here and now stale: the implementation plan's Global Constraints 9–11, `.superpowers/sdd/2026-11-24-runout-lab-stage1a-foundation/global-constraints.md`, the plan's `combineScore`, `ROBUST_GRID` and Task 13 and Task 16 text, and rulings R9 and R15. They must be reconciled with this section before work resumes.
