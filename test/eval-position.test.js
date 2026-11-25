@@ -31,11 +31,12 @@ test('Fixture 4: open OB near a pocket at short range ≤ 25', () => {
   const p = scorePosition([B('cue', 80, 20), B('ob', 93, 7)], 'cue', ['ob']); assert.equal(p.V, 1); assert.ok(p.score <= 25);
 });
 test('cue restriction is 100% when frozen and 0 mid-table', () => { assert.equal(cueRestriction({ x: R, y: 25 }), 1); assert.equal(cueRestriction({ x: 50, y: 25 }), 0); });
-test('frozen cue: no phantom lane from bouncing off its own rail (R21)', () => {
-  const balls = [B('cue', R, 25), B('ob', 40, 15)];
-  const lanes = kickLanes(balls, 'cue', ['ob']);
-  assert.ok(lanes.w1 < 8, JSON.stringify(lanes));
-  assert.equal(lanes.n2, 0, JSON.stringify(lanes));
+test('frozen cue: no phantom lane from bouncing off its own rail (R21/R23)', () => {
+  assert.deepEqual(kickLanes([B('cue', R, 25), B('ob', 40, 15)], 'cue', ['ob']), { n1: 3, w1: 6, n2: 0, w2: 0 });
+});
+test('near-frozen cue (R+0.02) has no cliff: same one-rail lanes as frozen (R23)', () => {
+  const l = kickLanes([B('cue', R + 0.02, 25), B('ob', 40, 15)], 'cue', ['ob']);
+  assert.equal(l.n1, 3); assert.equal(l.w1, 6);
 });
 test('kickLanes is deterministic', () => {
   const balls = [B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)];

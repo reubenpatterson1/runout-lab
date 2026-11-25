@@ -1,5 +1,5 @@
 // @ts-check
-import { R, W, H, EPS_LAYOUT } from '../engine/constants.js';
+import { R, W, H } from '../engine/constants.js';
 import { simulate } from '../engine/simulate.js';
 import { firstBallOnRay } from '../geometry/visibility.js';
 import { lanesFromSamples } from '../geometry/kick-lanes.js';
@@ -34,9 +34,6 @@ export function kickLanes(balls, cueId, targetIds) {
   for (let k = 0; k < 360; k++) {
     const rad = (k * Math.PI) / 180;
     const dir = { x: Math.cos(rad), y: Math.sin(rad) };
-    // R21: a frozen cue's bounce off its own rail is the mirrored direct shot, not a kick.
-    if ((dir.x > 0 && W - R - cue.x < EPS_LAYOUT) || (dir.x < 0 && cue.x - R < EPS_LAYOUT)
-      || (dir.y > 0 && H - R - cue.y < EPS_LAYOUT) || (dir.y < 0 && cue.y - R < EPS_LAYOUT)) { samples.push(0); continue; }
     const hit = firstBallOnRay(cue, dir, balls, [cueId]);
     if (hit && hit.t < railDistance(cue, dir)) { samples.push(0); continue; }
     const sim = simulate(
@@ -44,6 +41,9 @@ export function kickLanes(balls, cueId, targetIds) {
       { aimDeg: k, speed: KICK_SPEED, spin: { x: 0, y: 0 } },
       { record: false, stopAtFirstContact: true, maxCushions: 2 },
     );
+    // R23: a first cushion contact closer than R to the start is the mirrored direct shot of a (near-)frozen cue.
+    const cush = sim.events.find((e) => e.type === 'cushion' && e.a === cueId);
+    if (cush && Math.hypot(cush.x - cue.x, cush.y - cue.y) < R) { samples.push(0); continue; }
     const r = sim.cueRailsBeforeContact;
     const ok = (r === 1 || r === 2) && !sim.scratch && sim.firstContactId !== null && targetIds.includes(sim.firstContactId);
     samples.push(ok ? /** @type {1|2} */ (r) : 0);

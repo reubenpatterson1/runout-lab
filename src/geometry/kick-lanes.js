@@ -80,8 +80,8 @@ export function lanesFromSamples(samples, stepDeg) {
 
 /**
  * Cheap one- and two-rail mirror kick-lane approximation.
- * A rail is skipped as a bounce rail when the ball the leg starts from lies within EPS_LAYOUT of its
- * reflection line: a frozen ball's "kick" off its own rail is really the direct shot (R20).
+ * A candidate is skipped when its first bounce point lies less than R from `from`: a (near-)frozen
+ * ball's "kick" off its own rail is really the direct shot (R20/R23).
  * @param {{x:number,y:number}} from
  * @param {import('../types.js').Ball[]} balls
  * @param {string[]} targetIds
@@ -100,17 +100,16 @@ export function mirrorLanes(from, balls, targetIds, excludeIds) {
     if (!T) continue;
     const exclFinal = [...excludeIds, tid];
     for (const rail of RAILS) {
-      if (onRail(from, rail)) continue;
       const image = reflect(T, rail);
       const P = intersect(from, image, rail);
       if (!P || !inSpan(P, rail)) continue;
+      if (Math.hypot(from.x - P.x, from.y - P.y) < R) continue;
       if (clearance(from, P, balls, excludeIds) < 0) continue;
       if (clearance(P, T, balls, exclFinal) < 0) continue;
       n1++;
       w1 = Math.max(w1, width(image));
     }
     for (const r1 of RAILS) {
-      if (onRail(from, r1)) continue;
       for (const r2 of RAILS) {
         if (r1 === r2) continue;
         const T2 = reflect(T, r2);
@@ -119,6 +118,7 @@ export function mirrorLanes(from, balls, targetIds, excludeIds) {
         if (!P1) continue;
         const P2 = intersect(P1, T2, r2);
         if (!P2 || onRail(P1, r2)) continue;
+        if (Math.hypot(from.x - P1.x, from.y - P1.y) < R) continue;
         if (!inSpan(P1, r1) || !inSpan(P2, r2)) continue;
         if (clearance(from, P1, balls, excludeIds) < 0) continue;
         if (clearance(P1, P2, balls, excludeIds) < 0) continue;
