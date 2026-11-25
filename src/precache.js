@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 6;
-export const HASH = '3ea4664c9774261448ea573700283549645b1f263b0a8dea1f24f9192f173388';
+export const VERSION = 8;
+export const HASH = 'cb429e2983490e380b79817a20f59d607dec9a29c360ad4e16273111e90d5f21';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -25,6 +25,7 @@ export const FILES = [
   'src/engine/cushion.js',
   'src/engine/layout.js',
   'src/engine/motion.js',
+  'src/engine/simulate.js',
   'src/engine/table.js',
   'src/home.js',
   'src/precache.js',
