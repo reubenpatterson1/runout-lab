@@ -12,5 +12,8 @@
 /** @typedef {{shot: Shot, score: SafetyScore}} Scored */
 /** @typedef {{best: Scored|null, cheapCount: number, shareGe70: number}} SuggestResult */
 /** @typedef {{ok: boolean, best: Scored|null, share: number, band: Band}} Validation */
-/** @typedef {{family: number, seed: number, requestedBand: Band, band: Band, layout: Layout, validation: Validation, attempts: number, fallback: boolean, fixedName?: string}} DealResult */
+/** @typedef {{id: number, family: number, band: Band, genBand: Band, seed: number, share: number, layout: Layout, best: Scored}} BankEntry */
+/** @typedef {{name: string, slug: string, layout: Layout, best: Scored|null}} BankExample */
+/** @typedef {{family: number, band: Band, generated: number, valid: number, count: number}} CoverageRow */
+/** @typedef {{v: 1, modelHash: string, params: {families: number[], target: number, cap: number, speedCap: number}, coverage: CoverageRow[], entries: BankEntry[], examples: BankExample[]}} Bank */
 export {};

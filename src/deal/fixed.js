@@ -21,7 +21,7 @@ function build(cue, ob, units) {
   };
 }
 
-/** Fixed fallback layouts (true scale). Not seed-replayable; identified by name. */
+/** Named examples (spec §11): not dealt, not a fallback; opened by slug. True scale. */
 export const FIXED_LAYOUTS = [
   { name: 'open hook', layout: build({ x: 26, y: 25 }, { x: 64, y: 25 }, [{ c: { x: 42, y: 18 }, kind: 'pair' }, { c: { x: 46, y: 32 }, kind: 'pair' }]) },
   { name: 'rail tuck', layout: build({ x: 40, y: 12 }, { x: 78, y: 40 }, [{ c: { x: 52, y: 30 }, kind: 'pair' }]) },

@@ -31,7 +31,7 @@ test('suggest seeded with validateDeal best never scores below it (seeding is lo
     for (const seed of [v.best.shot, { ...v.best.shot, known: v.best.score }]) {
       const s = suggest(l, { seedShots: [seed] }).best;
       assert.ok(s && s.score.total >= v.best.score.total);
-      if (v.ok) assert.ok(s.score.total >= 70);
+      assert.ok(v.ok, 'precondition: validate ok'); assert.ok(s.score.total >= 70);
     }
   }
 });

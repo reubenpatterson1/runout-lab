@@ -10,6 +10,9 @@ import { mulberry32 } from './prng.js';
 /** @type {Band[]} */
 export const BANDS = ['easy', 'medium', 'hard'];
 
+/** Stage 1 families (spec §11, OWNER 2026-11-25); 4 and 5 deferred. */
+export const ACTIVE_FAMILIES = [1, 2, 3, 6, 7, 8];
+
 export const FAMILIES = [
   { id: 1, name: 'Hook behind a blocker' },
   { id: 2, name: 'Rail tuck or freeze' },
