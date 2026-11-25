@@ -20,7 +20,7 @@ const root = fileURLToPath(new URL('../', import.meta.url));
  */
 function buildHash(r) {
   const h = createHash('sha256');
-  for (const p of ['scripts/bank-search.js', 'scripts/bank-worker.js', 'scripts/build-bank.js', 'src/deal/families.js', 'src/deal/prng.js']) {
+  for (const p of ['scripts/bank-search.js', 'scripts/bank-worker.js', 'scripts/build-bank.js', 'src/deal/families.js', 'src/deal/fixed.js', 'src/deal/prng.js']) {
     const buf = readFileSync(r + p);
     h.update(p + '\0' + buf.length + '\0');
     h.update(buf);
@@ -290,7 +290,7 @@ export async function buildBank(opts = {}) {
     renameSync(out + '.tmp', out);
     return { bank, report: formatReport(bank, states, states.reduce((a, s) => a + s.elapsedMs, 0) || performance.now() - t0) };
   } finally {
-    closing = true;
+    closing = true; onResult = null;
     for (const c of cur.values()) clearTimeout(c.timer);
     await Promise.all(workers.map((w) => w.terminate()));
   }
