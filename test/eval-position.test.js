@@ -42,3 +42,8 @@ test('kickLanes is deterministic', () => {
   const balls = [B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)];
   assert.deepEqual(kickLanes(balls, 'cue', ['ob']), kickLanes(balls, 'cue', ['ob']));
 });
+test('§10 weights (amended 2026-11-25): wH = 0.62', () => {
+  assert.equal(combineScore({ V: 0, D: 0, K: 0, Q: 0 }), 62);
+  assert.equal(combineScore({ V: 0, D: 0, K: 1, Q: 1 }), 100);
+  assert.ok(Math.abs(combineScore({ V: 0.5, D: 0, K: 0, Q: 0 }) - 31) < 1e-9);
+});

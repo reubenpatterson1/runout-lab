@@ -24,7 +24,7 @@ test('validateDeal is consistent and deterministic', () => {
 const layA = L([B('cue', 40, 30), B('ob', 52, 30), B('b1', 56, 33), B('b2', 56, 27), B('b3', 60, 30), B('b4', 90, 45)]);
 const layB = L([B('cue', 43.06, 35.83), B('ob', 62.17, 29.12), B('b2', 78.24, 35.9), B('b3', 85.35, 36.07)]);
 test('suggest seeded with validateDeal best never scores below it (seeding is load-bearing)', () => {
-  for (const l of [layA, layB]) {
+  for (const l of [randomLayout(1, 5), layB]) {
     const v = validateDeal(l); assert.ok(v.best, 'precondition: validate found a best');
     const unseeded = suggest(l).best;
     assert.ok(unseeded && unseeded.score.total < v.best.score.total, `precondition: unseeded ${unseeded?.score.total} < validate ${v.best.score.total}`);
@@ -70,7 +70,7 @@ test('R28: validateDeal stops at the first full total >= 70; suggest never early
   assert.ok(early.kickCalls < noStop.kickCalls, `${early.kickCalls} vs ${noStop.kickCalls}`);
   assert.deepEqual(suggest(layA, { stopAtTotal: 70 }), suggest(layA));
 });
-test('shareGe70 equals an independent Stage-A-only recount (pinned 5/108)', () => {
+test('shareGe70 equals an independent Stage-A-only recount (pinned 8/108)', () => {
   const l = randomLayout(14, 5);
   let n = 0;
   const cands = candidateShots(l, DIFFICULTY_GRID);
@@ -79,7 +79,7 @@ test('shareGe70 equals an independent Stage-A-only recount (pinned 5/108)', () =
     if (gateFor(sim, l)) continue;
     if (scorePosition(sim.final, 'cue', opponentTargets(l.rules, sim.final, 'cue'), { cheap: true }).score >= 70) n++;
   }
-  assert.equal(n, 5);
+  assert.equal(n, 8);
   assert.equal(runSearch(l, DIFFICULTY_GRID).shareGe70, n / cands.length);
 });
 test('R29: no opponent targets throws before Stage A', () => {
@@ -100,4 +100,7 @@ test('a shooter with no direct look at the legal ball gets no candidates', () =>
 });
 test('runSearch throws on an invalid layout (R4)', () => {
   assert.throws(() => runSearch(L([B('cue', 30, 25), B('ob', 30, 25)]), DIFFICULTY_GRID), /invalid layout/);
+});
+test('R34: SUGGEST_GRID speeds capped at 130 in/s', () => {
+  assert.deepEqual(SUGGEST_GRID.speeds, [16, 22, 30, 40, 52, 66, 84, 106, 130]);
 });

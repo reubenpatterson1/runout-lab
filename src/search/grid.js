@@ -26,7 +26,7 @@ for (const y of [-0.8, 0, 0.8]) for (const x of [-0.5, 0, 0.5]) SPINS9.push({ x,
 export const SUGGEST_GRID = {
   offsets: linspace(-0.92, 0.92, 13),
   offsets2: linspace(-0.92, 0.92, 9),
-  speeds: [16, 22, 30, 40, 52, 66, 84, 106, 134],
+  speeds: [16, 22, 30, 40, 52, 66, 84, 106, 130],
   spins: SPINS9,
 };
 

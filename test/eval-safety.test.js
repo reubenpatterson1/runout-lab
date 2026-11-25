@@ -40,7 +40,7 @@ test('no opponent targets is an invalid layout', () => {
 const mean = (a) => a.reduce((x, y) => x + y, 0) / a.length;
 test('robustness: partial hook, varied scores, a gated variant counts as 0 in the mean', () => {
   const cue = B('cue', 30, 25), ob = B('ob', 60, 25), lay = L([cue, ob, B('b2', 91.5, 25)]);
-  const shot = sh(fullnessAim(cue, ob, 0.6), 48);
+  const shot = sh(fullnessAim(cue, ob, 0.5), 48);
   const s = scoreSafety(lay, shot);
   assert.equal(s.gate, undefined); assert.ok(s.V > 0 && s.V < 1, String(s.V));
   const sc = s.robustness.scores;
@@ -73,4 +73,7 @@ test('kick reuse requires every ball (not just cue and targets) to stay within 2
   const fresh = scorePosition(sim.final, 'cue', ['ob']).score, reused = scorePosition(sim.final, 'cue', ['ob'], { kick: lanes }).score;
   assert.ok(Math.abs(fresh - reused) >= 1, `${fresh} ${reused}`);
   assert.equal(scoreSafety(lay, shot).robustness.scores[3], fresh);
+});
+test('§10.6 robustness grid (amended): speed ×{0.96,1,1.04} outer × aim {−0.2,0,+0.2}° inner', () => {
+  assert.deepEqual(ROBUST_GRID, [0.96, 1, 1.04].flatMap((speedF) => [-0.2, 0, 0.2].map((aimOff) => ({ speedF, aimOff }))));
 });

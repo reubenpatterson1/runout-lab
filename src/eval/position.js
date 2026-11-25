@@ -15,7 +15,7 @@ const clamp = (v, lo, hi) => Math.min(hi, Math.max(lo, v));
  */
 export function combineScore({ V, D, K, Q }) {
   const H = 1 - V;
-  return 100 * clamp(0.55 * H + 0.25 * K * H + 0.20 * Q - 0.60 * D, 0, 1);
+  return 100 * clamp(0.62 * H + 0.25 * K * H + 0.20 * Q - 0.60 * D, 0, 1);
 }
 
 /** @param {{x:number,y:number}} cue @returns {number} */

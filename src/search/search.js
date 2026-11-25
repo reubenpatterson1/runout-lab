@@ -102,8 +102,7 @@ export function runSearch(layout, grid, opts = {}) {
 }
 
 /**
- * A suggest for a deal already shown to the player must be seeded with validateDeal's best
- * (`seedShots: [{...best.shot, known: best.score}]`) so the hint never scores below the validation.
+ * A suggest for a bank deal must be seeded with the entry's stored best (`seedShots: [{...best.shot, known: best.score}]`) so the hint never scores below it (spec §11).
  * @param {import('../types.js').Layout} layout
  * @param {SearchOpts} [opts]
  */

@@ -6,7 +6,7 @@ import { kickLanes, kickEase } from './kick.js';
 
 /** @type {{speedF: number, aimOff: number}[]} */
 export const ROBUST_GRID = [];
-for (const speedF of [0.92, 1, 1.08]) for (const aimOff of [-0.4, 0, 0.4]) ROBUST_GRID.push({ speedF, aimOff });
+for (const speedF of [0.96, 1, 1.04]) for (const aimOff of [-0.2, 0, 0.2]) ROBUST_GRID.push({ speedF, aimOff });
 
 /**
  * @param {import('../types.js').SimResult} sim
