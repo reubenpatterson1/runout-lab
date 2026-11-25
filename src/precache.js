@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 16;
-export const HASH = '370f32510c68f9f581ce03d57be452ce0ec8af0d56c17bd0923fbe95fa8c4e04';
+export const VERSION = 17;
+export const HASH = '90fd508750d056a140b5ad3ff1c0ee49005db89c25859e30f908635053710cb9';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -29,6 +29,7 @@ export const FILES = [
   'src/engine/table.js',
   'src/eval/kick.js',
   'src/eval/position.js',
+  'src/eval/safety.js',
   'src/geometry/clearance.js',
   'src/geometry/kick-lanes.js',
   'src/geometry/visibility.js',
