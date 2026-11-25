@@ -181,17 +181,18 @@ function minGap(balls) {
  * @returns {Layout|null}
  */
 export function generate(family, seed, band) {
+  if (!Number.isInteger(family) || family < 1 || family > 8) throw new Error('invalid family');
+  if (!BANDS.includes(band)) throw new Error('invalid band');
   const rng = mulberry32(seed);
   for (let t = 0; t < 40; t++) {
     const lay = attempt(family, band, rng);
     if (!validateLayout(lay).ok) continue;
     if (minGap(lay.balls) < 2 * R - 1e-6) continue;
-    const cue = lay.balls.find((b) => b.id === lay.cueId);
-    if (!cue) continue;
+    const cue = /** @type {Ball} */ (lay.balls.find((b) => b.id === lay.cueId));
     let vmax = 0;
     for (const id of lay.rules.legalIds) {
-      const tb = lay.balls.find((b) => b.id === id);
-      if (tb) vmax = Math.max(vmax, visibility(cue, tb, lay.balls, [lay.cueId]));
+      const tb = /** @type {Ball} */ (lay.balls.find((b) => b.id === id));
+      vmax = Math.max(vmax, visibility(cue, tb, lay.balls, [lay.cueId]));
     }
     if (vmax >= 0.5) return lay;
   }
@@ -204,12 +205,14 @@ export function generate(family, seed, band) {
  * @param {number} family @param {Band} band @param {number} h
  */
 export function dealSeedFor(family, band, h) {
+  if (!Number.isInteger(h) || h < 0) throw new Error('invalid seed');
   const hh = h % (2 ** 31 - 24);
   return hh - (hh % 24) + (family - 1) + 8 * BANDS.indexOf(band);
 }
 
 /** @param {number} seed non-negative integer @returns {{family:number, band:Band}} */
 export function parseDealSeed(seed) {
+  if (!Number.isInteger(seed) || seed < 0) throw new Error('invalid seed');
   return { family: 1 + (seed % 8), band: BANDS[Math.floor((seed % 24) / 8)] };
 }
 
