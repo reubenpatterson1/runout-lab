@@ -1,0 +1,1923 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>RUNOUT LAB — Close the Rack · Win the Safety Battle</title>
+<link rel="stylesheet" href="../fonts/fonts.css">
+<style>
+:root{
+  --bg:#0a0e0c; --bg2:#0c120f; --panel:#101814; --panel2:#0c110e;
+  --felt:#16432f; --felt2:#0f3122; --felt-edge:#0a241a;
+  --rail:#241b12; --rail2:#160f09;
+  --brass:#c8a24c; --brass2:#ecd28a; --brass-dim:#8f7536;
+  --ink:#ece7d6; --muted:#899389; --faint:#5a655c;
+  --chalk:#54b6d6; --amber:#e7a23e; --red:#df6a4f; --green:#62b986;
+  --line:rgba(255,255,255,.07); --line2:rgba(255,255,255,.12);
+  --shadow:0 22px 60px rgba(0,0,0,.55);
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+body{
+  background:
+    radial-gradient(1200px 700px at 78% -8%, rgba(200,162,76,.10), transparent 60%),
+    radial-gradient(900px 600px at 8% 110%, rgba(34,90,64,.18), transparent 55%),
+    var(--bg);
+  color:var(--ink); font-family:"Archivo",system-ui,sans-serif;
+  -webkit-font-smoothing:antialiased; line-height:1.5; overflow-x:hidden;
+}
+body::before{
+  content:""; position:fixed; inset:0; pointer-events:none; z-index:0; opacity:.5;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='.035'/></svg>");
+}
+.wrap{position:relative; z-index:1; max-width:1180px; margin:0 auto; padding:0 18px 80px}
+
+/* ===== HEADER / NAV ===== */
+header.top{
+  position:sticky; top:0; z-index:50; backdrop-filter:blur(10px);
+  background:linear-gradient(180deg, rgba(10,14,12,.94), rgba(10,14,12,.72));
+  border-bottom:1px solid var(--line);
+}
+.bar{max-width:1180px; margin:0 auto; padding:14px 18px 0; display:flex; align-items:baseline; gap:14px; flex-wrap:wrap}
+.brand{font-family:"Oswald"; font-weight:700; letter-spacing:.14em; font-size:1.45rem; text-transform:uppercase}
+.brand b{color:var(--brass2)}
+.brand .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--brass);margin:0 2px 0 1px;box-shadow:0 0 12px var(--brass)}
+.tagline{font-family:"Space Mono"; font-size:.66rem; letter-spacing:.22em; text-transform:uppercase; color:var(--faint); margin-left:auto}
+nav.tabs{max-width:1180px;margin:0 auto;padding:10px 8px 0;display:flex;gap:4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+nav.tabs::-webkit-scrollbar{display:none}
+.tab{
+  flex:0 0 auto; cursor:pointer; border:none; background:transparent; color:var(--muted);
+  font-family:"Oswald"; font-weight:500; letter-spacing:.08em; text-transform:uppercase; font-size:.82rem;
+  padding:11px 15px 13px; border-bottom:2px solid transparent; white-space:nowrap; transition:.18s;
+}
+.tab:hover{color:var(--ink)}
+.tab.active{color:var(--brass2); border-bottom-color:var(--brass)}
+.tab .ix{font-family:"Space Mono"; font-size:.62rem; color:var(--brass-dim); margin-right:6px}
+.navcard{cursor:pointer; position:relative; transition:transform .14s ease, border-color .14s ease, background .14s ease}
+.navcard:hover{transform:translateY(-2px); border-color:var(--brass)}
+.navcard:active{transform:translateY(0)}
+.navcard:focus-visible{outline:2px solid var(--brass); outline-offset:2px}
+.navcard::after{content:"open →"; position:absolute; right:14px; bottom:12px; font-family:"Space Mono"; font-size:.62rem; letter-spacing:.12em; text-transform:uppercase; color:var(--brass-dim); transition:.14s}
+.navcard:hover::after{color:var(--brass2); transform:translateX(2px)}
+
+/* ===== SECTIONS ===== */
+section.view{display:none; animation:fade .35s ease}
+section.view.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.hero{padding:38px 4px 8px}
+.kicker{font-family:"Space Mono";font-size:.7rem;letter-spacing:.28em;text-transform:uppercase;color:var(--brass-dim)}
+h1.title{font-family:"Oswald";font-weight:700;text-transform:uppercase;letter-spacing:.01em;font-size:clamp(1.9rem,5vw,3.1rem);line-height:1.02;margin:.25em 0 .15em}
+h1.title em{font-style:normal;color:var(--brass2)}
+.lede{max-width:62ch;color:var(--muted);font-size:1.02rem}
+h2.sec{font-family:"Oswald";font-weight:600;text-transform:uppercase;letter-spacing:.05em;font-size:1.5rem;margin:34px 0 6px;display:flex;align-items:center;gap:12px}
+h2.sec::before{content:"";width:26px;height:2px;background:var(--brass);display:inline-block}
+h3.sub{font-family:"Oswald";font-weight:500;text-transform:uppercase;letter-spacing:.06em;font-size:1.06rem;color:var(--brass2);margin:18px 0 6px}
+p.note{color:var(--muted);font-size:.94rem}
+.mono{font-family:"Space Mono"}
+
+/* ===== CARDS / PANELS ===== */
+.panel{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:1fr 1fr}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+@media(max-width:820px){.g2,.g3,.g4{grid-template-columns:1fr}}
+.leak{position:relative;overflow:hidden}
+.leak .tag{font-family:"Space Mono";font-size:.62rem;letter-spacing:.18em;text-transform:uppercase;color:var(--bg);background:var(--brass);display:inline-block;padding:3px 9px;border-radius:20px;font-weight:700}
+.leak h3{font-family:"Oswald";text-transform:uppercase;letter-spacing:.04em;font-size:1.25rem;margin:12px 0 4px}
+.leak ul{margin:10px 0 0;padding-left:18px;color:var(--muted);font-size:.92rem}
+.leak ul li{margin:5px 0}
+.leak .big{position:absolute;right:-8px;bottom:-22px;font-family:"Oswald";font-weight:700;font-size:7rem;color:rgba(200,162,76,.06);line-height:1}
+.pillrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.pill{font-family:"Space Mono";font-size:.66rem;letter-spacing:.06em;border:1px solid var(--line2);border-radius:20px;padding:5px 11px;color:var(--ink)}
+.pill.good{border-color:rgba(98,185,134,.5);color:var(--green)}
+.pill.chalk{border-color:rgba(84,182,214,.5);color:var(--chalk)}
+.pill.amber{border-color:rgba(231,162,62,.5);color:var(--amber)}
+
+/* ===== TABLE / CANVAS LAB ===== */
+.lab{display:grid;grid-template-columns:1.55fr .95fr;gap:18px;align-items:start}
+@media(max-width:900px){.lab{grid-template-columns:1fr}}
+.feltframe{
+  border-radius:16px;padding:10px;
+  background:linear-gradient(150deg,var(--rail),var(--rail2));
+  border:1px solid rgba(0,0,0,.5);
+  box-shadow:var(--shadow), inset 0 1px 0 rgba(255,255,255,.04);
+}
+canvas{display:block;width:100%;height:auto;border-radius:8px;touch-action:none;cursor:grab}
+canvas.dragging{cursor:grabbing}
+.controls{display:flex;flex-direction:column;gap:14px}
+.ctl-row{display:flex;flex-wrap:wrap;gap:8px}
+.btn{
+  cursor:pointer;border:1px solid var(--line2);background:rgba(255,255,255,.03);color:var(--ink);
+  font-family:"Oswald";font-weight:500;letter-spacing:.06em;text-transform:uppercase;font-size:.78rem;
+  padding:9px 13px;border-radius:9px;transition:.15s;flex:1 1 auto;text-align:center;
+}
+.btn:hover{border-color:var(--brass-dim);color:var(--brass2)}
+.btn.active{background:var(--brass);color:#1a1206;border-color:var(--brass);font-weight:700}
+.btn.ghosted{flex:0 0 auto}
+.btn.sm{font-size:.7rem;padding:7px 10px}
+.seg{display:flex;border:1px solid var(--line2);border-radius:9px;overflow:hidden}
+.seg .btn{border:none;border-radius:0;border-right:1px solid var(--line)}
+.seg .btn:last-child{border-right:none}
+label.fld{font-family:"Space Mono";font-size:.66rem;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);display:block;margin-bottom:6px}
+input[type=range]{width:100%;accent-color:var(--brass);height:22px}
+.readout{background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:14px}
+.readout .k{font-family:"Space Mono";font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--faint)}
+.readout .v{font-family:"Oswald";font-size:1.5rem;font-weight:600;line-height:1.1}
+.readout .v small{font-size:.9rem;color:var(--muted);font-weight:400}
+.statline{display:flex;gap:18px;flex-wrap:wrap;margin-top:4px}
+.tipbox{border-left:3px solid var(--brass);background:rgba(200,162,76,.06);padding:12px 14px;border-radius:0 10px 10px 0;font-size:.92rem;color:var(--ink)}
+.tipbox b{color:var(--brass2)}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-family:"Space Mono";font-size:.66rem;color:var(--muted);margin-top:4px}
+.legend span{display:inline-flex;align-items:center;gap:6px}
+.legend i{width:16px;height:3px;border-radius:2px;display:inline-block}
+.scorebadge{font-family:"Oswald";font-weight:700;font-size:2.4rem;line-height:1}
+.verdict{font-family:"Oswald";text-transform:uppercase;letter-spacing:.05em;font-weight:600;font-size:1.1rem}
+
+/* decision / drills */
+.deck{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:820px){.deck{grid-template-columns:1fr}}
+.dcard{cursor:default}
+.dcard .scene{font-size:.95rem;color:var(--ink)}
+.choices{display:flex;gap:8px;margin:12px 0}
+.reveal{display:none;margin-top:10px}
+.reveal.show{display:block;animation:fade .3s}
+.choiceLabel{font-family:"Oswald";text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+.drill{display:flex;flex-direction:column;gap:8px}
+.drill .meta{display:flex;gap:8px;flex-wrap:wrap}
+.drill .body{color:var(--muted);font-size:.92rem}
+.drill .body b{color:var(--ink)}
+.drillcv{width:100%;display:block;border-radius:10px;background:#1c140c;cursor:pointer}
+.drillcv-cap{display:flex;align-items:center;gap:6px;margin-top:3px}
+.drill-run{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:4px}
+.drill-run .cntfield{width:50px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);font-family:"Space Mono";padding:6px;border-radius:8px;text-align:center}
+.drill-run .rep{font-family:"Space Mono";font-size:.74rem;color:var(--brass2)}
+.score-in{display:flex;gap:8px;align-items:center;margin-top:6px;flex-wrap:wrap}
+.score-in input{width:74px;background:var(--panel2);border:1px solid var(--line2);color:var(--ink);font-family:"Space Mono";padding:8px;border-radius:8px}
+.logrow{display:flex;justify-content:space-between;font-family:"Space Mono";font-size:.74rem;color:var(--muted);padding:6px 0;border-bottom:1px dashed var(--line)}
+.spark{height:34px;width:100%}
+.tabletoggle{display:inline-flex;gap:6px;margin-left:auto}
+footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:var(--faint);font-family:"Space Mono";font-size:.7rem;letter-spacing:.06em}
+footer a{color:var(--brass-dim)}
+.src{color:var(--brass-dim);font-family:"Space Mono";font-size:.66rem}
+.kbd{font-family:"Space Mono";font-size:.7rem;border:1px solid var(--line2);border-radius:6px;padding:2px 6px;color:var(--muted)}
+.hint{font-size:.82rem;color:var(--faint);font-family:"Space Mono";letter-spacing:.04em}
+.swatchset{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px}
+.objlist{font-family:"Space Mono";font-size:.7rem;color:var(--muted)}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="bar">
+    <div class="brand">RUN<span class="dot"></span><b>OUT</b> LAB</div>
+    <div class="tagline">close the rack · win the safety battle</div>
+  </div>
+  <nav class="tabs" id="tabs"></nav>
+</header>
+
+<div class="wrap">
+
+<!-- ============ DIAGNOSIS ============ -->
+<section class="view active" data-view="plan">
+  <div class="hero">
+    <div class="kicker">Your two leaks · the training plan</div>
+    <h1 class="title">You're winning the rack<br>and <em>losing the close.</em></h1>
+    <p class="lede">You make more balls and clear faster — then the last two balls and the money ball stall out, the opponent climbs back in, and weak safety play lets them off the hook. This lab attacks both with mental reps you do here and drills you take to the table.</p>
+  </div>
+
+  <div class="grid g2" style="margin-top:14px">
+    <div class="panel leak">
+      <span class="tag">Leak 01</span>
+      <h3>The Stall on the Last Two + the 8</h3>
+      <p class="note">Almost always a <b>pattern problem disguised as a pressure problem.</b> Leading early means nothing if you arrive at the end of the rack out of line with no angle on the money ball.</p>
+      <ul>
+        <li><b>Root cause A —</b> problem balls (clusters, pocket-blockers, balls on rails) left for last. Open them <i>early</i>, while you still hold an insurance ball.</li>
+        <li><b>Root cause B —</b> no key-ball plan. You must pick the last ball before the 8 first, then build the rack backward to it.</li>
+        <li><b>Root cause C —</b> getting <i>straight</i> on balls, so the cue ball has nowhere to go. You need a working angle on every shot.</li>
+        <li><b>Root cause D —</b> the mental tighten-up: you start counting the win instead of running your routine.</li>
+      </ul>
+      <div class="big">8</div>
+    </div>
+    <div class="panel leak">
+      <span class="tag">Leak 02</span>
+      <h3>Weak Safeties &amp; Weak Escapes</h3>
+      <p class="note">Defense is just <b>offense that uses your opponent.</b> A real safety forces a foul or a low-percentage shot; a real escape gets you a legal hit and ideally leaves <i>them</i> safe.</p>
+      <ul>
+        <li><b>Setting —</b> the three ingredients of a strong hook: <i>distance</i> + a <i>blocker</i> to hide behind + the cue ball <i>frozen-ish to a rail.</i> Control one ball, not both.</li>
+        <li><b>Setting —</b> come <i>into the line of the blockers</i> so your speed has margin; don't park the object ball near a pocket or on a rail.</li>
+        <li><b>Escaping —</b> learn a repeatable kick system (mirror / 2-to-1) so a hook isn't a coin flip — and aim to kick safe, not just to hit.</li>
+      </ul>
+      <div class="big">SAFE</div>
+    </div>
+  </div>
+
+  <h2 class="sec">The Lab — what each tab trains</h2>
+  <div class="grid g3">
+    <div class="panel navcard" data-go="position" role="button" tabindex="0"><h3 class="sub">Position Lab</h3><p class="note">Drag a cut shot and watch the tangent line, the 30° natural angle, and where draw/stun/follow send the cue ball. This is the engine behind never getting out of line.</p><div class="pillrow"><span class="pill chalk">90° rule</span><span class="pill amber">30° rule</span></div></div>
+    <div class="panel navcard" data-go="closer" role="button" tabindex="0"><h3 class="sub">The Closer</h3><p class="note">End-of-rack layouts. Pick your shot order, get graded against a model runout, and learn key-ball selection and breaking problems early.</p><div class="pillrow"><span class="pill">key ball</span><span class="pill">work backward</span></div></div>
+    <div class="panel navcard" data-go="safety" role="button" tabindex="0"><h3 class="sub">Safety Studio</h3><p class="note">Drag the cue ball into a hook and get a live score on the three safety ingredients. Learn what a tight, low-risk safety actually looks like.</p><div class="pillrow"><span class="pill">hide</span><span class="pill">distance</span><span class="pill">rail</span></div></div>
+    <div class="panel navcard" data-go="escape" role="button" tabindex="0"><h3 class="sub">Escape Trainer</h3><p class="note">A live mirror / 2-to-1 kick calculator. See the equal-angles aim point, test your own guess, and build kick intuition.</p><div class="pillrow"><span class="pill chalk">mirror system</span></div></div>
+    <div class="panel navcard" data-go="decide" role="button" tabindex="0"><h3 class="sub">Run or Safe?</h3><p class="note">Decision reps. Read a layout, commit to attack or defend, then check the reasoning a strong player would use.</p><div class="pillrow"><span class="pill">decisions</span></div></div>
+    <div class="panel navcard" data-go="drills" role="button" tabindex="0"><h3 class="sub">Table Drills</h3><p class="note">Eight take-to-the-table drills with scoring and a built-in practice log so you can track real improvement.</p><div class="pillrow"><span class="pill good">log + track</span></div></div>
+  </div>
+
+  <h2 class="sec">The closing mindset (read before you play)</h2>
+  <div class="panel">
+    <div class="grid g4">
+      <div><h3 class="sub">Process, not score</h3><p class="note">Each shot is its own game. When you catch yourself counting the win, that's the signal to slow down and run your routine.</p></div>
+      <div><h3 class="sub">One routine, always</h3><p class="note">Same look, same warm-up strokes, same final pause — the routine is a stroke anchor that removes variance under heat.</p></div>
+      <div><h3 class="sub">Body calm = cue calm</h3><p class="note">Slow exhale before the shot, loose grip. Stable physiology keeps the stroke clean when the rack matters.</p></div>
+      <div><h3 class="sub">Zero carryover</h3><p class="note">Miss happens — say "next play" and move on. The shortest emotional half-life in the room wins close games.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ POSITION LAB ============ -->
+<section class="view" data-view="position">
+  <div class="hero">
+    <div class="kicker">Module 01 · cue-ball control</div>
+    <h1 class="title">Position <em>Lab</em></h1>
+    <p class="lede">The reason the last balls linger is almost always cue-ball control. Drag the cue ball and object ball, pick a pocket, and read exactly where the cue ball goes. Master these two rules and you stop arriving straight or out of line.</p>
+  </div>
+  <div class="lab">
+    <div class="feltframe"><canvas id="posCanvas"></canvas></div>
+    <div class="controls">
+      <div class="readout">
+        <div class="k">Cut angle</div>
+        <div class="v" id="posCut">—</div>
+        <div class="statline">
+          <div><div class="k">Hit fraction</div><div class="v" id="posFrac" style="font-size:1.1rem">—</div></div>
+          <div><div class="k">Cue ball ends</div><div class="v" id="posWhere" style="font-size:1.1rem">—</div></div>
+        </div>
+      </div>
+      <div>
+        <label class="fld">Spin on the cue ball</label>
+        <div class="seg" id="posSpin">
+          <button class="btn" data-spin="draw">Draw</button>
+          <button class="btn active" data-spin="stun">Stun</button>
+          <button class="btn" data-spin="follow">Follow</button>
+        </div>
+      </div>
+      <div>
+        <label class="fld">Speed <span id="posSpeedVal" class="mono"></span></label>
+        <input type="range" id="posSpeed" min="2" max="10" value="6">
+      </div>
+      <div class="ctl-row">
+        <button class="btn sm" id="posPocketBtn">Target ▸ <span id="posPocketName">corner</span></button>
+        <button class="btn sm" id="posReset">Reset</button>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--chalk)"></i>tangent (90° / stun)</span>
+        <span><i style="background:var(--amber)"></i>natural roll (30°)</span>
+        <span><i style="background:var(--red)"></i>draw path</span>
+      </div>
+      <div class="tipbox" id="posTip"></div>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="panel"><h3 class="sub">90° rule (stun)</h3><p class="note">With a sliding (stun) cue ball, it leaves <b>perpendicular to the object ball's path</b> — straight down the tangent line, every time, regardless of speed. This is your safest, most predictable control line.</p></div>
+    <div class="panel"><h3 class="sub">30° rule (rolling)</h3><p class="note">A naturally rolling cue ball deflects only about <b>30° off its original path</b> for a wide band of cuts (¼ to ¾ ball). Easy to visualize, forgiving on aim — your default for connecting shots.</p></div>
+    <div class="panel"><h3 class="sub">The fix for stalling</h3><p class="note">Prefer <b>stop shots and natural rolls</b> to link one shot to the next. Avoid getting straight (no angle = no position). Keep the cue ball on the short side so you always have a route to the next ball.</p></div>
+  </div>
+</section>
+
+<!-- ============ THE CLOSER ============ -->
+<section class="view" data-view="closer">
+  <div class="hero">
+    <div class="kicker">Module 02 · pattern &amp; sequence</div>
+    <h1 class="title">The <em>Closer</em></h1>
+    <p class="lede">Leading early is worthless if you arrive at the money ball out of line. Generate a <b>random layout</b>, pick how many balls you're running, then tap your shot order and grade your plan against a model runout. The tool rewards smooth one-direction flow and a clean key ball — and punishes the zig-zags that strand you on the last two. Hit <b>New random layout</b> for endless reps.</p>
+  </div>
+  <div class="lab">
+    <div class="feltframe"><canvas id="closeCanvas"></canvas></div>
+    <div class="controls">
+      <div>
+        <label class="fld">Game</label>
+        <div class="seg" id="closeGame">
+          <button class="btn" data-g="8">8-ball</button>
+          <button class="btn" data-g="9">9-ball</button>
+        </div>
+      </div>
+      <div>
+        <label class="fld">Object balls before the money ball <span class="mono" id="closeCountVal"></span></label>
+        <div class="seg" id="closeCount">
+          <button class="btn sm" data-n="2">2</button>
+          <button class="btn sm" data-n="3">3</button>
+          <button class="btn sm" data-n="4">4</button>
+          <button class="btn sm" data-n="5">5</button>
+          <button class="btn sm" data-n="6">6</button>
+        </div>
+      </div>
+      <div class="ctl-row">
+        <button class="btn" id="closeShuffle">⟳ New random layout</button>
+        <button class="btn sm ghosted" id="closeExample">Example</button>
+      </div>
+      <div class="readout">
+        <div class="k">Your shot order</div>
+        <div class="v" id="closeOrder" style="font-size:1.05rem;min-height:1.5em">tap balls in order →</div>
+      </div>
+      <div class="ctl-row">
+        <button class="btn" id="closeEval">Grade my plan</button>
+        <button class="btn" id="closeModel">Show model</button>
+        <button class="btn ghosted sm" id="closeClear">Clear</button>
+      </div>
+      <div class="readout" id="closeResult" style="display:none">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="scorebadge" id="closeGrade">—</div>
+          <div><div class="verdict" id="closeVerdict"></div><div class="k" id="closeKey"></div></div>
+        </div>
+        <div id="closeNotes" style="margin-top:10px;font-size:.9rem;color:var(--muted)"></div>
+      </div>
+      <div class="tipbox" id="closeTip">Pick the <b>last ball before the money ball first</b> — that's your key ball — then build the rack backward to it. The money ball is always shot last.</div>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="panel"><h3 class="sub">Work backward</h3><p class="note">Start at the 8 (or 9). Choose the ball that leaves the easiest shot on it — your <b>key ball</b>. Then the ball that leaves the key ball, and so on. You're laying a trail back to your break-down moment.</p></div>
+    <div class="panel"><h3 class="sub">One side, then the other</h3><p class="note">Great closers move the cue ball in <b>one direction</b> through a zone, then cross once. Constant up-and-down zig-zagging is where speed errors compound and balls get stranded.</p></div>
+    <div class="panel"><h3 class="sub">Open problems early</h3><p class="note">Clusters, pocket-blockers and rail balls are why your last two linger. Break them <b>while you still hold an insurance ball</b> — a makeable ball after the breakout — never as your final act.</p></div>
+  </div>
+</section>
+
+<!-- ============ SAFETY STUDIO ============ -->
+<section class="view" data-view="safety">
+  <div class="hero">
+    <div class="kicker">Module 03 · defense that wins</div>
+    <h1 class="title">Safety <em>Studio</em></h1>
+    <p class="lede">A safety isn't hiding — it's offense that forces a foul or a low-percentage shot. <b>Aim, pick your english, set power, and shoot:</b> the cue ball travels, collides, and rebounds off the rails, then you're scored on where it actually comes to rest — hidden behind a blocker, far from the ball, and tucked to a rail.</p>
+  </div>
+  <div class="lab">
+    <div class="feltframe"><canvas id="safeCanvas"></canvas></div>
+    <div class="controls">
+      <div><label class="fld">Layout</label><div class="ctl-row" id="safeScenarios"></div></div>
+      <div class="readout">
+        <label class="fld" style="margin-bottom:10px">Your shot — aim the gold handle, set english &amp; power, Shoot</label>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div style="text-align:center">
+            <canvas id="spinPad" style="width:86px;height:86px;cursor:pointer"></canvas>
+            <div class="hint" style="margin-top:4px" id="spinLabel">center</div>
+          </div>
+          <div style="flex:1 1 150px">
+            <label class="fld">Power <span class="mono" id="powVal"></span></label>
+            <input type="range" id="safePower" min="1" max="10" value="5">
+            <div class="ctl-row" style="margin-top:10px">
+              <button class="btn" id="safeShoot">▸ Shoot</button>
+              <button class="btn sm" id="safeSuggest">Suggest a safety</button>
+              <button class="btn sm ghosted" id="safeReset">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="readout">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="scorebadge" id="safeScore">0</div>
+          <div><div class="verdict" id="safeVerdict">—</div><div class="k" id="safeOutcome">aim &amp; shoot to rate the result</div></div>
+        </div>
+      </div>
+      <div class="readout">
+        <div id="meterHide"></div><div id="meterDist" style="margin-top:8px"></div><div id="meterRail" style="margin-top:8px"></div>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--green)"></i>blocked (good)</span>
+        <span><i style="background:var(--red)"></i>open hit</span>
+        <span><i style="background:var(--chalk)"></i>predicted path</span>
+      </div>
+      <div class="tipbox" id="safeTip">Aim with the <b>gold handle</b> on the table, choose your english on the dial (top = follow, bottom = draw, sides = left/right), set power, then <b>Shoot</b>. You're rated on where the cue ball comes to <b>rest</b>.</div>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="panel"><h3 class="sub">Ingredient 1 — Hide</h3><p class="note">Tuck the cue ball behind a blocker so there's no straight line to the object ball. A full hook forces a kick; a foul gives you ball-in-hand — the jackpot.</p></div>
+    <div class="panel"><h3 class="sub">Ingredient 2 — Distance</h3><p class="note">Even an open hit is hard from across the table. Most players are weak on long shots, so stretch the cue ball and object ball apart.</p></div>
+    <div class="panel"><h3 class="sub">Ingredient 3 — Rail</h3><p class="note">Freeze the cue ball to a rail (or nearly) so they can't use draw/follow to maneuver. Come <b>into the line of the blockers</b> so your speed has margin.</p></div>
+  </div>
+</section>
+
+<!-- ============ ESCAPE TRAINER ============ -->
+<section class="view" data-view="escape">
+  <div class="hero">
+    <div class="kicker">Module 04 · getting out of the hook</div>
+    <h1 class="title">Escape <em>Trainer</em></h1>
+    <p class="lede">When they hook you behind a blocker, a kick shouldn't be a coin flip. Each round drops you in a fresh random hook with real blocking balls in the way. Read the mirror line, then aim the cue, choose your <b>english</b> and <b>power</b>, and <b>Shoot</b> — the cue ball is simulated off the rail. You're scored on making a legal hit; a clean two-way that leaves them hooked again earns the most. Ten rounds for a score out of 100.</p>
+  </div>
+  <div class="lab">
+    <div class="feltframe"><canvas id="escCanvas"></canvas></div>
+    <div class="controls">
+      <div class="readout">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="scorebadge" id="escScore">0</div>
+          <div><div class="verdict" id="escRound">Round 1 / 10</div><div class="k">running score · out of 100</div></div>
+        </div>
+      </div>
+      <div class="readout">
+        <div class="k">The hook</div>
+        <div class="v" id="escPrompt" style="font-size:1.02rem">read the hook, then aim, set english &amp; power, and Shoot</div>
+      </div>
+      <div class="readout" id="escResult" style="display:none">
+        <div style="display:flex;align-items:center;gap:14px">
+          <div class="scorebadge" id="escGuessScore" style="font-size:1.9rem">—</div>
+          <div><div class="verdict" id="escGuessVerdict" style="font-size:1rem"></div><div class="k" id="escFeedback"></div></div>
+        </div>
+      </div>
+      <div>
+        <label class="fld" style="margin-bottom:10px">Your kick — aim the gold handle, set english &amp; power, Shoot</label>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start">
+          <div style="flex:0 0 auto;text-align:center">
+            <canvas id="escSpin" style="width:86px;height:86px;cursor:pointer"></canvas>
+            <div class="hint" style="margin-top:4px" id="escSpinLabel">center</div>
+          </div>
+          <div style="flex:1 1 150px">
+            <label class="fld">Power <span class="mono" id="escPowVal"></span></label>
+            <input type="range" id="escPower" min="1" max="10" value="6">
+            <div class="ctl-row" style="margin-top:10px">
+              <button class="btn" id="escShoot">▸ Shoot</button>
+              <button class="btn sm" id="escSuggest">Suggest kick</button>
+            </div>
+            <div class="ctl-row" style="margin-top:8px">
+              <button class="btn sm" id="escMirror">Show mirror</button>
+              <button class="btn sm ghosted" id="escReset">Reset aim</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="ctl-row" style="margin-top:4px">
+        <button class="btn" id="escNext" style="display:none">Next puzzle ▸</button>
+        <button class="btn sm ghosted" id="escNewGame">New game</button>
+      </div>
+      <div class="legend">
+        <span><i style="background:var(--chalk)"></i>your path</span>
+        <span><i style="background:var(--brass)"></i>mirror line</span>
+        <span><i style="background:#2f2a22"></i>blockers</span>
+      </div>
+      <div class="tipbox" id="escTip">You're hooked — there's no straight line to the target. Reflect the target across a rail, sight from the cue ball to that mirror image, and aim where the line crosses the rail (angle in = angle out). Then set english/power and Shoot. Tap <b>Show mirror</b> for the line, or <b>Suggest kick</b> if you're stuck.</div>
+    </div>
+  </div>
+  <div class="grid g3" style="margin-top:18px">
+    <div class="panel"><h3 class="sub">Mirror / 2-to-1</h3><p class="note">The workhorse one-rail kick. Aim at the diamond halfway between the cue ball and the target's mirror — angle in equals angle out. Most pros' default escape.</p></div>
+    <div class="panel"><h3 class="sub">Kick to hit safe</h3><p class="note">Don't just make contact — try to leave them safe too. A soft kick that returns the cue ball behind a blocker turns defense back on them.</p></div>
+    <div class="panel"><h3 class="sub">Beyond one rail</h3><p class="note">For longer escapes, the <b>Plus system</b> (two rails off the short rail) and the famous <b>Corner-5</b> (three rails off the long rail) extend the same diamond logic.</p></div>
+  </div>
+</section>
+
+<!-- ============ DECIDE ============ -->
+<section class="view" data-view="decide">
+  <div class="hero">
+    <div class="kicker">Module 05 · the fork in the road</div>
+    <h1 class="title">Run or <em>Safe?</em></h1>
+    <p class="lede">Most racks are lost at the decision, not the stroke. Each <b>New layout</b> deals a fresh random situation: <b>commit to a call</b>, play the shot, and you're graded on the outcome — did running it pay off, or should you have played safe? Your session score tracks how often your reads and your stroke hold up. The decision-only reps below add extra reasoning practice.</p>
+  </div>
+
+  <div class="lab">
+    <div class="feltframe"><canvas id="decCanvas"></canvas></div>
+    <div class="controls">
+      <div class="ctl-row"><button class="btn" id="decNew">⟳ New layout</button></div>
+      <div>
+        <label class="fld">Your call — commit, then play the shot</label>
+        <div class="seg" id="decCall">
+          <button class="btn" data-call="run">Run it</button>
+          <button class="btn" data-call="safe">Play safe</button>
+        </div>
+      </div>
+      <div class="readout">
+        <label class="fld" style="margin-bottom:10px">Shot — aim the gold handle, set english &amp; power, Shoot</label>
+        <div style="display:flex;gap:16px;align-items:center;flex-wrap:wrap">
+          <div style="text-align:center">
+            <canvas id="decSpin" style="width:86px;height:86px;cursor:pointer"></canvas>
+            <div class="hint" style="margin-top:4px" id="decSpinLabel">center</div>
+          </div>
+          <div style="flex:1 1 150px">
+            <label class="fld">Power <span class="mono" id="decPowVal"></span></label>
+            <input type="range" id="decPower" min="1" max="10" value="7">
+            <div class="ctl-row" style="margin-top:10px">
+              <button class="btn" id="decShoot">▸ Shoot</button>
+              <button class="btn sm ghosted" id="decReset">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="readout">
+        <div style="display:flex;align-items:center;gap:16px">
+          <div class="scorebadge" id="decScore">—</div>
+          <div><div class="verdict" id="decVerdict">Pick a call</div><div class="k" id="decOutcome">choose Run or Safe, then shoot</div></div>
+        </div>
+        <div class="hint" id="decStats" style="margin-top:8px">Played 0 · Avg — · Best 0</div>
+        <div class="ctl-row" style="margin-top:10px"><button class="btn sm ghosted" id="decModel">◆ Model line</button></div>
+      </div>
+      <div class="tipbox" id="decModelBox" style="display:none;border-color:rgba(200,162,76,.45);background:rgba(200,162,76,.06)"></div>
+      <div class="legend">
+        <span><i style="background:var(--chalk)"></i>your cue path</span>
+        <span><i style="background:var(--amber)"></i>object ball</span>
+        <span><i style="background:var(--brass2)"></i>model line</span>
+      </div>
+      <div class="tipbox" id="decTip">Commit to <b>Run it</b> or <b>Play safe</b>, then actually play the shot. You'll be graded on the result — and told whether your call was the percentage play.</div>
+    </div>
+  </div>
+
+  <h2 class="sec">Decision reps — read &amp; reason</h2>
+  <div class="deck" id="decideDeck"></div>
+</section>
+
+<!-- ============ DRILLS ============ -->
+<section class="view" data-view="drills">
+  <div class="hero">
+    <div class="kicker">Module 06 · take it to the table</div>
+    <h1 class="title">Table <em>Drills</em></h1>
+    <p class="lede">Mental reps build the picture; these build the mechanics. Each drill scores itself so you can compete against your own numbers. Log a score after a session and the lab tracks your trend — progressive practice is how feel actually gets built.</p>
+    <div class="ctl-row" style="margin-top:14px;max-width:380px">
+      <button class="btn sm" id="drillExport">Copy my log</button>
+      <button class="btn sm ghosted" id="drillWipe">Reset all logs</button>
+    </div>
+    <p class="hint" id="drillStoreNote" style="margin-top:8px"></p>
+  </div>
+  <div class="grid" id="drillList" style="margin-top:8px"></div>
+</section>
+
+<footer>
+  RUNOUT LAB · a focused practice tool for closing racks &amp; winning the safety battle.
+  Geometry models (90° tangent, ~30° natural angle, mirror kick) are coaching reference lines — calibrate on a real table.
+  Principles drawn from Dr. Dave Alciatore / Billiard University, Phil Capelle, and PoolDawg Academy instruction.
+</footer>
+
+<script>
+/* =========================================================================
+   SHARED TABLE ENGINE
+   ========================================================================= */
+const PLAY={w:100,h:50}, RAIL=8, R=2.45;     // table units
+const TW=PLAY.w+RAIL*2, TH=PLAY.h+RAIL*2;
+const BALLCOL={cue:'#f2eedd',1:'#e9c63b',2:'#2f6fb0',3:'#cf4631',4:'#6e44a0',5:'#e2872d',
+  6:'#2f8f5b',7:'#7c3a32',8:'#141414',9:'#e9c63b',ob:'#cf4631',blk:'#2f6fb0'};
+const COL={chalk:'#54b6d6',amber:'#e7a23e',red:'#df6a4f',brass:'#c8a24c',brass2:'#ecd28a',
+  green:'#62b986',ink:'#ece7d6',muted:'#899389',faint:'rgba(255,255,255,.16)'};
+function v(x,y){return {x,y}}
+function add(a,b){return{x:a.x+b.x,y:a.y+b.y}}
+function sub(a,b){return{x:a.x-b.x,y:a.y-b.y}}
+function mul(a,s){return{x:a.x*s,y:a.y*s}}
+function len(a){return Math.hypot(a.x,a.y)}
+function norm(a){const l=len(a)||1;return{x:a.x/l,y:a.y/l}}
+function dot(a,b){return a.x*b.x+a.y*b.y}
+function rot(a,deg){const r=deg*Math.PI/180,c=Math.cos(r),s=Math.sin(r);return{x:a.x*c-a.y*s,y:a.x*s+a.y*c}}
+function angBetween(a,b){let d=(Math.atan2(b.y,b.x)-Math.atan2(a.y,a.x))*180/Math.PI;while(d>180)d-=360;while(d<-180)d+=360;return d}
+function clampPlay(p){return{x:Math.max(R,Math.min(PLAY.w-R,p.x)),y:Math.max(R,Math.min(PLAY.h-R,p.y))}}
+
+const POCKETS=[ {x:0,y:0,t:'corner'},{x:PLAY.w/2,y:0,t:'side'},{x:PLAY.w,y:0,t:'corner'},
+  {x:0,y:PLAY.h,t:'corner'},{x:PLAY.w/2,y:PLAY.h,t:'side'},{x:PLAY.w,y:PLAY.h,t:'corner'} ];
+
+class Felt{
+  constructor(canvas){
+    this.c=canvas; this.ctx=canvas.getContext('2d');
+    this.resize(); window.addEventListener('resize',()=>{this.resize(); if(this.onResize)this.onResize();});
+  }
+  resize(){
+    const cssW=Math.max(40,this.c.clientWidth||((this.c.parentElement&&this.c.parentElement.clientWidth)||600)-20);
+    const dpr=Math.min(window.devicePixelRatio||1,2);
+    this.scale=cssW/TW;
+    this.c.width=Math.round(TW*this.scale*dpr);
+    this.c.height=Math.round(TH*this.scale*dpr);
+    this.c.style.height=(TH*this.scale)+'px';
+    this.ctx.setTransform(dpr,0,0,dpr,0,0);
+  }
+  P(p){return {x:(RAIL+p.x)*this.scale,y:(RAIL+p.y)*this.scale}}   // table->css px
+  T(px,py){const r=this.c.getBoundingClientRect();const x=(px-r.left)/this.scale-RAIL;const y=(py-r.top)/this.scale-RAIL;return{x,y}}
+  rad(u){return u*this.scale}
+  clear(){this.ctx.clearRect(0,0,this.c.width,this.c.height)}
+  table(){
+    const x=this.ctx, s=this.scale;
+    // rail bed
+    x.fillStyle='#1c140c';
+    this.rrect(0,0,TW*s,TH*s,12*s); x.fill();
+    // cushions inner felt
+    const fx=(RAIL-2)*s, fy=(RAIL-2)*s, fw=(PLAY.w+4)*s, fh=(PLAY.h+4)*s;
+    const g=x.createLinearGradient(0,fy,0,fy+fh);
+    g.addColorStop(0,'#19543a'); g.addColorStop(.5,'#14442f'); g.addColorStop(1,'#0e3322');
+    x.fillStyle=g; this.rrect(fx,fy,fw,fh,5*s); x.fill();
+    // felt vignette
+    const vg=x.createRadialGradient(RAIL*s+fw/2,RAIL*s+fh/2,10,RAIL*s+fw/2,RAIL*s+fh/2,fw*.62);
+    vg.addColorStop(0,'rgba(0,0,0,0)'); vg.addColorStop(1,'rgba(0,0,0,.34)');
+    x.fillStyle=vg; this.rrect(fx,fy,fw,fh,5*s); x.fill();
+    // diamonds
+    x.fillStyle='rgba(236,210,138,.85)';
+    const dm=(p)=>{const c=this.P(p);x.save();x.translate(c.x,c.y);x.rotate(Math.PI/4);const d=1.5*s;x.fillRect(-d/2,-d/2,d,d);x.restore();};
+    for(let i=1;i<=7;i++){if(i===4)continue;dm({x:PLAY.w*i/8,y:-RAIL/2});dm({x:PLAY.w*i/8,y:PLAY.h+RAIL/2});}
+    for(let i=1;i<=3;i++){dm({x:-RAIL/2,y:PLAY.h*i/4});dm({x:PLAY.w+RAIL/2,y:PLAY.h*i/4});}
+    // pockets
+    POCKETS.forEach(p=>{const c=this.P(p);const pr=(p.t==='corner'?3.1:2.7)*s;
+      x.beginPath();x.arc(c.x,c.y,pr,0,7);x.fillStyle='#05100a';x.fill();
+      x.lineWidth=1.6;x.strokeStyle='rgba(0,0,0,.6)';x.stroke();});
+  }
+  rrect(x,y,w,h,r){const c=this.ctx;c.beginPath();c.moveTo(x+r,y);c.arcTo(x+w,y,x+w,y+h,r);c.arcTo(x+w,y+h,x,y+h,r);c.arcTo(x,y+h,x,y,r);c.arcTo(x,y,x+w,y,r);c.closePath();}
+  line(a,b,col,w,dash){const x=this.ctx,A=this.P(a),B=this.P(b);x.save();x.beginPath();x.setLineDash(dash||[]);x.moveTo(A.x,A.y);x.lineTo(B.x,B.y);x.strokeStyle=col;x.lineWidth=(w||2);x.stroke();x.restore();}
+  arrowDir(from,dir,length,col,w){const to=add(from,mul(norm(dir),length));this.line(from,to,col,w);const A=this.P(to);const back=mul(norm(dir),-3.4);const left=add(to,rot(back,28)),right=add(to,rot(back,-28));const L=this.P(left),Rr=this.P(right);const x=this.ctx;x.beginPath();x.moveTo(A.x,A.y);x.lineTo(L.x,L.y);x.lineTo(Rr.x,Rr.y);x.closePath();x.fillStyle=col;x.fill();}
+  ball(p,col,label,opts){opts=opts||{};const x=this.ctx,c=this.P(p),r=this.rad(R);
+    x.save();x.beginPath();x.arc(c.x,c.y,r,0,7);
+    const g=x.createRadialGradient(c.x-r*.35,c.y-r*.4,r*.1,c.x,c.y,r);
+    g.addColorStop(0,this.tint(col,42));g.addColorStop(.6,col);g.addColorStop(1,this.tint(col,-30));
+    x.fillStyle=g;x.fill();
+    x.lineWidth=opts.halo?3:1.2;x.strokeStyle=opts.halo||'rgba(0,0,0,.35)';x.stroke();
+    // gloss
+    x.beginPath();x.arc(c.x-r*.32,c.y-r*.38,r*.28,0,7);x.fillStyle='rgba(255,255,255,.45)';x.fill();
+    if(label){x.fillStyle=(col==='#141414'||col==='#2f6fb0'||col==='#6e44a0'||col==='#7c3a32')?'#fff':'#1a1206';
+      x.font='700 '+(r*.9)+'px Oswald';x.textAlign='center';x.textBaseline='middle';x.fillText(label,c.x,c.y+r*.04);}
+    x.restore();}
+  ghost(p){const x=this.ctx,c=this.P(p),r=this.rad(R);x.save();x.beginPath();x.arc(c.x,c.y,r,0,7);x.setLineDash([4,4]);x.strokeStyle='rgba(242,238,221,.55)';x.lineWidth=1.4;x.stroke();x.restore();}
+  marker(p,col){const x=this.ctx,c=this.P(p);x.save();x.beginPath();x.arc(c.x,c.y,this.rad(R)*1.35,0,7);x.setLineDash([3,4]);x.strokeStyle=col;x.lineWidth=2;x.stroke();x.restore();}
+  tint(hex,amt){let h=hex.replace('#','');if(h.length===3)h=h.split('').map(c=>c+c).join('');let r=parseInt(h.slice(0,2),16),g=parseInt(h.slice(2,4),16),b=parseInt(h.slice(4,6),16);r=Math.max(0,Math.min(255,r+amt));g=Math.max(0,Math.min(255,g+amt));b=Math.max(0,Math.min(255,b+amt));return`rgb(${r},${g},${b})`;}
+}
+function ghostBall(ob,pocket){return add(ob,mul(norm(sub(ob,pocket)),2*R));}
+function dragify(canvas,felt,getBalls,onChange){
+  let drag=null;
+  const pick=(e)=>{const t=felt.T(e.clientX,e.clientY);let best=null,bd=1e9;getBalls().forEach(b=>{const d=len(sub(t,b.p));if(d<bd){bd=d;best=b;}});return (bd< R*1.8)?best:null;};
+  canvas.addEventListener('pointerdown',e=>{const b=pick(e);if(b&&b.drag!==false){drag=b;canvas.classList.add('dragging');canvas.setPointerCapture(e.pointerId);}});
+  canvas.addEventListener('pointermove',e=>{if(!drag)return;const t=felt.T(e.clientX,e.clientY);drag.p=clampPlay(t);onChange();});
+  const end=()=>{drag=null;canvas.classList.remove('dragging');};
+  canvas.addEventListener('pointerup',end);canvas.addEventListener('pointercancel',end);
+}
+
+/* =========================================================================
+   SHARED SHOT PHYSICS (cue ball collision + rails + friction)
+   ========================================================================= */
+function _clamp(x,a,b){return Math.max(a,Math.min(b,x));}
+function _reflect(d,n){return sub(d,mul(n,2*dot(d,n)));}
+function _rotateToward(from,to,frac){return rot(from,angBetween(from,to)*_clamp(frac,0,1));}
+function _railHit(pos,d){let bt=Infinity,bn=v(0,0);const c=[];
+  if(d.x<0)c.push({t:(R-pos.x)/d.x,n:v(1,0)});if(d.x>0)c.push({t:((PLAY.w-R)-pos.x)/d.x,n:v(-1,0)});
+  if(d.y<0)c.push({t:(R-pos.y)/d.y,n:v(0,1)});if(d.y>0)c.push({t:((PLAY.h-R)-pos.y)/d.y,n:v(0,-1)});
+  c.forEach(x=>{if(x.t>0.05&&x.t<bt){bt=x.t;bn=x.n;}});return {t:bt,normal:bn};}
+function _pocketAlong(pos,d,maxT){let best=null;POCKETS.forEach(p=>{const cr=p.t==='corner'?4.4:3.9;const f=sub(p,pos);let tp=dot(f,d);if(tp<0)return;tp=Math.min(tp,maxT);const cl=add(pos,mul(d,tp));if(len(sub(p,cl))<cr&&(!best||tp<best.t))best={t:tp};});return best;}
+function _simBall(start,dir,range){let pos={x:start.x,y:start.y},d=norm(dir),path=[{x:pos.x,y:pos.y}],b=0,railed=false,pocket=false;
+  while(range>0.6&&b<8){const rail=_railHit(pos,d),segEnd=Math.min(rail.t,range),pk=_pocketAlong(pos,d,segEnd);
+    if(pk){pos=add(pos,mul(d,pk.t));path.push({x:pos.x,y:pos.y});pocket=true;break;}
+    if(rail.t>range){pos=add(pos,mul(d,range));path.push({x:pos.x,y:pos.y});break;}
+    pos=add(pos,mul(d,rail.t));range-=rail.t;path.push({x:pos.x,y:pos.y});d=_reflect(d,rail.normal);range*=0.6;railed=true;b++;}
+  return {final:pos,path,pocket,railed};}
+function simulateShot(start,aimDir,power,vy,vx,ob,blockers){
+  const obst=[{role:'ob',p:ob}].concat((blockers||[]).map(b=>({role:'blk',p:b})));
+  let pos={x:start.x,y:start.y},d=norm(aimDir),range=power*16,eng=vx,bounces=0;
+  const path=[{x:pos.x,y:pos.y}];
+  let firstHit=null,hitOB=false,scratch=false,railAfter=false,contacted=false,obMove=null;
+  while(range>0.6&&bounces<10){
+    let bestT=Infinity,bestKind=null,bestObst=null;
+    obst.forEach(o=>{if(o.role==='ob'&&hitOB)return;const f=sub(o.p,pos),proj=dot(f,d);if(proj<=0)return;const perp2=dot(f,f)-proj*proj,rr=4*R*R;if(perp2>rr)return;const thc=Math.sqrt(rr-perp2),t=proj-thc;if(t>0.05&&t<bestT){bestT=t;bestKind='ball';bestObst=o;}});
+    const rail=_railHit(pos,d);if(rail.t<bestT){bestT=rail.t;bestKind='rail';bestObst=rail;}
+    const segEnd=Math.min(bestT,range),pk=_pocketAlong(pos,d,segEnd);
+    if(pk){pos=add(pos,mul(d,pk.t));path.push({x:pos.x,y:pos.y});scratch=true;break;}
+    if(bestT>range){pos=add(pos,mul(d,range));path.push({x:pos.x,y:pos.y});range=0;break;}
+    pos=add(pos,mul(d,bestT));range-=bestT;path.push({x:pos.x,y:pos.y});
+    if(bestKind==='ball'){
+      if(!firstHit)firstHit=bestObst.role;
+      const impact=norm(sub(bestObst.p,pos));let tan=rot(impact,90);if(dot(tan,d)<0)tan=mul(tan,-1);
+      const cut=Math.abs(angBetween(d,impact)),cutR=cut*Math.PI/180;
+      if(bestObst.role==='ob'){
+        hitOB=true;contacted=true;
+        const followAng=Math.min(90-cut,32*Math.sin(Math.PI*Math.pow(cut/90,0.8)));
+        const sign=(angBetween(d,tan)>=0)?1:-1;
+        const followDir=rot(d,sign*followAng);
+        const drawCross=Math.min(82,(90-cut)*0.6+30*Math.max(0,-vy)+8);
+        const drawDir=rot(tan,sign*drawCross);
+        d=norm(vy>=0?_rotateToward(tan,followDir,vy):_rotateToward(tan,drawDir,-vy));
+        const rem=range,baseRetain=Math.sin(cutR);
+        const retain=vy>=0?baseRetain+vy*(1-baseRetain)*0.85:Math.max(baseRetain,(-vy)*0.55);
+        range=rem*_clamp(retain,0.05,1.1);
+        obMove={start:{x:bestObst.p.x,y:bestObst.p.y},dir:impact,range:rem*Math.cos(cutR)*0.9+2};
+      } else { d=norm(tan); range=range*_clamp(Math.sin(cutR),0.05,1.0); }
+    } else { d=norm(rot(_reflect(d,bestObst.normal),eng*8));eng*=0.5;range*=0.66;if(contacted)railAfter=true; }
+    bounces++;
+  }
+  let obFinal=ob,obPath=null,obPocketed=false;
+  if(obMove){const r=_simBall(obMove.start,obMove.dir,obMove.range);obFinal=r.final;obPath=r.path;obPocketed=r.pocket;if(r.railed&&contacted)railAfter=true;}
+  return {cueFinal:pos,cuePath:path,obFinal,obPath,hitOB,firstHit,scratch,obPocketed,railAfter};
+}
+
+/* =========================================================================
+   TAB SWITCHING
+   ========================================================================= */
+const TABS=[['plan','Diagnosis'],['position','Position Lab'],['closer','The Closer'],
+  ['safety','Safety Studio'],['escape','Escape Trainer'],['decide','Run or Safe?'],['drills','Table Drills']];
+const tabsEl=document.getElementById('tabs');
+TABS.forEach(([id,label],i)=>{const b=document.createElement('button');b.className='tab'+(i===0?' active':'');
+  b.innerHTML=`<span class="ix">${String(i).padStart(2,'0')}</span>${label}`;b.dataset.go=id;tabsEl.appendChild(b);});
+const inited={};
+function show(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active',t.dataset.go===id));
+  document.querySelectorAll('.view').forEach(s=>s.classList.toggle('active',s.dataset.view===id));
+  window.scrollTo({top:0,behavior:'smooth'});
+  if(INIT[id]&&!inited[id]){inited[id]=true;INIT[id]();}
+  else if(RESIZE[id]) RESIZE[id]();
+}
+tabsEl.addEventListener('click',e=>{const t=e.target.closest('.tab');if(t)show(t.dataset.go);});
+document.addEventListener('click',e=>{const card=e.target.closest&&e.target.closest('.navcard[data-go]');if(card)show(card.dataset.go);});
+document.addEventListener('keydown',e=>{if(e.key!=='Enter'&&e.key!==' ')return;const card=e.target&&e.target.closest&&e.target.closest('.navcard[data-go]');if(card){e.preventDefault();show(card.dataset.go);}});
+const INIT={}, RESIZE={};
+
+/* =========================================================================
+   MODULE: POSITION LAB
+   ========================================================================= */
+INIT.position=function(){
+  const cv=document.getElementById('posCanvas');
+  const felt=new Felt(cv);
+  const S={cue:v(30,32),ob:v(62,20),pocket:2,spin:'stun',speed:6};
+  function cut(){const gb=ghostBall(S.ob,POCKETS[S.pocket]);const inc=norm(sub(gb,S.cue));const imp=norm(sub(POCKETS[S.pocket],S.ob));let a=Math.abs(angBetween(inc,imp));return{gb,inc,imp,angle:a};}
+  function draw(){
+    felt.clear();felt.table();
+    const {gb,inc,imp,angle}=cut();
+    const pk=POCKETS[S.pocket];
+    felt.marker(pk,'rgba(236,210,138,.7)');
+    // object ball line to pocket
+    felt.line(S.ob,pk,'rgba(236,210,138,.32)',2,[6,6]);
+    // aim line cue -> ghost
+    felt.line(S.cue,gb,'rgba(242,238,221,.5)',1.6,[4,5]);
+    felt.ghost(gb);
+    // tangent direction (continuation side)
+    let tan=rot(imp,90); if(dot(tan,inc)<0)tan=mul(tan,-1);
+    const tanLen=6+S.speed*5.5;
+    // reference lines (faint), selected highlighted
+    const followAng=Math.min(90-angle, 32*Math.sin(Math.PI*Math.pow(angle/90,0.8))); // natural-roll: ~straight on full hits, peaks ~30° near half-ball, tapers toward tangent on thin cuts
+    const followDir=rot(inc,(dot(tan,rot(inc,1))>=0? followAng : -followAng));
+    // draw: velocity composition = tangent slide (∝ sin cut) + backspin pull along the -OB line.
+    // backspin decays with cue-to-object distance and survives longer at higher speed, so it can
+    // fully reverse up close/hard and fade to a stun when far/soft.
+    const distCO=len(sub(S.cue,S.ob));
+    const sustain=Math.max(0,Math.min(1,S.speed/10));
+    const drawStrength=sustain*Math.exp(-distCO/(16+44*sustain)); // ~1 close+fast, ~0 far+soft
+    const tanComp=Math.sin(angle*Math.PI/180);
+    const drawVec=add(mul(tan,tanComp),mul(imp,-1.2*drawStrength));
+    const drawMag=len(drawVec);
+    const drawDir=drawMag>1e-3?norm(drawVec):tan;
+    const reverses=dot(drawDir,inc)<-0.05;
+    if(typeof window!=='undefined'&&window.__TEST__)window.__posLast={drawStrength,reverses,drawMag,angle,distCO,dotInc:dot(drawDir,inc)};
+    const drawLen=tanLen*Math.max(0.14,Math.min(1.15,drawMag));
+    const faint=COL.faint;
+    felt.line(gb,add(gb,mul(tan,tanLen)),S.spin==='stun'?COL.chalk:faint, S.spin==='stun'?3:1.4);
+    felt.line(gb,add(gb,mul(norm(followDir),tanLen)),S.spin==='follow'?COL.amber:faint,S.spin==='follow'?3:1.4);
+    felt.line(gb,add(gb,mul(drawDir,drawLen)),S.spin==='draw'?COL.red:faint,S.spin==='draw'?3:1.4);
+    // selected arrow head
+    let selDir = S.spin==='stun'?tan : S.spin==='follow'?norm(followDir):drawDir;
+    let selLen = S.spin==='draw'?drawLen:tanLen;
+    let col = S.spin==='stun'?COL.chalk:S.spin==='follow'?COL.amber:COL.red;
+    felt.arrowDir(gb,selDir,selLen,col,3);
+    // balls
+    felt.ball(S.ob,BALLCOL.ob,'',{});
+    felt.ball(S.cue,BALLCOL.cue,'',{halo:'rgba(236,210,138,.85)'});
+    // readouts
+    const fr=(Math.cos(angle*Math.PI/180)).toFixed(2);
+    document.getElementById('posCut').innerHTML=Math.round(angle)+'°';
+    document.getElementById('posFrac').textContent=fr+' ball';
+    let where = S.spin==='stun'?'down the tangent':S.spin==='follow'?'natural roll':(drawStrength<0.12?'draw faded → stun':reverses?'reverses back':'pulls off tangent');
+    const offAim=Math.round(Math.abs(angBetween(inc,selDir)));
+    document.getElementById('posWhere').textContent=where+' · '+offAim+'° off aim';
+    document.getElementById('posSpeedVal').textContent='· '+S.speed;
+    document.getElementById('posPocketName').textContent=pk.t+(pk.t==='corner'?(pk.x<50?(pk.y<25?' ↖':' ↙'):(pk.y<25?' ↗':' ↘')):(pk.y<25?' top':' bottom'));
+    // tip
+    let tip;
+    if(angle<8) tip='<b>You are dead straight.</b> A stun shot here is a stop shot — great for staying put, but you have <b>no angle</b> to move the cue ball anywhere else. The cardinal sin of pattern play: arriving straight on a ball you still need shape off of.';
+    else if(S.spin==='stun') tip='<b>Stun = the 90° rule.</b> The cue ball slides off perpendicular to the object ball, straight down the cyan tangent line — and it does this at <i>any</i> speed. This is your most predictable position line.';
+    else if(S.spin==='follow') tip='<b>Follow = the 30° rule.</b> A rolling cue ball bends only ~30° off its original path across a wide band of cuts. Easiest angle to visualize and the most forgiving on speed — your default link between shots.';
+    else if(drawStrength<0.12) tip='<b>Draw won\'t hold at this range.</b> Over this cue-to-object distance and speed the backspin decays to natural roll before contact — the cue ball behaves like a <b>stun</b> and slides down the tangent. Draw is a close-range tool: shorten the distance (drag the balls closer) or add speed to make it bite.';
+    else if(reverses) tip='<b>Draw reverses the cue ball</b> — here it comes back <i>across</i> the tangent line, toward you. Backspin bites hardest up close and at speed; drag the object ball farther away or drop the speed and watch the reversal die off.';
+    else tip='<b>Draw</b> pulls the cue to the far side of the tangent, but it is fighting distance here — the spin is partly spent, so you get a shallow pull rather than a full reversal. Closer + faster = more bite.';
+    document.getElementById('posTip').innerHTML=tip;
+  }
+  function getCss(n){return getComputedStyle(document.documentElement).getPropertyValue(n).trim();}
+  felt.onResize=draw;
+  rebindDrag();
+  function rebindDrag(){
+    let drag=null;
+    const pick=e=>{const t=felt.T(e.clientX,e.clientY);const ds={cue:len(sub(t,S.cue)),ob:len(sub(t,S.ob))};const k=ds.cue<ds.ob?'cue':'ob';return ds[k]<R*1.9?k:null;};
+    cv.onpointerdown=e=>{const k=pick(e);if(k){drag=k;cv.classList.add('dragging');cv.setPointerCapture(e.pointerId);}};
+    cv.onpointermove=e=>{if(!drag)return;S[drag]=clampPlay(felt.T(e.clientX,e.clientY));draw();};
+    cv.onpointerup=cv.onpointercancel=()=>{drag=null;cv.classList.remove('dragging');};
+  }
+  document.getElementById('posSpin').addEventListener('click',e=>{const b=e.target.closest('[data-spin]');if(!b)return;S.spin=b.dataset.spin;document.querySelectorAll('#posSpin .btn').forEach(x=>x.classList.toggle('active',x===b));draw();});
+  document.getElementById('posSpeed').addEventListener('input',e=>{S.speed=+e.target.value;draw();});
+  document.getElementById('posPocketBtn').addEventListener('click',()=>{S.pocket=(S.pocket+1)%6;draw();});
+  document.getElementById('posReset').addEventListener('click',()=>{S.cue=v(30,32);S.ob=v(62,20);S.pocket=2;S.spin='stun';S.speed=6;document.getElementById('posSpeed').value=6;document.querySelectorAll('#posSpin .btn').forEach(x=>x.classList.toggle('active',x.dataset.spin==='stun'));draw();});
+  RESIZE.position=()=>{felt.resize();draw();};
+  try{if(typeof window!=='undefined'&&window.__TEST__){window.__posSet=(cue,ob,pk,spd,spin)=>{S.cue=cue;S.ob=ob;S.pocket=pk;S.speed=spd;S.spin=spin;draw();return window.__posLast;};}}catch(e){}
+  draw();
+};
+
+/* =========================================================================
+   MODULE: THE CLOSER
+   ========================================================================= */
+INIT.closer=function(){
+  const cv=document.getElementById('closeCanvas');const felt=new Felt(cv);
+  const DEFTIP="Pick the <b>last ball before the money ball first</b> — that's your key ball — then build the rack backward to it. The money ball is always shot last. The dashed <b>ghost cue balls</b> trace where a natural-roll shot at medium pace leaves the cue after each ball — watch whether your order keeps the cue near the next ball or strands it (a red ring marks a scratch).";
+  const CURATED=[
+    {name:'clean three',type:'8',cue:v(28,30),money:'8',note:'A flowing 8-ball end. Hunt for the order that <b>never reverses the cue</b> — clear one side, then cross once.',
+      balls:{a:{p:v(18,12),l:'',c:BALLCOL[2]},b:{p:v(50,42),l:'',c:BALLCOL[5]},c:{p:v(80,16),l:'',c:BALLCOL[3]},'8':{p:v(86,40),l:'8',c:BALLCOL[8]}}},
+    {name:'open the cluster',type:'8',cue:v(22,24),money:'8',note:'Two balls sit together near the rail. Your open ball is the <b>insurance ball</b> — plan to break the cluster while you can still continue.',
+      balls:{a:{p:v(30,42),l:'',c:BALLCOL[6]},b:{p:v(70,9),l:'',c:BALLCOL[2]},c:{p:v(75,12),l:'',c:BALLCOL[5]},'8':{p:v(52,26),l:'8',c:BALLCOL[8]}}},
+    {name:'the route (9-ball)',type:'9',cue:v(20,25),money:'9',note:'Rotation: the order is forced <b>6 › 7 › 8 › 9</b>. The skill is the cue-ball ROUTE — getting the right side of the 7 and 8.',
+      balls:{'6':{p:v(34,14),l:'6',c:BALLCOL[6]},'7':{p:v(58,40),l:'7',c:BALLCOL[7]},'8':{p:v(82,20),l:'8',c:BALLCOL[8]},'9':{p:v(88,42),l:'9',c:BALLCOL[9]}}}
+  ];
+  let L=null,order=[],game='8',count=3,exIdx=0;
+  const ids=()=>Object.keys(L.balls);
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  function genLayout(type,n){
+    const pts=[],margin=4;
+    const ok=p=>POCKETS.every(q=>len(sub(p,q))>9)&&pts.every(q=>len(sub(p,q))>R*3.3);
+    const place=()=>{let p,t=0;do{p=v(rand(R+margin,PLAY.w-R-margin),rand(R+margin,PLAY.h-R-margin));t++;}while(!ok(p)&&t<500);pts.push(p);return p;};
+    const balls={},solids=[BALLCOL[3],BALLCOL[2],BALLCOL[5],BALLCOL[6],BALLCOL[4],BALLCOL[7]];
+    for(let i=0;i<n;i++){const p=place();if(type==='9'){const num=String(9-n+i);balls[num]={p,l:num,c:BALLCOL[+num]||BALLCOL[5]};}else{balls['o'+i]={p,l:'',c:solids[i%solids.length]};}}
+    const money=type==='9'?'9':'8';balls[money]={p:place(),l:money,c:BALLCOL[type==='9'?9:8]};
+    return {type,cue:place(),money,balls,note:null};
+  }
+  function nearestPocket(p){let best=0,bd=1e9;POCKETS.forEach((q,i)=>{const d=len(sub(p,q));if(d<bd){bd=d;best=i;}});return best;}
+  function bestShot(start,ob,rest,next,nextRest){
+    const diag=Math.hypot(PLAY.w,PLAY.h),cands=[];
+    POCKETS.forEach(pk=>{const gb=ghostBall(ob,pk),a=norm(sub(gb,start)),cut=Math.abs(angBetween(a,norm(sub(pk,ob))));
+      if(cut>82)return;if(!clearSeg(ob,pk,rest))return;if(!clearSeg(start,gb,rest))return;cands.push({a,cut});});
+    cands.sort((x,y)=>x.cut-y.cut);
+    if(!cands.length)return{sim:null,cost:9,cut:90,scratch:false,noShot:true};
+    let chosen=null,cc=Infinity,scr=false,cut0=cands[0].cut;
+    cands.slice(0,3).forEach(c=>{for(const vy of [-0.5,-0.2,0.2,0.5])for(const pw of [4,6,8]){
+      const s=simulateShot(start,c.a,pw,vy,0,ob,rest);
+      if(!s.obPocketed)continue;
+      const cutR=c.cut*Math.PI/180;
+      const potDiff=1/Math.max(0.2,Math.cos(cutR))-1;            // thin cuts = low %  
+      const ctrl=len(sub(s.cueFinal,ob))/diag*1.4;               // long post-shot cue travel = harder control
+      let lookPen;
+      if(next){let look=0;POCKETS.forEach(pk=>{const a2=norm(sub(ghostBall(next,pk),s.cueFinal)),c2=Math.abs(angBetween(a2,norm(sub(pk,next))));if(c2>80)return;if(!clearSeg(next,pk,nextRest))return;if(!clearSeg(s.cueFinal,ghostBall(next,pk),nextRest))return;look=Math.max(look,1-c2/80);});lookPen=(1-look)*1.6+(look<=0?2.4:0);}
+      else lookPen=(c.cut<8?0.5:c.cut>74?0.9:0.1);              // money: avoid dead-straight & ultra-thin
+      const scrPen=s.scratch?6:0;                                // cue ends in a pocket = disaster
+      const tot=potDiff+ctrl+lookPen+scrPen;
+      if(tot<cc){cc=tot;chosen=s;scr=s.scratch;cut0=c.cut;}
+    }});
+    if(!chosen){const s=simulateShot(start,cands[0].a,6,0.2,0,ob,rest);return{sim:s,cost:4+(s.scratch?6:0),cut:cands[0].cut,scratch:s.scratch,noShot:false};}
+    return{sim:chosen,cost:cc,cut:cut0,scratch:scr,noShot:false};
+  }
+  function routeSim(ord){
+    let start={x:L.cue.x,y:L.cue.y},cost=0,scratches=0,stranded=0,maxCut=0;const steps=[];
+    for(let i=0;i<ord.length;i++){
+      const ob=L.balls[ord[i]].p,rest=ord.slice(i+1).map(k=>L.balls[k].p);
+      const next=(i+1<ord.length)?L.balls[ord[i+1]].p:null,nextRest=ord.slice(i+2).map(k=>L.balls[k].p);
+      const r=bestShot(start,ob,rest,next,nextRest);
+      cost+=r.cost;if(r.scratch)scratches++;if(r.noShot)stranded++;maxCut=Math.max(maxCut,r.cut);
+      if(r.sim){steps.push({start:{x:start.x,y:start.y},end:r.sim.cueFinal,path:r.sim.cuePath,scratch:r.scratch});start=r.scratch?{x:ob.x,y:ob.y}:{x:r.sim.cueFinal.x,y:r.sim.cueFinal.y};}
+      else{steps.push({start:{x:start.x,y:start.y},end:{x:ob.x,y:ob.y},path:[{x:start.x,y:start.y},{x:ob.x,y:ob.y}],scratch:false,noShot:true});start={x:ob.x,y:ob.y};}
+    }
+    return{steps,cost,scratches,stranded,maxCut};
+  }
+  function flowPenalty(ord){return routeSim(ord).cost;}
+  function permute(arr){if(arr.length<=1)return[arr];let out=[];arr.forEach((x,i)=>{const rest=arr.slice(0,i).concat(arr.slice(i+1));permute(rest).forEach(p=>out.push([x].concat(p)));});return out;}
+  function bestOrder(){if(L.type==='9'){const a=ids().filter(x=>x!==L.money).sort((p,q)=>(+p)-(+q));return a.concat(L.money);}
+    const others=ids().filter(x=>x!==L.money);
+    if(others.length<=4){let best=null,bp=1e9;permute(others).forEach(p=>{const ord=p.concat(L.money);const c=routeSim(ord).cost;if(c<bp){bp=c;best=ord;}});return best;}
+    let remaining=others.slice(),start={x:L.cue.x,y:L.cue.y},ord=[];
+    while(remaining.length){let bi=0,bc=1e9,br=null;
+      remaining.forEach((id,idx)=>{const ob=L.balls[id].p,rest=remaining.filter((_,j)=>j!==idx).map(k=>L.balls[k].p).concat([L.balls[L.money].p]);const r=bestShot(start,ob,rest,null,[]);if(r.cost<bc){bc=r.cost;bi=idx;br=r;}});
+      const ob=L.balls[remaining[bi]].p;start=(br&&br.sim&&!br.scratch)?{x:br.sim.cueFinal.x,y:br.sim.cueFinal.y}:{x:ob.x,y:ob.y};
+      ord.push(remaining[bi]);remaining.splice(bi,1);}
+    ord.push(L.money);return ord;}
+  function moneyAngle(ord){if(ord.length<2)return 45;const i=ord.length-1;const into=norm(sub(L.balls[ord[i]].p,L.balls[ord[i-1]].p));const out=norm(sub(POCKETS[nearestPocket(L.balls[L.money].p)],L.balls[L.money].p));return Math.abs(angBetween(into,out));}
+  function clearSeg(a,b,balls){const ab=sub(b,a);return balls.every(p=>{const t=Math.max(0,Math.min(1,dot(sub(p,a),ab)/(dot(ab,ab)||1)));return len(sub(p,add(a,mul(ab,t))))>1.9*R;});}
+  function draw(routeOrder,routeCol){
+    felt.clear();felt.table();
+    ids().forEach(id=>{const b=L.balls[id];felt.line(b.p,POCKETS[nearestPocket(b.p)],'rgba(236,210,138,.13)',1.3,[5,6]);});
+    let steps=null;
+    if(routeOrder&&routeOrder.length){
+      steps=routeSim(routeOrder).steps;
+      steps.forEach(s=>{for(let j=1;j<s.path.length;j++)felt.line(s.path[j-1],s.path[j],routeCol||'rgba(84,182,214,.5)',2.4);});
+    }
+    ids().forEach(id=>{const b=L.balls[id];felt.ball(b.p,b.c,b.l,{halo:id===L.money?'rgba(236,210,138,.9)':null});});
+    if(routeOrder)routeOrder.forEach((id,i)=>{const c=felt.P(L.balls[id].p),x=felt.ctx,rr=felt.rad(R);x.save();x.fillStyle=COL.brass;x.beginPath();x.arc(c.x+rr*0.95,c.y-rr*0.95,8,0,7);x.fill();x.fillStyle='#1a1206';x.font='700 11px Space Mono';x.textAlign='center';x.textBaseline='middle';x.fillText(String(i+1),c.x+rr*0.95,c.y-rr*0.95);x.restore();});
+    if(routeOrder&&routeOrder.length>=2&&routeOrder.length===ids().length){const kp=L.balls[routeOrder[routeOrder.length-2]].p,c=felt.P(kp),x=felt.ctx,rr=felt.rad(R);felt.marker(kp,COL.chalk);x.save();x.fillStyle=COL.chalk;x.font='700 9px "Space Mono"';x.textAlign='center';x.textBaseline='middle';x.fillText('KEY',c.x,c.y+rr+8);x.restore();}
+    if(steps)steps.forEach(s=>{felt.ghost(s.end);if(s.scratch)felt.marker(s.end,COL.red);});
+    felt.ball(L.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+  }
+  function txtOn(hex){const h=(hex||'#ccc').replace('#','');const r=parseInt(h.slice(0,2),16)||200,g=parseInt(h.slice(2,4),16)||200,b=parseInt(h.slice(4,6),16)||200;return (0.299*r+0.587*g+0.114*b)>140?'#1a1206':'#f4efe0';}
+  function renderOrder(){const el=document.getElementById('closeOrder');
+    if(!order.length){el.innerHTML='tap balls in order →';return;}
+    el.innerHTML=order.map((id,i)=>{const b=L.balls[id],money=(id===L.money),lbl=b.l||String(i+1),ring=money?'box-shadow:0 0 0 2px var(--brass2)':'box-shadow:0 0 0 1px rgba(0,0,0,.35)';
+      return `<span style="display:inline-flex;align-items:center;justify-content:center;width:1.55em;height:1.55em;border-radius:50%;background:${b.c};color:${txtOn(b.c)};font:700 .78em 'Space Mono';vertical-align:middle;${ring}">${lbl}</span>`;
+    }).join('<span style="color:var(--faint);margin:0 .28em">›</span>');}
+  function result(grade,verdict,fallback,notes,keyText){
+    document.getElementById('closeResult').style.display='block';
+    const gc=(grade==='A'||grade==='★')?COL.green:grade==='B'?COL.brass2:grade==='C'?COL.amber:COL.red;
+    const g=document.getElementById('closeGrade');g.textContent=grade;g.style.color=gc;
+    const ve=document.getElementById('closeVerdict');ve.textContent=verdict;ve.style.color=gc;
+    document.getElementById('closeKey').textContent=keyText||'';
+    document.getElementById('closeNotes').innerHTML=(notes&&notes.length)?'• '+notes.join('<br>• '):(fallback||'');
+  }
+  function loadLayout(lay){L=lay;order=[];document.getElementById('closeResult').style.display='none';document.getElementById('closeTip').innerHTML=lay.note||DEFTIP;renderOrder();draw(order);}
+  function syncGameCount(){document.querySelectorAll('#closeGame .btn').forEach(b=>b.classList.toggle('active',b.dataset.g===game));
+    document.querySelectorAll('#closeCount .btn').forEach(b=>b.classList.toggle('active',+b.dataset.n===count));
+    document.getElementById('closeCountVal').textContent='· '+count+' + money';}
+  function shuffle(){loadLayout(genLayout(game,count));}
+  function routeMetrics(ord){const pts=[L.cue,...ord.map(id=>L.balls[id].p)];let rev=false,zig=0;
+    for(let i=1;i<pts.length-1;i++){const t=Math.abs(angBetween(norm(sub(pts[i],pts[i-1])),norm(sub(pts[i+1],pts[i]))));if(t>140)rev=true;if(t>92)zig++;}
+    return {rev,zig,mAng:moneyAngle(ord),pen:flowPenalty(ord)};}
+  function evalOrder(ord){
+    let notes=[],hard=false;
+    if(ord[ord.length-1]!==L.money){hard=true;notes.push('The money ball ('+(L.balls[L.money].l||'8')+') must be your LAST shot — scheduling it early means one miss hands over an open table.');}
+    if(L.type==='9'){const correct=bestOrder();if(ord.join()!==correct.join()){hard=true;notes.unshift('Rotation game: you must contact the lowest ball first. The only legal order is '+correct.map(id=>L.balls[id].l).join(' › ')+'. The skill here is the cue-ball ROUTE through that fixed order.');}}
+    const bo=bestOrder();
+    const bm=routeMetrics(bo),um=routeMetrics(ord);
+    const ur=routeSim(ord),br=routeSim(bo),ratio=ur.cost/(br.cost||1);
+    const ki=ord[ord.length-2],kl=(ki!=null)?L.balls[ki].l:'';
+    const keyText='Key ball — '+(kl?('the '+kl+' ball, '):'')+'your #'+(ord.length-1)+' shot (ringed in cyan on the table)';
+    if(hard)return {grade:'F',verdict:'Hands over the table',notes,keyText,hard:true,ratio};
+    let dem=0;
+    if(ratio>1.6)dem+=3;else if(ratio>1.32)dem+=2;else if(ratio>1.14)dem+=1;
+    if(um.rev&&!bm.rev)dem+=2;
+    if(um.zig-bm.zig>=2)dem+=1;
+    const badU=(um.mAng<12||um.mAng>74),okModel=!(bm.mAng<12||bm.mAng>74);
+    if(badU&&okModel)dem+=1;
+    if(ur.scratches>br.scratches)dem+=2;
+    if(ur.stranded>br.stranded)dem+=3;
+    const thin=(ur.maxCut>70&&ur.maxCut>br.maxCut+8);if(thin)dem+=1;
+    if(ur.scratches>br.scratches)notes.push('This order scratches the cue ball on '+ur.scratches+' shot'+(ur.scratches>1?'s':'')+' — it ends in a pocket. The model line avoids that; choose angles that send the cue along a rail, not into one.');
+    if(ur.stranded>br.stranded)notes.push('At least one ball has no makeable shot when you arrive in this order — you would be forced to break it out or play safe. Reorder so each ball has a clean look.');
+    if(thin)notes.push('This line forces a thin ~'+Math.round(ur.maxCut)+'° cut — a low-percentage shot the model avoids. Fuller hits make more balls under pressure.');
+    if(ratio>1.45&&!(ur.scratches>br.scratches))notes.push('This line is markedly harder than the model — tougher cuts and more cue-ball movement. Look for fuller hits and shorter position moves.');
+    if(um.rev&&!bm.rev)notes.push('The cue ball has to reverse back across the table, and the model avoids it — that reversal is where speed control fails under pressure.');
+    else if(um.zig-bm.zig>=2)notes.push('More zig-zag than the model needs. Clear one side of the table before crossing.');
+    if(badU&&okModel)notes.push(um.mAng<12?'You arrive nearly straight on the money ball — no angle to recover a thin hit. Favor a working 20–40° angle.':'You leave a very thin cut on the money ball — aim for a fuller, higher-percentage angle.');
+    notes.push('Key ball is '+(kl?('the '+kl):('your #'+(ord.length-1)+' shot'))+': it sets up the money ball, so the angle you leave on it decides the rack.');
+    let grade,verdict;
+    if(dem===0){grade='A';verdict='Pro-level flow';}
+    else if(dem===1){grade='B';verdict='Solid plan';}
+    else if(dem===2){grade='C';verdict='Workable, leaks';}
+    else{grade='D';verdict='Tangled route';}
+    return {grade,verdict,notes,keyText,hard:false,ratio};
+  }
+  document.getElementById('closeEval').onclick=function(){
+    if(order.length!==ids().length){result('—','Incomplete','Tap all '+ids().length+' balls in the order you would shoot them.',[],'');draw(order);return;}
+    const r=evalOrder(order);
+    result(r.grade,r.verdict,'',r.notes,r.keyText);
+    draw(order,r.hard?COL.red:COL.brass);
+  };
+  document.getElementById('closeModel').onclick=function(){const best=bestOrder();order=best.slice();renderOrder();draw(best,COL.green);
+    const kl=L.balls[best[best.length-2]].l;
+    result('★','Model runout','',['This is a low-travel, smooth-flow order. Feel WHY each step pours into the next — that pattern recognition is the skill.','It works backward from the money ball and avoids reversing the cue across the table.'],'Key ball — '+(kl?('the '+kl+' ball, '):'')+'the #'+(best.length-1)+' shot (ringed in cyan)');};
+  document.getElementById('closeClear').onclick=function(){order=[];renderOrder();document.getElementById('closeResult').style.display='none';draw(order);};
+  document.getElementById('closeShuffle').onclick=shuffle;
+  document.getElementById('closeExample').onclick=function(){const ex=CURATED[exIdx%CURATED.length];exIdx++;game=ex.type;count=Object.keys(ex.balls).length-1;syncGameCount();loadLayout(JSON.parse(JSON.stringify(ex)));};
+  document.getElementById('closeGame').addEventListener('click',e=>{const b=e.target.closest('[data-g]');if(!b)return;game=b.dataset.g;syncGameCount();shuffle();});
+  document.getElementById('closeCount').addEventListener('click',e=>{const b=e.target.closest('[data-n]');if(!b)return;count=+b.dataset.n;syncGameCount();shuffle();});
+  cv.addEventListener('click',e=>{const t=felt.T(e.clientX,e.clientY);let id=null,bd=1e9;ids().forEach(k=>{const d=len(sub(t,L.balls[k].p));if(d<bd){bd=d;id=k;}});
+    if(bd<R*1.9&&id){if(order.includes(id))order=order.slice(0,order.indexOf(id));else order.push(id);renderOrder();document.getElementById('closeResult').style.display='none';draw(order);}});
+  felt.onResize=()=>draw(order);RESIZE.closer=()=>{felt.resize();draw(order);};
+  try{if(typeof window!=='undefined'&&window.__TEST__){window.__closeSim=ord=>routeSim(ord).steps;window.__closeRouteSim=routeSim;window.__closeBestShot=bestShot;window.__closeIds=ids;window.__closeMoney=()=>L.money;window.__closeBest=bestOrder;window.__closeEval=evalOrder;window.__closeFlow=flowPenalty;window.__closeShuffle=shuffle;window.__closeSetGame=(g,n)=>{game=g;count=n;};window.__closePermute=permute;window.__closeBallPos=id=>L.balls[id].p;window.__closeCue=()=>L.cue;}}catch(e){}
+  syncGameCount();shuffle();
+};
+
+/* =========================================================================
+   MODULE: SAFETY STUDIO
+   ========================================================================= */
+INIT.safety=function(){
+  const cv=document.getElementById('safeCanvas');const felt=new Felt(cv);
+  const SCEN=[
+    {name:'open hook',ob:v(64,25),blockers:[v(42,18),v(46,32)],cue:v(26,25)},
+    {name:'rail tuck',ob:v(78,40),blockers:[v(52,30)],cue:v(40,12)},
+    {name:'behind the 8',ob:v(54,25),blockers:[v(42,25)],cue:v(22,25)}
+  ];
+  let cur=0,S={vx:0,vy:0,power:5,aim:0},LAST=null,RESULT=null,rested=false,animating=false;
+  let syncSpinUI=function(){};
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  const rotateToward=(from,to,frac)=>rot(from,angBetween(from,to)*clamp(frac,0,1));
+  const reflect=(d,n)=>sub(d,mul(n,2*dot(d,n)));
+  function railHitDist(pos,d){let bt=Infinity,bn=v(0,0);const c=[];
+    if(d.x<0)c.push({t:(R-pos.x)/d.x,n:v(1,0)});if(d.x>0)c.push({t:((PLAY.w-R)-pos.x)/d.x,n:v(-1,0)});
+    if(d.y<0)c.push({t:(R-pos.y)/d.y,n:v(0,1)});if(d.y>0)c.push({t:((PLAY.h-R)-pos.y)/d.y,n:v(0,-1)});
+    c.forEach(x=>{if(x.t>0.05&&x.t<bt){bt=x.t;bn=x.n;}});return {t:bt,normal:bn};}
+  function pocketAlong(pos,d,maxT){let best=null;POCKETS.forEach(p=>{const cr=p.t==='corner'?4.4:3.9;const f=sub(p,pos);let tp=dot(f,d);if(tp<0)return;tp=Math.min(tp,maxT);const cl=add(pos,mul(d,tp));if(len(sub(p,cl))<cr&&(!best||tp<best.t))best={t:tp};});return best;}
+  function simBall(start,dir,range){let pos={x:start.x,y:start.y},d=norm(dir),path=[{x:pos.x,y:pos.y}],b=0,railed=false,pocket=false;
+    while(range>0.6&&b<8){const rail=railHitDist(pos,d),segEnd=Math.min(rail.t,range),pk=pocketAlong(pos,d,segEnd);
+      if(pk){pos=add(pos,mul(d,pk.t));path.push({x:pos.x,y:pos.y});pocket=true;break;}
+      if(rail.t>range){pos=add(pos,mul(d,range));path.push({x:pos.x,y:pos.y});break;}
+      pos=add(pos,mul(d,rail.t));range-=rail.t;path.push({x:pos.x,y:pos.y});d=reflect(d,rail.normal);range*=0.6;railed=true;b++;}
+    return {final:pos,path,pocket,railed};}
+  function simulate(start,aimDir,power,vy,vx){
+    const obst=[{role:'ob',p:S.ob}].concat(S.blockers.map(b=>({role:'blk',p:b})));
+    let pos={x:start.x,y:start.y},d=norm(aimDir),range=power*16,eng=vx,bounces=0;
+    const path=[{x:pos.x,y:pos.y}];
+    let firstHit=null,hitOB=false,scratch=false,railAfter=false,contacted=false,obMove=null;
+    while(range>0.6&&bounces<10){
+      let bestT=Infinity,bestKind=null,bestObst=null;
+      obst.forEach(o=>{if(o.role==='ob'&&hitOB)return;const f=sub(o.p,pos),proj=dot(f,d);if(proj<=0)return;const perp2=dot(f,f)-proj*proj,rr=4*R*R;if(perp2>rr)return;const thc=Math.sqrt(rr-perp2),t=proj-thc;if(t>0.05&&t<bestT){bestT=t;bestKind='ball';bestObst=o;}});
+      const rail=railHitDist(pos,d);if(rail.t<bestT){bestT=rail.t;bestKind='rail';bestObst=rail;}
+      const segEnd=Math.min(bestT,range),pk=pocketAlong(pos,d,segEnd);
+      if(pk){pos=add(pos,mul(d,pk.t));path.push({x:pos.x,y:pos.y});scratch=true;break;}
+      if(bestT>range){pos=add(pos,mul(d,range));path.push({x:pos.x,y:pos.y});range=0;break;}
+      pos=add(pos,mul(d,bestT));range-=bestT;path.push({x:pos.x,y:pos.y});
+      if(bestKind==='ball'){
+        if(!firstHit)firstHit=bestObst.role;
+        const impact=norm(sub(bestObst.p,pos));let tan=rot(impact,90);if(dot(tan,d)<0)tan=mul(tan,-1);
+        const cut=Math.abs(angBetween(d,impact)),cutR=cut*Math.PI/180;
+        if(bestObst.role==='ob'){
+          hitOB=true;contacted=true;
+          const followAng=Math.min(90-cut,32*Math.sin(Math.PI*Math.pow(cut/90,0.8)));
+          const sign=(angBetween(d,tan)>=0)?1:-1;
+          const followDir=rot(d,sign*followAng);
+          const drawCross=Math.min(82,(90-cut)*0.6+30*Math.max(0,-vy)+8);
+          const drawDir=rot(tan,sign*drawCross);
+          d=norm(vy>=0?rotateToward(tan,followDir,vy):rotateToward(tan,drawDir,-vy));
+          const rem=range,baseRetain=Math.sin(cutR);
+          const retain=vy>=0?baseRetain+vy*(1-baseRetain)*0.85:Math.max(baseRetain,(-vy)*0.55);
+          range=rem*clamp(retain,0.05,1.1);
+          obMove={start:{x:bestObst.p.x,y:bestObst.p.y},dir:impact,range:rem*Math.cos(cutR)*0.9+2};
+        } else { d=norm(tan); range=range*clamp(Math.sin(cutR),0.05,1.0); }
+      } else {
+        d=norm(rot(reflect(d,bestObst.normal),eng*8));eng*=0.5;range*=0.66;if(contacted)railAfter=true;bounces++;continue;
+      }
+      bounces++;
+    }
+    let obFinal=S.ob,obPath=null,obPocketed=false;
+    if(obMove){const r=simBall(obMove.start,obMove.dir,obMove.range);obFinal=r.final;obPath=r.path;obPocketed=r.pocket;if(r.railed&&contacted)railAfter=true;}
+    return {cueFinal:pos,cuePath:path,obFinal,obPath,hitOB,firstHit,scratch,obPocketed,railAfter};
+  }
+  function clearanceBetween(a,c){let m=1e9;S.blockers.forEach(b=>{const ab=sub(c,a),t=Math.max(0,Math.min(1,dot(sub(b,a),ab)/(dot(ab,ab)||1))),proj=add(a,mul(ab,t)),dd=len(sub(b,proj));if(t>0.03&&t<0.97)m=Math.min(m,dd-2*R);});return m;}
+  function meter(id,label,frac,subtext){const pct=Math.round(frac*100),col=frac>0.66?COL.green:frac>0.33?COL.amber:COL.red;
+    document.getElementById(id).innerHTML=`<div class="k">${label}<span style="float:right;color:${col}">${pct}%</span></div><div style="height:8px;border-radius:6px;background:rgba(255,255,255,.08);margin-top:5px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${col}"></div></div><div class="hint" style="margin-top:3px">${subtext}</div>`;}
+  function evalSafety(sim){
+    const cueP=sim.cueFinal,obP=sim.obFinal;
+    const clr=clearanceBetween(cueP,obP),blocked=clr<0,diag=Math.hypot(PLAY.w,PLAY.h);
+    const hideScore=blocked?1:(clr<R*1.2?0.5:0);
+    const distScore=Math.max(0,Math.min(1,len(sub(cueP,obP))/(diag*0.85)));
+    const railD=Math.min(cueP.x,PLAY.w-cueP.x,cueP.y,PLAY.h-cueP.y);
+    const railScore=Math.max(0,1-railD/(R*4));
+    const obNear=POCKETS.some(p=>len(sub(obP,p))<10);
+    let total=Math.round(100*(0.5*hideScore+0.3*distScore+0.2*railScore));if(obNear)total=Math.max(0,total-20);
+    return {clr,blocked,hideScore,distScore,railScore,railD,obNear,total};
+  }
+  function suggestScore(sim){
+    if(sim.scratch||!sim.hitOB||(sim.firstHit&&sim.firstHit!=='ob'))return -1e6;
+    if(!sim.railAfter&&!sim.obPocketed)return -1e5;
+    const e=evalSafety(sim);let s=e.total;
+    s+=e.blocked?45:-25;
+    if(sim.obPocketed)s-=70;
+    if(e.obNear)s-=30;
+    return s;
+  }
+  function suggestSafety(){
+    const base=Math.atan2(S.ob.y-S.cue.y,S.ob.x-S.cue.x)*180/Math.PI;
+    let best=null,bestScore=-1e9;
+    for(let off=-64;off<=64;off+=2){const ang=base+off,dir=v(Math.cos(ang*Math.PI/180),Math.sin(ang*Math.PI/180));
+      for(const power of [2,3,4,5,6,7,8,9])for(const vy of [-0.6,-0.3,0,0.3,0.6])for(const vx of [-0.6,-0.3,0,0.3,0.6]){
+        const sim=simulate(S.cue,dir,power,vy,vx),sc=suggestScore(sim);
+        if(sc>bestScore){bestScore=sc;best={ang,power,vy,vx,sim};}
+      }}
+    const tip=document.getElementById('safeTip');
+    if(!best||bestScore<=-1e5){tip.innerHTML="<b>No legal lock-up from here.</b> This leave is brutal — the percentage play is to send the object ball to the far rail for maximum distance and live with an open hit.";return;}
+    S.aim=best.ang;S.power=best.power;S.vy=best.vy;S.vx=best.vx;
+    document.getElementById('safePower').value=Math.round(S.power);document.getElementById('powVal').textContent='· '+Math.round(S.power);
+    syncSpinUI();rested=false;preview();
+    const e=evalSafety(best.sim);
+    const spin=(Math.abs(S.vy)<0.2?'centre-ball':(S.vy>0?'follow':'draw'))+(Math.abs(S.vx)<0.2?'':(S.vx>0?' + right english':' + left english'));
+    let pieces=[];pieces.push(e.blocked?'hides the cue behind the blocker':'best available leave (no full hook exists here)');
+    if(e.distScore>0.5)pieces.push('leaves it long');if(e.railScore>0.4)pieces.push('tucks to a rail');
+    tip.innerHTML='<b>Model safety set.</b> This '+pieces.join(', ')+'. Power '+Math.round(S.power)+', '+spin+' — press <b>Shoot</b> to play it, or drag the handle and dial to refine.';
+  }
+  function rate(cueP,obP,sim){
+    const e=evalSafety(sim);let total=e.total;
+    let verdict,vc,outcome,foul=false;
+    if(sim.scratch){foul=true;verdict='SCRATCH';vc=COL.red;outcome='Cue ball pocketed → ball-in-hand to your opponent.';}
+    else if(!sim.hitOB){foul=true;verdict='FOUL — air ball';vc=COL.red;outcome='You never contacted your object ball.';}
+    else if(sim.firstHit&&sim.firstHit!=='ob'){foul=true;verdict='FOUL — wrong ball';vc=COL.red;outcome='You hit another ball before your object ball.';}
+    else if(sim.obPocketed){verdict='Pocketed — not a safety';vc=COL.brass2;outcome='You made the ball. Good if intended, but this drill is about safeties.';}
+    else{
+      if(!sim.railAfter)total=Math.max(0,total-25);
+      if(total>=80){verdict='Lock-up safety';vc=COL.green;}
+      else if(total>=60){verdict='Solid safety';vc=COL.brass2;}
+      else if(total>=40){verdict='Loose — risky';vc=COL.amber;}
+      else{verdict="They're shooting";vc=COL.red;}
+      outcome=(!sim.railAfter)?'Legal contact, but no rail after — likely a foul.':(e.blocked?'Legal safety — opponent is hooked.':'Legal hit — but they can see the ball.');
+    }
+    document.getElementById('safeScore').textContent=foul?'✕':total;
+    const ve=document.getElementById('safeVerdict');ve.textContent=verdict;ve.style.color=vc;
+    document.getElementById('safeOutcome').textContent=outcome;
+    meter('meterHide','Hidden behind blocker',e.hideScore,e.blocked?'fully hooked — they must kick':'open line to the ball');
+    meter('meterDist','Distance to object ball',e.distScore,Math.round(len(sub(cueP,obP)))+' units away');
+    meter('meterRail','Tucked to a rail',e.railScore,e.railD<R*1.5?'frozen to the rail':'out in the open');
+    const tip=document.getElementById('safeTip');
+    if(foul)tip.innerHTML="<b>"+verdict+".</b> A legal safety needs you to hit your ball first, drive a ball to a rail (or pocket one), and not scratch. Re-aim, or tap <b>Suggest a safety</b>.";
+    else if(e.obNear)tip.innerHTML="<b>Careful —</b> the object ball ended near a pocket. Even hooked, they may bank it or sell out — try to leave it mid-table.";
+    else if(e.blocked&&e.distScore>0.5&&e.railScore>0.4)tip.innerHTML="<b>That's the picture.</b> Hooked, long, and tight to a rail — they're kicking blind.";
+    else if(!e.blocked)tip.innerHTML="They can see the ball. Adjust aim/spin/power so the cue ball rolls <b>behind a blocker</b> — or tap <b>Suggest a safety</b> for a model.";
+    else tip.innerHTML="Hooked — good. Now find a touch more <b>distance</b> and get the cue ball <b>onto a rail</b>.";
+  }
+  function aimDir(){const r=S.aim*Math.PI/180;return v(Math.cos(r),Math.sin(r));}
+  function handlePos(){return add(S.cue,mul(aimDir(),14));}
+  function drawPath(path,col){for(let i=1;i<path.length;i++)felt.line(path[i-1],path[i],col,2);}
+  function draw(){
+    felt.clear();felt.table();
+    S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));
+    if(rested&&RESULT){
+      const sim=RESULT;
+      drawPath(sim.cuePath,'rgba(84,182,214,.22)');if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.18)');
+      if(!sim.scratch&&!sim.obPocketed){const blocked=clearanceBetween(sim.cueFinal,sim.obFinal)<0;felt.line(sim.cueFinal,sim.obFinal,blocked?COL.green:COL.red,blocked?3:2.4,blocked?[]:[6,5]);}
+      if(!sim.obPocketed)felt.ball(sim.obFinal,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});
+      if(sim.scratch){felt.ghost(sim.cueFinal);}else felt.ball(sim.cueFinal,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+    } else {
+      if(LAST){drawPath(LAST.cuePath,'rgba(84,182,214,.5)');if(LAST.obPath)drawPath(LAST.obPath,'rgba(231,162,62,.4)');
+        felt.ghost(LAST.cueFinal);if(LAST.obPath)felt.ghost(LAST.obFinal);
+        if(!LAST.scratch){const blocked=clearanceBetween(LAST.cueFinal,LAST.obFinal)<0;felt.line(LAST.cueFinal,LAST.obFinal,blocked?'rgba(98,185,134,.7)':'rgba(223,106,79,.7)',2,blocked?[]:[5,5]);}}
+      felt.ball(S.ob,BALLCOL.ob,'',{halo:'rgba(231,162,62,.65)'});
+      felt.ball(S.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      const hp=handlePos();felt.line(S.cue,hp,'rgba(236,210,138,.55)',2,[4,4]);
+      const x=felt.ctx,c=felt.P(hp);x.save();x.beginPath();x.arc(c.x,c.y,7,0,7);x.fillStyle=COL.brass;x.fill();x.strokeStyle='#1a1206';x.lineWidth=1.5;x.stroke();x.restore();
+    }
+  }
+  function preview(){rested=false;LAST=simulate(S.cue,aimDir(),S.power,S.vy,S.vx);draw();rate(LAST.cueFinal,LAST.obFinal,LAST);}
+  function alongPath(path,frac){if(path.length<2)return path[0];let segs=[],total=0;for(let i=1;i<path.length;i++){const L=len(sub(path[i],path[i-1]));segs.push({a:path[i-1],b:path[i],L,acc:total});total+=L;}const d=frac*total;for(const s of segs){if(d<=s.acc+s.L)return add(s.a,mul(sub(s.b,s.a),(d-s.acc)/(s.L||1)));}return path[path.length-1];}
+  function shoot(){
+    if(animating)return;const sim=LAST||simulate(S.cue,aimDir(),S.power,S.vy,S.vx);animating=true;
+    const dur=650,t0=Date.now();
+    function frame(){const p=Math.min(1,(Date.now()-t0)/dur);
+      const cp=alongPath(sim.cuePath,p),op=sim.obPath?alongPath(sim.obPath,Math.max(0,(p-0.35)/0.65)):S.ob;
+      felt.clear();felt.table();drawPath(sim.cuePath,'rgba(84,182,214,.22)');if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.18)');
+      S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));felt.ball(op,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});felt.ball(cp,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      if(p<1)requestAnimationFrame(frame);
+      else{animating=false;rested=true;RESULT=sim;if(!sim.scratch)S.cue=sim.cueFinal;if(!sim.obPocketed)S.ob=sim.obFinal;draw();rate(sim.cueFinal,sim.obFinal,sim);}
+    }
+    requestAnimationFrame(frame);
+  }
+  function load(i){cur=i;const sc=SCEN[i];S.ob={x:sc.ob.x,y:sc.ob.y};S.blockers=sc.blockers.map(b=>({x:b.x,y:b.y}));S.cue={x:sc.cue.x,y:sc.cue.y};S.aim=Math.atan2(S.ob.y-S.cue.y,S.ob.x-S.cue.x)*180/Math.PI;rested=false;preview();}
+  // spin pad
+  (function(){const sp=document.getElementById('spinPad'),sx=sp.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2),size=86;
+    sp.width=size*dpr;sp.height=size*dpr;sx.setTransform(dpr,0,0,dpr,0,0);
+    function pad(){sx.clearRect(0,0,size,size);const c=size/2,rad=size/2-5;
+      const g=sx.createRadialGradient(c-rad*0.3,c-rad*0.35,rad*0.1,c,c,rad);g.addColorStop(0,'#fbf8ee');g.addColorStop(1,'#cbc4ad');sx.fillStyle=g;sx.beginPath();sx.arc(c,c,rad,0,7);sx.fill();
+      sx.strokeStyle='rgba(0,0,0,.25)';sx.lineWidth=1;sx.stroke();
+      sx.strokeStyle='rgba(0,0,0,.16)';sx.beginPath();sx.moveTo(c-rad,c);sx.lineTo(c+rad,c);sx.moveTo(c,c-rad);sx.lineTo(c,c+rad);sx.stroke();
+      const tx=c+S.vx*rad*0.78,ty=c-S.vy*rad*0.78;sx.beginPath();sx.arc(tx,ty,6,0,7);sx.fillStyle='#c8102e';sx.fill();sx.strokeStyle='#fff';sx.lineWidth=1.5;sx.stroke();}
+    function lbl(){const p=[];if(S.vy>0.25)p.push('follow');else if(S.vy<-0.25)p.push('draw');if(S.vx>0.25)p.push('right');else if(S.vx<-0.25)p.push('left');document.getElementById('spinLabel').textContent=p.length?p.join('-'):'center';}
+    function set(e){const r=sp.getBoundingClientRect(),c=size/2,rad=size/2-5;let dx=(e.clientX-r.left)*(size/r.width)-c,dy=(e.clientY-r.top)*(size/r.height)-c;const m=Math.hypot(dx,dy),mx=rad*0.92;if(m>mx){dx*=mx/m;dy*=mx/m;}S.vx=clamp(dx/(rad*0.78),-1,1);S.vy=clamp(-dy/(rad*0.78),-1,1);pad();lbl();preview();}
+    let down=false;sp.onpointerdown=e=>{down=true;sp.setPointerCapture(e.pointerId);set(e);};sp.onpointermove=e=>{if(down)set(e);};sp.onpointerup=sp.onpointercancel=()=>{down=false;};
+    syncSpinUI=function(){pad();lbl();};
+    pad();lbl();
+  })();
+  // table interactions
+  let drag=null;
+  cv.onpointerdown=e=>{const t=felt.T(e.clientX,e.clientY),hp=handlePos();
+    const cands=[['aim',len(sub(t,hp)),R*1.8],['cue',len(sub(t,S.cue)),R*1.9],['ob',len(sub(t,S.ob)),R*1.9]];
+    let k=null,best=1e9;cands.forEach(([key,dd,th])=>{if(dd<th&&dd<best){best=dd;k=key;}});
+    if(k){drag=k;cv.classList.add('dragging');cv.setPointerCapture(e.pointerId);}};
+  cv.onpointermove=e=>{if(!drag)return;const t=felt.T(e.clientX,e.clientY);
+    if(drag==='aim')S.aim=Math.atan2(t.y-S.cue.y,t.x-S.cue.x)*180/Math.PI;else S[drag]=clampPlay(t);preview();};
+  cv.onpointerup=cv.onpointercancel=()=>{drag=null;cv.classList.remove('dragging');};
+  // controls
+  const pw=document.getElementById('safePower');pw.oninput=()=>{S.power=+pw.value;document.getElementById('powVal').textContent='· '+S.power;preview();};
+  document.getElementById('powVal').textContent='· '+S.power;
+  document.getElementById('safeShoot').onclick=shoot;
+  document.getElementById('safeReset').onclick=()=>load(cur);
+  document.getElementById('safeSuggest').onclick=suggestSafety;
+  const sb=document.getElementById('safeScenarios');SCEN.forEach((s,i)=>{const b=document.createElement('button');b.className='btn sm'+(i===0?' active':'');b.textContent=s.name;b.onclick=()=>{document.querySelectorAll('#safeScenarios .btn').forEach(x=>x.classList.remove('active'));b.classList.add('active');load(i);};sb.appendChild(b);});
+  felt.onResize=()=>{rested?draw():preview();};RESIZE.safety=()=>{felt.resize();rested?draw():preview();};
+  try{if(typeof window!=='undefined'&&window.__TEST__){window.__safeSim=simulate;window.__safeSuggest=suggestSafety;window.__safeSuggestScore=suggestScore;window.__safeEval=evalSafety;window.__safeState=()=>S;window.__safeLoad=load;window.__safeSCEN=SCEN;}}catch(e){}
+  load(0);
+};
+
+/* =========================================================================
+   MODULE: ESCAPE TRAINER (mirror / 2-to-1 kick)
+   ========================================================================= */
+INIT.escape=function(){
+  const cv=document.getElementById('escCanvas');const felt=new Felt(cv);
+  const RAILS=['bottom','top','left','right'];
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  const clamp=(x,a,b)=>Math.max(a,Math.min(b,x));
+  let syncSpinUI=function(){};
+  function mirrorOf(ob,rail){switch(rail){case 0:return v(ob.x,2*PLAY.h-ob.y);case 1:return v(ob.x,-ob.y);case 2:return v(-ob.x,ob.y);default:return v(2*PLAY.w-ob.x,ob.y);}}
+  function railHit(from,to,rail){if(rail<=1){const yr=rail===0?PLAY.h:0,dy=to.y-from.y;if(Math.abs(dy)<1e-6)return null;const t=(yr-from.y)/dy;if(t<=0||t>=1)return null;const x=from.x+t*(to.x-from.x);if(x<0||x>PLAY.w)return null;return v(x,yr);}const xr=rail===2?0:PLAY.w,dx=to.x-from.x;if(Math.abs(dx)<1e-6)return null;const t=(xr-from.x)/dx;if(t<=0||t>=1)return null;const y=from.y+t*(to.y-from.y);if(y<0||y>PLAY.h)return null;return v(xr,y);}
+  function railInner(rail){const e=0.5;if(rail===0)return[v(2,PLAY.h-e),v(PLAY.w-2,PLAY.h-e)];if(rail===1)return[v(2,e),v(PLAY.w-2,e)];if(rail===2)return[v(e,2),v(e,PLAY.h-2)];return[v(PLAY.w-e,2),v(PLAY.w-e,PLAY.h-2)];}
+  function clearSeg(a,b,balls){const ab=sub(b,a);return balls.every(p=>{const t=Math.max(0,Math.min(1,dot(sub(p,a),ab)/(dot(ab,ab)||1)));return len(sub(p,add(a,mul(ab,t))))>1.9*R;});}
+  function clearanceBetween(a,c){let m=1e9;S.blockers.forEach(b=>{const ab=sub(c,a),t=Math.max(0,Math.min(1,dot(sub(b,a),ab)/(dot(ab,ab)||1))),proj=add(a,mul(ab,t)),dd=len(sub(b,proj));if(t>0.03&&t<0.97)m=Math.min(m,dd-2*R);});return m;}
+  const diag=Math.hypot(PLAY.w,PLAY.h);
+  function genPuzzle(){
+    for(let tries=0;tries<700;tries++){
+      const ob=v(rand(18,82),rand(10,40)),cue=v(rand(12,88),rand(8,42));
+      if(len(sub(cue,ob))<32)continue;
+      const dir=norm(sub(ob,cue)),perp=norm(rot(dir,90)),nb=1+(Math.random()<0.5?1:0),blockers=[];let okPlace=true;
+      for(let i=0;i<nb;i++){const t=0.4+0.28*i+rand(-0.04,0.04);const p=clampPlay(add(add(cue,mul(dir,len(sub(ob,cue))*t)),mul(perp,rand(-1.1,1.1)*R)));
+        if(POCKETS.some(pk=>len(sub(p,pk))<8)||len(sub(p,ob))<R*2.6||len(sub(p,cue))<R*2.6){okPlace=false;break;}blockers.push(p);}
+      if(!okPlace)continue;
+      if(clearSeg(cue,ob,blockers))continue;
+      const valid=[];
+      for(let r=0;r<4;r++){const aim=railHit(cue,mirrorOf(ob,r),r);if(!aim)continue;
+        const okC=(r<=1)?(aim.x>11&&aim.x<PLAY.w-11):(aim.y>8&&aim.y<PLAY.h-8);if(!okC)continue;
+        if(!clearSeg(cue,aim,blockers))continue;if(!clearSeg(aim,ob,blockers))continue;
+        const test=simulateShot(cue,norm(sub(aim,cue)),7,0,0,ob,blockers);
+        if(test.firstHit!=='ob'||test.scratch)continue;
+        valid.push({r,aim});}
+      if(valid.length){const p=valid[Math.floor(Math.random()*valid.length)];return {cue,ob,blockers,rail:p.r,answerAim:p.aim};}
+    }
+    const cue=v(20,38),ob=v(80,14),blockers=[v(50,26)];return {cue,ob,blockers,rail:0,answerAim:railHit(cue,mirrorOf(ob,0),0)};
+  }
+  let S={cue:v(20,38),ob:v(80,14),blockers:[],rail:0,answerAim:null,aim:0,vx:0,vy:0,power:6,showMirror:false,previewOn:false,LAST:null,RESULT:null,rested:false,animating:false,scored:false},game={round:1,total:0};
+  function aimDir(){const r=S.aim*Math.PI/180;return v(Math.cos(r),Math.sin(r));}
+  function handlePos(){return add(S.cue,mul(aimDir(),14));}
+  function drawPath(path,col,w,dash){for(let i=1;i<path.length;i++)felt.line(path[i-1],path[i],col,w||2,dash);}
+  function draw(){
+    felt.clear();felt.table();
+    const ri=railInner(S.rail);felt.line(ri[0],ri[1],'rgba(84,182,214,.20)',12);
+    if(S.showMirror){const img=mirrorOf(S.ob,S.rail);felt.line(S.cue,img,'rgba(236,210,138,.30)',1.4,[4,5]);felt.ghost(img);
+      if(S.answerAim){felt.line(S.cue,S.answerAim,COL.brass,2.2,[5,4]);felt.line(S.answerAim,S.ob,COL.brass,2.2,[5,4]);felt.marker(S.answerAim,COL.brass2);}}
+    S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));
+    if(S.rested&&S.RESULT){const sim=S.RESULT;drawPath(sim.cuePath,'rgba(84,182,214,.24)',2);if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.2)',2);
+      if(!sim.obPocketed)felt.ball(sim.obFinal,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});
+      if(sim.scratch)felt.ghost(sim.cueFinal);else felt.ball(sim.cueFinal,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+    } else {
+      if(S.LAST&&S.previewOn){drawPath(S.LAST.cuePath,'rgba(84,182,214,.5)',2.2);if(S.LAST.obPath)drawPath(S.LAST.obPath,'rgba(231,162,62,.4)',2);felt.ghost(S.LAST.cueFinal);if(S.LAST.obPath&&!S.LAST.obPocketed)felt.ghost(S.LAST.obFinal);}
+      felt.ball(S.ob,BALLCOL.ob,'',{halo:'rgba(231,162,62,.65)'});
+      felt.ball(S.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      const hp=handlePos();felt.line(S.cue,hp,'rgba(236,210,138,.55)',2,[4,4]);
+      const x=felt.ctx,c=felt.P(hp);x.save();x.beginPath();x.arc(c.x,c.y,7,0,7);x.fillStyle=COL.brass;x.fill();x.strokeStyle='#1a1206';x.lineWidth=1.5;x.stroke();x.restore();
+    }
+  }
+  function preview(){S.rested=false;S.previewOn=true;S.LAST=simulateShot(S.cue,aimDir(),S.power,S.vy,S.vx,S.ob,S.blockers);draw();}
+  function alongPath(path,frac){if(path.length<2)return path[0];let segs=[],total=0;for(let i=1;i<path.length;i++){const L=len(sub(path[i],path[i-1]));segs.push({a:path[i-1],b:path[i],L,acc:total});total+=L;}const d=frac*total;for(const s of segs){if(d<=s.acc+s.L)return add(s.a,mul(sub(s.b,s.a),(d-s.acc)/(s.L||1)));}return path[path.length-1];}
+  function evalEscape(sim){
+    if(sim.scratch)return{score:0,verdict:'Scratch',vc:COL.red,foul:true,outcome:'Cue ball pocketed — ball-in-hand to your opponent.'};
+    if(!sim.hitOB)return{score:0,verdict:'Air ball',vc:COL.red,foul:true,outcome:'You never reached the target ball.'};
+    if(sim.firstHit&&sim.firstHit!=='ob')return{score:1,verdict:'Still hooked',vc:COL.red,foul:true,outcome:'You hit a blocker first — a foul, and you never escaped the hook.'};
+    const blocked=clearanceBetween(sim.cueFinal,sim.obFinal)<0,railD=Math.min(sim.cueFinal.x,PLAY.w-sim.cueFinal.x,sim.cueFinal.y,PLAY.h-sim.cueFinal.y),dist=len(sub(sim.cueFinal,sim.obFinal));
+    let score=6,bonus=[];
+    if(blocked){score+=3;bonus.push('left them hooked behind a blocker');}else if(dist>diag*0.45){score+=1;bonus.push('left them long');}
+    if(railD<R*1.8){score+=1;bonus.push('cue frozen to a rail');}
+    score=Math.min(10,score);
+    const verdict=score>=9?'Two-way escape':score>=7?'Clean escape':'Legal escape';
+    return{score,verdict,vc:score>=7?COL.green:COL.brass2,foul:false,outcome:'You kicked a cushion and hit the target'+(bonus.length?' — '+bonus.join(', ')+'.':'.')};
+  }
+  function gradeWord(t){return t>=85?'Sharpshooter.':t>=65?'Solid kicker.':t>=45?'Getting there.':'Keep drilling the mirror.';}
+  function showResult(g){document.getElementById('escResult').style.display='block';
+    const gs=document.getElementById('escGuessScore');gs.textContent=g.foul?'✕':g.score;gs.style.color=g.vc;
+    const gv=document.getElementById('escGuessVerdict');gv.textContent=g.verdict;gv.style.color=g.vc;
+    document.getElementById('escFeedback').textContent=g.outcome;}
+  function shoot(){
+    if(S.animating||S.rested)return;
+    const sim=S.LAST||simulateShot(S.cue,aimDir(),S.power,S.vy,S.vx,S.ob,S.blockers);S.animating=true;
+    const dur=720,t0=Date.now();
+    function frame(){const p=Math.min(1,(Date.now()-t0)/dur);
+      const cp=alongPath(sim.cuePath,p),op=sim.obPath?alongPath(sim.obPath,Math.max(0,(p-0.4)/0.6)):S.ob;
+      felt.clear();felt.table();const ri=railInner(S.rail);felt.line(ri[0],ri[1],'rgba(84,182,214,.20)',12);
+      drawPath(sim.cuePath,'rgba(84,182,214,.24)',2);if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.2)',2);
+      S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));felt.ball(op,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});felt.ball(cp,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      if(p<1)requestAnimationFrame(frame);
+      else{S.animating=false;S.rested=true;S.RESULT=sim;const g=evalEscape(sim);if(!S.scored){game.total+=g.score;S.scored=true;}document.getElementById('escScore').textContent=game.total;showResult(g);draw();
+        if(game.round>=10){document.getElementById('escPrompt').innerHTML='<b>Game over — '+game.total+' / 100.</b> '+gradeWord(game.total)+' Press New game to play again.';document.getElementById('escNext').style.display='none';}
+        else document.getElementById('escNext').style.display='block';}
+    }
+    requestAnimationFrame(frame);
+  }
+  function suggest(){
+    let best=null,bs=-1e9;
+    for(let r=0;r<4;r++){const img=mirrorOf(S.ob,r),base=Math.atan2(img.y-S.cue.y,img.x-S.cue.x)*180/Math.PI;
+      for(let off=-16;off<=16;off+=2){const ang=base+off,dir=v(Math.cos(ang*Math.PI/180),Math.sin(ang*Math.PI/180));
+        for(const pw of [4,5,6,7,8])for(const vy of [-0.4,0,0.4])for(const vx of [-0.4,0,0.4]){
+          const s=simulateShot(S.cue,dir,pw,vy,vx,S.ob,S.blockers);if(s.scratch||s.firstHit!=='ob')continue;
+          const e=evalEscape(s);if(e.score>bs){bs=e.score;best={ang,pw,vy,vx};}}}}
+    const tip=document.getElementById('escTip');
+    if(!best){tip.innerHTML='<b>No clean one-rail kick from here</b> — a brutal hook. Try more power, side english, or a two-rail route.';return;}
+    S.aim=best.ang;S.power=best.pw;S.vy=best.vy;S.vx=best.vx;
+    document.getElementById('escPower').value=best.pw;document.getElementById('escPowVal').textContent='· '+best.pw;
+    syncSpinUI();S.rested=false;preview();
+    tip.innerHTML='<b>Suggested kick set.</b> Aim, power and english are dialed in for a legal hit — press <b>Shoot</b>, or drag the handle and dial to refine.';
+  }
+  function genAndShow(){
+    const p=genPuzzle();S.cue=p.cue;S.ob=p.ob;S.blockers=p.blockers;S.rail=p.rail;S.answerAim=p.answerAim;
+    S.aim=Math.atan2(p.ob.y-p.cue.y,p.ob.x-p.cue.x)*180/Math.PI;S.vx=0;S.vy=0;S.power=6;S.showMirror=false;S.previewOn=false;S.LAST=null;S.RESULT=null;S.rested=false;S.scored=false;
+    document.getElementById('escPower').value=6;document.getElementById('escPowVal').textContent='· 6';syncSpinUI();
+    document.getElementById('escResult').style.display='none';document.getElementById('escNext').style.display='none';
+    document.getElementById('escRound').textContent='Round '+game.round+' / 10';
+    document.getElementById('escPrompt').innerHTML="You're hooked — kick off the <b>"+RAILS[S.rail]+"</b> rail (or any) to hit the target. Aim, set english &amp; power, then Shoot.";
+    document.getElementById('escMirror').classList.remove('active');
+    draw();
+  }
+  function newGame(){game={round:1,total:0};document.getElementById('escScore').textContent='0';genAndShow();}
+  // spin pad
+  (function(){const sp=document.getElementById('escSpin'),sx=sp.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2),size=86;
+    sp.width=size*dpr;sp.height=size*dpr;sx.setTransform(dpr,0,0,dpr,0,0);
+    function pad(){sx.clearRect(0,0,size,size);const c=size/2,rad=size/2-5;
+      const g=sx.createRadialGradient(c-rad*0.3,c-rad*0.35,rad*0.1,c,c,rad);g.addColorStop(0,'#fbf8ee');g.addColorStop(1,'#cbc4ad');sx.fillStyle=g;sx.beginPath();sx.arc(c,c,rad,0,7);sx.fill();
+      sx.strokeStyle='rgba(0,0,0,.25)';sx.lineWidth=1;sx.stroke();
+      sx.strokeStyle='rgba(0,0,0,.16)';sx.beginPath();sx.moveTo(c-rad,c);sx.lineTo(c+rad,c);sx.moveTo(c,c-rad);sx.lineTo(c,c+rad);sx.stroke();
+      const tx=c+S.vx*rad*0.78,ty=c-S.vy*rad*0.78;sx.beginPath();sx.arc(tx,ty,6,0,7);sx.fillStyle='#c8102e';sx.fill();sx.strokeStyle='#fff';sx.lineWidth=1.5;sx.stroke();}
+    function lbl(){const p=[];if(S.vy>0.25)p.push('follow');else if(S.vy<-0.25)p.push('draw');if(S.vx>0.25)p.push('right');else if(S.vx<-0.25)p.push('left');document.getElementById('escSpinLabel').textContent=p.length?p.join('-'):'center';}
+    function set(e){const r=sp.getBoundingClientRect(),c=size/2,rad=size/2-5;let dx=(e.clientX-r.left)*(size/r.width)-c,dy=(e.clientY-r.top)*(size/r.height)-c;const m=Math.hypot(dx,dy),mx=rad*0.92;if(m>mx){dx*=mx/m;dy*=mx/m;}S.vx=clamp(dx/(rad*0.78),-1,1);S.vy=clamp(-dy/(rad*0.78),-1,1);pad();lbl();if(!S.rested)preview();}
+    let down=false;sp.onpointerdown=e=>{down=true;sp.setPointerCapture(e.pointerId);set(e);};sp.onpointermove=e=>{if(down)set(e);};sp.onpointerup=sp.onpointercancel=()=>{down=false;};
+    syncSpinUI=function(){pad();lbl();};pad();lbl();
+  })();
+  // table interactions
+  let drag=null;
+  cv.onpointerdown=e=>{if(S.rested)return;const t=felt.T(e.clientX,e.clientY),hp=handlePos();const cands=[['aim',len(sub(t,hp)),R*1.8],['cue',len(sub(t,S.cue)),R*1.9],['ob',len(sub(t,S.ob)),R*1.9]];let k=null,best=1e9;cands.forEach(([key,dd,th])=>{if(dd<th&&dd<best){best=dd;k=key;}});if(k){drag=k;cv.classList.add('dragging');cv.setPointerCapture(e.pointerId);}};
+  cv.onpointermove=e=>{if(!drag)return;const t=felt.T(e.clientX,e.clientY);if(drag==='aim')S.aim=Math.atan2(t.y-S.cue.y,t.x-S.cue.x)*180/Math.PI;else S[drag]=clampPlay(t);preview();};
+  cv.onpointerup=cv.onpointercancel=()=>{drag=null;cv.classList.remove('dragging');};
+  // controls
+  const pw=document.getElementById('escPower');pw.oninput=()=>{S.power=+pw.value;document.getElementById('escPowVal').textContent='· '+S.power;if(!S.rested)preview();};
+  document.getElementById('escPowVal').textContent='· '+S.power;
+  document.getElementById('escShoot').onclick=shoot;
+  document.getElementById('escReset').onclick=()=>{S.aim=Math.atan2(S.ob.y-S.cue.y,S.ob.x-S.cue.x)*180/Math.PI;S.vx=0;S.vy=0;document.getElementById('escPower').value=6;S.power=6;document.getElementById('escPowVal').textContent='· 6';syncSpinUI();S.previewOn=false;S.rested=false;S.RESULT=null;S.LAST=null;draw();};
+  document.getElementById('escSuggest').onclick=suggest;
+  document.getElementById('escMirror').onclick=()=>{S.showMirror=!S.showMirror;document.getElementById('escMirror').classList.toggle('active',S.showMirror);draw();};
+  document.getElementById('escNext').onclick=()=>{game.round++;genAndShow();};
+  document.getElementById('escNewGame').onclick=()=>newGame();
+  felt.onResize=()=>{S.rested?draw():(S.previewOn?preview():draw());};RESIZE.escape=()=>{felt.resize();S.rested?draw():(S.previewOn?preview():draw());};
+  try{if(typeof window!=='undefined'&&window.__TEST__){window.__escGen=genPuzzle;window.__escState=()=>S;window.__escEval=evalEscape;window.__escSuggest=suggest;window.__escNext=genAndShow;window.__escClearSeg=clearSeg;window.__escSim=(aim,pw,vy,vx)=>simulateShot(S.cue,v(Math.cos(aim*Math.PI/180),Math.sin(aim*Math.PI/180)),pw,vy,vx,S.ob,S.blockers);}}catch(e){}
+  newGame();
+};
+
+/* =========================================================================
+   MINI SVG TABLE (for decision & drill cards)
+   ========================================================================= */
+function _clearSegD(a,b,balls){const ab=sub(b,a);return balls.every(p=>{const t=Math.max(0,Math.min(1,dot(sub(p,a),ab)/(dot(ab,ab)||1)));return len(sub(p,add(a,mul(ab,t))))>1.9*R;});}
+function _clearBetween(a,b,balls){const ab=sub(b,a),L2=dot(ab,ab)||1;return balls.every(p=>{const t=dot(sub(p,a),ab)/L2;if(t<=0.08||t>=0.96)return true;return len(sub(p,add(a,mul(ab,t))))>1.9*R;});}
+function _alongPath(path,frac){if(!path||path.length<2)return path?path[0]:null;let segs=[],total=0;for(let i=1;i<path.length;i++){const L=len(sub(path[i],path[i-1]));segs.push({a:path[i-1],b:path[i],L,acc:total});total+=L;}const d=frac*total;for(const s of segs){if(d<=s.acc+s.L)return add(s.a,mul(sub(s.b,s.a),(d-s.acc)/(s.L||1)));}return path[path.length-1];}
+function _aimGhost(from,ob,pk){return norm(sub(ghostBall(ob,pk),from));}
+function _bestMakeable(from,ob,others){let best=null,bc=999;POCKETS.forEach(pk=>{const aim=_aimGhost(from,ob,pk),cut=Math.abs(angBetween(aim,norm(sub(pk,ob))));if(cut>74)return;if(!_clearBetween(ob,pk,others))return;if(!_clearBetween(from,ghostBall(ob,pk),others))return;if(cut<bc){bc=cut;best={pk,aim};}});return best;}
+function _chainSteps(cue,balls,order){
+  const steps=[];let start={x:cue.x,y:cue.y};
+  for(let k=0;k<order.length;k++){
+    const idx=order[k],ob=balls[idx],others=order.slice(k+1).map(i=>balls[i]);
+    const nextIdx=order[k+1],nextOb=(nextIdx!=null)?balls[nextIdx]:null,nextOthers=order.slice(k+2).map(i=>balls[i]);
+    const mk=_bestMakeable(start,ob,others);
+    let chosen=null,bestScore=-1;
+    if(mk){
+      for(const vy of [-0.6,-0.3,0,0.3,0.6])for(const pw of [5,6,8]){
+        const s=simulateShot(start,mk.aim,pw,vy,0,ob,others);
+        if(!s.obPocketed||s.scratch)continue;
+        let score=1;
+        if(nextOb){
+          let q=0;
+          for(const pk of POCKETS){
+            const a=_aimGhost(s.cueFinal,nextOb,pk),cut=Math.abs(angBetween(a,norm(sub(pk,nextOb))));
+            if(cut>74)continue;
+            if(!_clearBetween(nextOb,pk,nextOthers))continue;
+            if(!_clearBetween(s.cueFinal,ghostBall(nextOb,pk),nextOthers))continue;
+            q=Math.max(q,1-cut/74);
+          }
+          score=q;
+        }
+        if(score>bestScore){bestScore=score;chosen=s;}
+      }
+    }
+    if(!chosen){
+      const aim=mk?mk.aim:_aimGhost(start,ob,{x:ob.x>50?100:0,y:ob.y>25?50:0});
+      chosen=simulateShot(start,aim,6,0.3,0,ob,others);
+    }
+    steps.push({sim:chosen,obIdx:idx});
+    start=chosen.scratch?{x:ob.x,y:ob.y}:{x:chosen.cueFinal.x,y:chosen.cueFinal.y};
+  }
+  return steps;
+}
+function buildDrillDemo(d,loopIdx){
+  const C=BALLCOL,BR={x:100,y:50},TR={x:100,y:0},TL={x:0,y:0},SBOT={x:50,y:50};
+  if(d.id==='stop'){
+    const cue={x:50,y:9},balls=[{x:50,y:24,c:C[3]},{x:50,y:33,c:C[3]},{x:50,y:42,c:C[3]}],steps=[],markers=[];
+    balls.forEach((ob,i)=>{const aimG=_aimGhost(cue,ob,SBOT);let s=null;for(const pw of [3,4,5,6,7]){const t=simulateShot(cue,aimG,pw,0,0,ob,[]);if(t.obPocketed&&!t.scratch){s=t;break;}}if(!s)s=simulateShot(cue,aimG,5,0,0,ob,[]);
+      steps.push({sim:s,obIdx:i});markers.push({x:s.cueFinal.x,y:s.cueFinal.y,label:'freeze',col:'rgba(84,182,214,.7)',dash:true,r:1.0});});
+    return{cue,balls,steps,markers};
+  }
+  if(d.id==='speed'){
+    const cue={x:34,y:38},ob={x:50,y:22},aimG=_aimGhost(cue,ob,TL),pws=[4,6.5,9],lab=['Z1 soft','Z2 medium','Z3 firm'];
+    const sims=pws.map(pw=>simulateShot(cue,aimG,pw,0.45,0,ob,[]));
+    const markers=sims.map((s,i)=>({x:s.cueFinal.x,y:s.cueFinal.y,label:lab[i],col:'rgba(236,210,138,.8)',r:1.15}));
+    return{cue,balls:[{x:ob.x,y:ob.y,c:C[2]}],steps:[{sim:sims[loopIdx%3],obIdx:0}],markers};
+  }
+  if(d.id==='wagon'){
+    const cue={x:40,y:40},ob={x:58,y:26},aimG=_aimGhost(cue,ob,TR),spins=[-0.7,0,0.7],lab=['draw','stun','follow'];
+    const sims=spins.map(vy=>simulateShot(cue,aimG,6,vy,0,ob,[]));
+    const markers=sims.map((s,i)=>({x:s.cueFinal.x,y:s.cueFinal.y,label:lab[i],col:'rgba(98,185,134,.85)',r:1.15}));
+    return{cue,balls:[{x:ob.x,y:ob.y,c:C[5]}],steps:[{sim:sims[loopIdx%3],obIdx:0}],markers};
+  }
+  if(d.id==='kick'){
+    const cue={x:16,y:42},line=[{x:40,y:12,c:C[3]},{x:58,y:12,c:C[5]},{x:76,y:12,c:C[6]}],steps=[];
+    line.forEach((o,i)=>{const others=line.filter((_,j)=>j!==i);let aim=null;[PLAY.h-R,R].forEach(ry=>{if(aim)return;const ka=norm(sub({x:o.x,y:2*ry-o.y},cue));if(simulateShot(cue,ka,9,0,0,o,others).firstHit==='ob')aim=ka;});if(!aim)aim=norm(sub(o,cue));
+      steps.push({sim:simulateShot(cue,aim,9,0,0,o,others),obIdx:i,staticOb:true});});
+    return{cue,balls:line,steps,markers:[]};
+  }
+  if(d.id==='hide'){
+    const cue={x:24,y:40},ob={x:50,y:26},aim=_aimGhost(cue,ob,{x:50,y:0});
+    const s0=simulateShot(cue,aim,5,0,0,ob,[]);
+    let blk={x:s0.obFinal.x*0.55+s0.cueFinal.x*0.45,y:s0.obFinal.y*0.55+s0.cueFinal.y*0.45};
+    const ab=sub(ob,cue),L2=dot(ab,ab)||1,t=dot(sub(blk,cue),ab)/L2,proj=add(cue,mul(ab,t));
+    if(t>0.05&&t<0.95&&len(sub(blk,proj))<2.4*R)blk=add(blk,mul(norm(rot(norm(ab),90)),2.6*R));
+    blk=clampPlay(blk);
+    const balls=[{x:ob.x,y:ob.y,c:C[2]},{x:blk.x,y:blk.y,c:C.blk}];
+    const s=simulateShot(cue,aim,5,0,0,ob,[balls[1]]);
+    return{cue,balls,steps:[{sim:s,obIdx:0}],markers:[{x:s.cueFinal.x,y:s.cueFinal.y,label:'hooked',col:'rgba(98,185,134,.8)',r:1.25}]};
+  }
+  if(d.id==='ghost'){const cue={x:24,y:40},balls=[{x:38,y:28,c:C[2]},{x:60,y:18,c:C[3]},{x:82,y:40,c:C[9],l:'9'}];return{cue,balls,steps:_chainSteps(cue,balls,[0,1,2]),markers:[]};}
+  if(d.id==='keyball'){const cue={x:24,y:40},balls=[{x:38,y:28,c:C[5]},{x:60,y:18,c:C[6]},{x:82,y:40,c:C[8],l:'8'}];const key=balls[1];
+    return{cue,balls,steps:_chainSteps(cue,balls,[0,1,2]),markers:[{x:key.x,y:key.y,label:'KEY',col:'rgba(84,182,214,.85)',r:1.4}]};}
+  if(d.id==='insurance'){
+    const cue={x:26,y:40},ins={x:44,y:32,c:C[5]},cl1={x:68,y:16,c:C[2]},cl2={x:73,y:18,c:C[2]},eight={x:84,y:44,c:C[8],l:'8'};
+    const balls=[ins,cl1,cl2,eight],clC={x:(cl1.x+cl2.x)/2,y:(cl1.y+cl2.y)/2};
+    const mk=_bestMakeable(cue,ins,[cl1,cl2,eight])||{aim:_aimGhost(cue,ins,TL)};
+    let best=null;
+    for(const vy of [0.3,0.6,0.85])for(const pw of [6,7,8]){const s=simulateShot(cue,mk.aim,pw,vy,0,ins,[cl1,cl2,eight]);if(s.scratch)continue;const dC=len(sub(s.cueFinal,clC));if(!best||dC<best.dC)best={dC,s};}
+    if(!best)best={s:simulateShot(cue,mk.aim,7,0.6,0,ins,[cl1,cl2,eight])};
+    return{cue,balls,steps:[{sim:best.s,obIdx:0}],markers:[{x:clC.x,y:clC.y,label:'break',col:'rgba(223,106,79,.85)',r:2.0,dash:true}]};
+  }
+  const cue={x:d.balls[0].x,y:d.balls[0].y},balls=d.balls.slice(1).map(b=>({x:b.x,y:b.y,c:b.c,l:b.l||''}));
+  return{cue,balls,steps:_chainSteps(cue,balls,balls.map((_,i)=>i)),markers:[]};
+}
+function _rnd(a,b){return a+Math.random()*(b-a);}
+function _farPk(p,dd){return POCKETS.every(pk=>len(sub(p,pk))>=(dd||7));}
+function _place(existing,minGap,xr,yr){for(let t=0;t<200;t++){const p={x:_rnd(xr[0],xr[1]),y:_rnd(yr[0],yr[1])};if(!_farPk(p,7))continue;if(existing.every(q=>len(sub(p,q))>minGap))return p;}return {x:_rnd(xr[0],xr[1]),y:_rnd(yr[0],yr[1])};}
+function randomSetup(d){
+  const C=BALLCOL,OBC=[C[1],C[2],C[3],C[4],C[5],C[6],C[7]],XR=[10,90],YR=[8,42];
+  if(d.id==='ghost'||d.id==='keyball'){
+    const cue=_place([],0,[12,40],[10,40]),used=[cue],balls=[];
+    for(let i=0;i<3;i++){const p=_place(used,7,XR,YR);used.push(p);balls.push({x:p.x,y:p.y,c:OBC[i%OBC.length]});}
+    const m=_place(used,7,XR,YR);used.push(m);
+    balls.push(d.id==='ghost'?{x:m.x,y:m.y,c:C[9],l:'9'}:{x:m.x,y:m.y,c:C[8],l:'8'});
+    const markers=[];if(d.id==='keyball'){const k=balls[1];markers.push({x:k.x,y:k.y,label:'KEY',col:'rgba(84,182,214,.85)',r:1.4});}
+    return {cue,balls,markers};
+  }
+  if(d.id==='insurance'){
+    const cue=_place([],0,[12,34],[10,40]),used=[cue];
+    const cc=_place(used,10,[52,82],[10,40]);const ang=_rnd(0,Math.PI),off=mul(v(Math.cos(ang),Math.sin(ang)),2.0);
+    const cl1=clampPlay({x:cc.x-off.x,y:cc.y-off.y}),cl2=clampPlay({x:cc.x+off.x,y:cc.y+off.y});used.push(cl1,cl2);
+    const ins=_place(used,7,[24,56],YR);used.push(ins);const eight=_place(used,7,XR,YR);used.push(eight);
+    return {cue,balls:[{x:ins.x,y:ins.y,c:C[5]},{x:cl1.x,y:cl1.y,c:C[2]},{x:cl2.x,y:cl2.y,c:C[2]},{x:eight.x,y:eight.y,c:C[8],l:'8'}],
+      markers:[{x:cc.x,y:cc.y,label:'break',col:'rgba(223,106,79,.85)',r:2.0,dash:true}]};
+  }
+  if(d.id==='hide'){
+    const cue=_place([],0,[12,30],[10,40]),ob=_place([cue],10,[40,86],YR);
+    let blk=clampPlay({x:(cue.x+ob.x)/2+_rnd(-7,7),y:(cue.y+ob.y)/2+_rnd(-7,7)});
+    if(!_farPk(blk,7)||len(sub(blk,ob))<6||len(sub(blk,cue))<6)blk=_place([cue,ob],6,XR,YR);
+    return {cue,balls:[{x:ob.x,y:ob.y,c:C[2]},{x:blk.x,y:blk.y,c:C.blk}],markers:[]};
+  }
+  if(d.id==='kick'){
+    const top=Math.random()<0.5,ry=top?_rnd(9,13):_rnd(37,41),n=3+(Math.random()<0.5?1:0),step=60/(n-1);
+    const balls=[];for(let i=0;i<n;i++){const x=Math.min(86,Math.max(22,24+i*step+_rnd(-3,3)));balls.push({x,y:ry,c:OBC[i%OBC.length]});}
+    balls.sort((a,b)=>a.x-b.x);for(let i=1;i<balls.length;i++)if(balls[i].x-balls[i-1].x<2.6*R)balls[i].x=balls[i-1].x+2.6*R;
+    const cue=_place(balls,8,[12,34],top?[28,42]:[8,22]);
+    return {cue,balls,markers:[]};
+  }
+  if(d.id==='stop'){
+    const pk=POCKETS[Math.floor(_rnd(0,POCKETS.length))];let cue=clampPlay(_place([],0,[14,86],[8,42]));
+    let distCP=len(sub(pk,cue));if(distCP<46){cue=clampPlay(add(pk,mul(norm(sub(cue,pk)),48)));distCP=len(sub(pk,cue));}
+    const dir=norm(sub(pk,cue)),n=3+(Math.random()<0.5?1:0),balls=[];let f=_rnd(0.24,0.32);
+    for(let i=0;i<n;i++){const a=add(cue,mul(dir,distCP*f));if(_farPk(a,7)&&Math.min(a.x,PLAY.w-a.x,a.y,PLAY.h-a.y)>3.2)balls.push({x:a.x,y:a.y,c:OBC[i%OBC.length]});f+=_rnd(0.13,0.19);if(f>0.8)break;}
+    return {cue,balls,markers:[{x:pk.x,y:pk.y,label:'pocket',col:'rgba(236,210,138,.7)',r:1.7,dash:true}]};
+  }
+  if(d.id==='speed'){
+    const cue=_place([],0,[14,40],[28,44]),ob=_place([cue],11,[34,70],[16,36]),used=[cue,ob],markers=[],lab=['Z1','Z2','Z3'];
+    for(let i=0;i<3;i++){const z=_place(used,8,[40,90],[8,34]);used.push(z);markers.push({x:z.x,y:z.y,label:lab[i],col:'rgba(236,210,138,.8)',r:1.15});}
+    return {cue,balls:[{x:ob.x,y:ob.y,c:C[2]}],markers};
+  }
+  if(d.id==='wagon'){
+    const cue=_place([],0,[20,60],[20,44]),ob=_place([cue],12,[30,80],[10,34]);
+    return {cue,balls:[{x:ob.x,y:ob.y,c:C[5]}],markers:[]};
+  }
+  return {cue:{x:24,y:40},balls:[{x:50,y:25,c:C[2]}],markers:[]};
+}
+function setupTarget(d,L){
+  const cue=L.cue,balls=L.balls;
+  if(d.id==='speed'){const zs=(L.markers||[]).filter(m=>m.label&&m.label[0]==='Z');const z=zs.length?zs[Math.floor(Math.random()*zs.length)]:cue;return {x:z.x,y:z.y};}
+  if(d.id==='stop'){const ob=balls[0],pk=L.markers[0],aim=_aimGhost(cue,ob,pk);let s=null;for(const pw of [3,4,5,6,7]){const t=simulateShot(cue,aim,pw,0,0,ob,[]);if(t.obPocketed&&!t.scratch){s=t;break;}}if(!s)s=simulateShot(cue,aim,5,0,0,ob,[]);return {x:s.cueFinal.x,y:s.cueFinal.y};}
+  if(d.id==='wagon'){const ob=balls[0],aim=_aimGhost(cue,ob,{x:100,y:0}),vy=[-0.6,0,0.6][Math.floor(Math.random()*3)],s=simulateShot(cue,aim,6,vy,0,ob,[]);return {x:s.cueFinal.x,y:s.cueFinal.y};}
+  if(d.id==='hide'){const ob=balls[0],blk=balls[1],aim=_aimGhost(cue,ob,{x:50,y:0}),s=simulateShot(cue,aim,5,0,0,ob,[blk]);return {x:s.cueFinal.x,y:s.cueFinal.y};}
+  if(d.id==='kick'){const o=balls[0],others=balls.slice(1);let aim=null;[PLAY.h-R,R].forEach(ry=>{if(aim)return;const ka=norm(sub({x:o.x,y:2*ry-o.y},cue));if(simulateShot(cue,ka,9,0,0,o,others).firstHit==='ob')aim=ka;});if(!aim)aim=norm(sub(o,cue));const s=simulateShot(cue,aim,9,0,0,o,others);return {x:s.cueFinal.x,y:s.cueFinal.y};}
+  if(d.id==='insurance'){const ins=balls[0],bl=balls.slice(1),mk=_bestMakeable(cue,ins,bl)||{aim:_aimGhost(cue,ins,{x:0,y:0})},clC=L.markers[0];let best=null;for(const vy of [0.3,0.6,0.85])for(const pw of [6,7,8]){const s=simulateShot(cue,mk.aim,pw,vy,0,ins,bl);if(s.scratch)continue;const dC=clC?len(sub(s.cueFinal,clC)):0;if(!best||dC<best.dC)best={dC,s};}if(!best)best={s:simulateShot(cue,mk.aim,7,0.6,0,ins,bl)};return {x:best.s.cueFinal.x,y:best.s.cueFinal.y};}
+  if(d.id==='ghost'||d.id==='keyball'){const bs=balls.map(b=>({x:b.x,y:b.y,c:b.c})),steps=_chainSteps(cue,bs,bs.map((_,i)=>i)),last=steps[steps.length-1];return last?{x:last.sim.cueFinal.x,y:last.sim.cueFinal.y}:{x:cue.x,y:cue.y};}
+  return {x:cue.x,y:cue.y};
+}
+function svgMini(balls){
+  const W=100,H=50,m=10,sx=2.0,vw=W*sx+m*2,vh=H*sx+m*2;
+  const map=(x,y)=>[(x*sx+m).toFixed(1),(y*sx+m).toFixed(1)];
+  let s=`<svg viewBox="0 0 ${vw} ${vh}" width="100%" style="display:block;border-radius:8px;background:#1c140c">`;
+  s+=`<rect x="${m-5}" y="${m-5}" width="${W*sx+10}" height="${H*sx+10}" rx="5" fill="#15442f"/>`;
+  POCKETS.forEach(p=>{const a=map(p.x,p.y);s+=`<circle cx="${a[0]}" cy="${a[1]}" r="${p.t==='corner'?6:5}" fill="#06110b"/>`;});
+  for(let i=1;i<=7;i++){if(i===4)continue;const a=map(W*i/8,0);s+=`<circle cx="${a[0]}" cy="3.5" r="1" fill="#ecd28a"/><circle cx="${a[0]}" cy="${vh-3.5}" r="1" fill="#ecd28a"/>`;}
+  (balls||[]).forEach(bl=>{const a=map(bl.x,bl.y);s+=`<circle cx="${a[0]}" cy="${a[1]}" r="4.7" fill="${bl.c}" stroke="rgba(0,0,0,.45)" stroke-width="1"/>`;if(bl.l)s+=`<text x="${a[0]}" y="${(+a[1])+3}" font-size="6" font-family="Oswald" font-weight="700" text-anchor="middle" fill="${(bl.c==='#141414'||bl.c==='#2f6fb0'||bl.c==='#6e44a0'||bl.c==='#7c3a32')?'#fff':'#1a1206'}">${bl.l}</text>`;});
+  return s+'</svg>';
+}
+
+/* =========================================================================
+   MODULE: RUN OR SAFE?
+   ========================================================================= */
+INIT.decide=function(){
+  /* ---------- shot simulator ---------- */
+  const cv=document.getElementById('decCanvas');const felt=new Felt(cv);
+  const rand=(a,b)=>a+Math.random()*(b-a);
+  function clearPath(a,b,balls){const ab=sub(b,a);return balls.every(p=>{const t=Math.max(0,Math.min(1,dot(sub(p,a),ab)/(dot(ab,ab)||1)));const proj=add(a,mul(ab,t));return len(sub(p,proj))>1.9*R;});}
+  function potQuality(cue,ob,blockers){let best=0,bcut=0,bdist=0;
+    POCKETS.forEach(pk=>{const ghost=add(ob,mul(norm(sub(ob,pk)),2*R));const cueAim=norm(sub(ghost,cue));const cut=Math.abs(angBetween(cueAim,norm(sub(pk,ob))));
+      if(cut>72)return;if(!clearPath(ob,pk,blockers))return;if(!clearPath(cue,ghost,blockers))return;
+      const obDist=len(sub(ob,pk)),cutQ=Math.max(0,1-cut/72),distQ=Math.max(0,1-obDist/Math.hypot(PLAY.w,PLAY.h)),q=0.62*cutQ+0.38*distQ;
+      if(q>best){best=q;bcut=cut;bdist=obDist;}});
+    return {q:best,cut:bcut,dist:bdist};}
+  function classify(cue,ob,blockers){const pq=potQuality(cue,ob,blockers);
+    if(pq.q>0.58){const why=pq.cut<25?'a high-percentage, makeable angle to a pocket — take it.':pq.dist>70?'a makeable (if longer) pot is available — still the percentage play.':'a clean, makeable angle to the pocket — commit and run.';return {smart:'run',why,q:pq.q,dist:pq.dist};}
+    const why=pq.q===0?'every pot is screened or razor-thin — do not force it, take the hook.':'only a low-percentage look here — the percentage play is to play safe.';return {smart:'safe',why,q:pq.q,dist:pq.dist};}
+  function genLayout(){
+    for(let tries=0;tries<500;tries++){
+      const ob=v(rand(18,82),rand(10,40)),cue=v(rand(12,88),rand(8,42));
+      if(len(sub(cue,ob))<26)continue;if(POCKETS.some(pk=>len(sub(ob,pk))<9))continue;
+      const nb=1+(Math.random()<0.6?1:0),blockers=[];
+      for(let i=0;i<nb;i++){let p,t=0;do{p=v(rand(16,84),rand(10,40));t++;}while(t<60&&(len(sub(p,ob))<R*3||len(sub(p,cue))<R*3||blockers.some(q=>len(sub(p,q))<R*3)||POCKETS.some(pk=>len(sub(p,pk))<9)));blockers.push(p);}
+      const c=classify(cue,ob,blockers);
+      if(c.q>0.6&&c.dist<62)return {cue,ob,blockers,smart:c.smart,why:c.why};
+      if(c.q<0.4)return {cue,ob,blockers,smart:c.smart,why:c.why};
+    }
+    const ob=v(70,16),cue=v(30,28),blockers=[v(50,40)],c=classify(cue,ob,blockers);return {cue,ob,blockers,smart:c.smart,why:c.why};
+  }
+  let cur=null,S={vx:0,vy:0,power:7,aim:0,call:null},LAST=null,RESULT=null,MODEL=null,rested=false,animating=false;
+  let game={rounds:0,total:0,best:0,shot:false,last:0};
+  function updateStats(){document.getElementById('decStats').textContent='Played '+game.rounds+' · Avg '+(game.rounds?Math.round(game.total/game.rounds):'—')+' · Best '+game.best;}
+  function commitRound(){if(game.shot){game.rounds++;game.total+=game.last;game.best=Math.max(game.best,game.last);}game.shot=false;game.last=0;updateStats();}
+  function clearanceBetween(a,c){let m=1e9;S.blockers.forEach(b=>{const ab=sub(c,a),t=Math.max(0,Math.min(1,dot(sub(b,a),ab)/(dot(ab,ab)||1))),proj=add(a,mul(ab,t)),dd=len(sub(b,proj));if(t>0.03&&t<0.97)m=Math.min(m,dd-2*R);});return m;}
+  function pocketName(p){if(Math.abs(p.x-50)<1)return p.y<25?'top side pocket':'bottom side pocket';return (p.y<25?'top':'bottom')+'-'+(p.x<50?'left':'right')+' corner';}
+  function powerWord(pw){return pw<=3?'soft':pw<=5?'medium-soft':pw<=7?'medium':'firm';}
+  function spinPhrase(vy,vx){const h=vx>0.25?'right':vx<-0.25?'left':'',ve=vy>0.25?'follow':vy<-0.25?'draw':'';return [ve,h].filter(Boolean).join(' & ');}
+  function modelRun(){
+    const cands=[];
+    POCKETS.forEach(pk=>{const ghost=add(S.ob,mul(norm(sub(S.ob,pk)),2*R)),cueAim=norm(sub(ghost,S.cue)),cut=Math.abs(angBetween(cueAim,norm(sub(pk,S.ob))));
+      if(cut>72)return;if(!clearPath(S.ob,pk,S.blockers))return;if(!clearPath(S.cue,ghost,S.blockers))return;
+      const obDist=len(sub(S.ob,pk)),cutQ=Math.max(0,1-cut/72),distQ=Math.max(0,1-obDist/Math.hypot(PLAY.w,PLAY.h)),q=0.62*cutQ+0.38*distQ;
+      cands.push({pk,ghost,cut,q});});
+    cands.sort((a,b)=>b.q-a.q);
+    let best=null,attempt=null;
+    for(const cand of cands){const baseAim=Math.atan2(cand.ghost.y-S.cue.y,cand.ghost.x-S.cue.x)*180/Math.PI;
+      for(const da of [0,-3,3,-6,6])for(const pw of [5,6,7,8])for(const vy of [-0.5,-0.2,0,0.3,0.6]){
+        const aim=baseAim+da,d=v(Math.cos(aim*Math.PI/180),Math.sin(aim*Math.PI/180)),sim=simulateShot(S.cue,d,pw,vy,0,S.ob,S.blockers);
+        if(sim.scratch)continue;
+        if(sim.obPocketed){const cx=Math.abs(sim.cueFinal.x-PLAY.w/2)/(PLAY.w/2),cy=Math.abs(sim.cueFinal.y-PLAY.h/2)/(PLAY.h/2),railD=Math.min(sim.cueFinal.x,PLAY.w-sim.cueFinal.x,sim.cueFinal.y,PLAY.h-sim.cueFinal.y),sc=12-(cx+cy)*3+Math.min(2.5,railD/(R*2))-Math.abs(da)*0.2;
+          if(!best||sc>best.sc)best={sc,aim,pw,vy,sim,pk:cand.pk,cut:cand.cut};}
+        else if(sim.hitOB){const att=cand.q*4-Math.abs(da)*0.2;if(!attempt||att>attempt.att)attempt={att,aim,pw,vy,sim,pk:cand.pk,cut:cand.cut};}
+      }
+      if(best)break;
+    }
+    if(best){const note='<b>Model line — run it.</b> Pot into the '+pocketName(best.pk)+' (~'+Math.round(best.cut)+'° cut), '+powerWord(best.pw)+(spinPhrase(best.vy,0)?(' with '+spinPhrase(best.vy,0)):' with stun')+', holding the cue ball in the open for the next shot.';
+      return {call:'run',aim:best.aim,power:best.pw,vy:best.vy,vx:0,sim:best.sim,note};}
+    if(attempt){const note='<b>Model line — run it (thin).</b> The only look is the '+pocketName(attempt.pk)+' at ~'+Math.round(attempt.cut)+'° — a low-percentage cut this engine rarely drops. If you don’t trust it, this is a spot to play safe instead.';
+      return {call:'run',aim:attempt.aim,power:attempt.pw,vy:attempt.vy,vx:0,sim:attempt.sim,note};}
+    return modelSafe(true);
+  }
+  function modelSafe(forced){
+    const base=Math.atan2(S.ob.y-S.cue.y,S.ob.x-S.cue.x)*180/Math.PI;let best=null,legal=null;
+    for(let da=-60;da<=60;da+=4){const aim=base+da,d=v(Math.cos(aim*Math.PI/180),Math.sin(aim*Math.PI/180));
+      for(const pw of [2,3,4,5,6,7,8])for(const vy of [-0.5,0,0.5])for(const vx of [-0.6,0,0.6]){
+        const sim=simulateShot(S.cue,d,pw,vy,vx,S.ob,S.blockers);
+        if(sim.scratch||!sim.hitOB||(sim.firstHit&&sim.firstHit!=='ob')||!sim.railAfter)continue;
+        const clr=clearanceBetween(sim.cueFinal,sim.obFinal),blocked=clr<0,railD=Math.min(sim.cueFinal.x,PLAY.w-sim.cueFinal.x,sim.cueFinal.y,PLAY.h-sim.cueFinal.y),distU=len(sub(sim.cueFinal,sim.obFinal));
+        let sc=blocked?52:-clr/R*5;sc+=Math.min(18,distU/3);sc+=Math.max(0,(R*4-railD)/(R*4))*12;
+        if(POCKETS.some(p=>len(sub(sim.obFinal,p))<10))sc-=16;
+        if(!best||sc>best.sc)best={sc,aim,pw,vy,vx,sim,blocked,railD,distU};
+        const ls=distU+railD*0.3;if(!legal||ls>legal.ls)legal={ls,aim,pw,vy,vx,sim,blocked,railD,distU};
+      }}
+    const pick=best||legal;
+    if(!pick){const d=v(Math.cos(base*Math.PI/180),Math.sin(base*Math.PI/180)),sim=simulateShot(S.cue,d,3,0,0,S.ob,S.blockers);return{call:'safe',aim:base,power:3,vy:0,vx:0,sim,note:'<b>Model line — play safe.</b> '+(forced?'No makeable pot, and ':'')+'no legal lock-up turned up in the search — roll up soft and tight behind the blocker and accept a tough table for both players.'};}
+    const sp=spinPhrase(pick.vy,pick.vx),pre=forced?'No high-percentage pot — play safe. ':'';
+    const note='<b>Model line — play safe.</b> '+pre+(pick.blocked?'Hook them':'Leave them long')+' — '+powerWord(pick.pw)+(sp?(' with '+sp):'')+', so the cue '+(pick.railD<R*3?'tucks near the rail':'finishes '+(pick.distU>40?'a long way from':'screened from')+' the object ball')+'.';
+    return {call:'safe',aim:pick.aim,power:pick.pw,vy:pick.vy,vx:pick.vx,sim:pick.sim,note};
+  }
+  function modelShot(){return cur.smart==='run'?modelRun():modelSafe(false);}
+  function grade(call,sim){
+    if(sim.scratch)return{foul:true,score:0,verdict:'SCRATCH',vc:COL.red,outcome:'Cue ball pocketed → ball-in-hand to your opponent.'};
+    if(!sim.hitOB)return{foul:true,score:0,verdict:'FOUL — air ball',vc:COL.red,outcome:'You never contacted your object ball.'};
+    if(sim.firstHit&&sim.firstHit!=='ob')return{foul:true,score:0,verdict:'FOUL — wrong ball',vc:COL.red,outcome:'You hit another ball first.'};
+    const railD=Math.min(sim.cueFinal.x,PLAY.w-sim.cueFinal.x,sim.cueFinal.y,PLAY.h-sim.cueFinal.y);
+    if(call==='run'){
+      if(sim.obPocketed){
+        let score=72;if(railD>R*3)score+=18;else if(railD>R*1.6)score+=8;
+        const cx=Math.abs(sim.cueFinal.x-PLAY.w/2)/(PLAY.w/2),cy=Math.abs(sim.cueFinal.y-PLAY.h/2)/(PLAY.h/2);
+        if(cx<0.7&&cy<0.7)score+=10;score=Math.min(100,score);
+        return{score,verdict:score>=88?'Made it + great shape':'Ball made',vc:COL.green,outcome:railD>R*2.5?'Potted and left the cue ball in open position.':'Potted — but the cue ball is tight to a rail for your next shot.'};
+      }
+      return{score:18,verdict:'Missed',vc:COL.red,outcome:'You went for it and missed — the table is likely open for your opponent now.'};
+    }
+    if(sim.obPocketed)return{score:50,verdict:'Made it — not a safe',vc:COL.brass2,outcome:'You pocketed the ball instead of hooking — fine if it keeps your turn, but not the safety you called.'};
+    const clr=clearanceBetween(sim.cueFinal,sim.obFinal),blocked=clr<0,diag=Math.hypot(PLAY.w,PLAY.h);
+    const hide=blocked?1:(clr<R*1.2?0.5:0);
+    const dist=Math.max(0,Math.min(1,len(sub(sim.cueFinal,sim.obFinal))/(diag*0.85)));
+    const railS=Math.max(0,1-railD/(R*4));
+    let score=Math.round(100*(0.5*hide+0.3*dist+0.2*railS));
+    const obNear=POCKETS.some(p=>len(sub(sim.obFinal,p))<10);
+    if(!sim.railAfter)return{score:Math.max(0,score-30),verdict:'No rail — likely foul',vc:COL.red,outcome:'Legal contact, but no ball reached a rail afterward — under most rules that is a foul handing them ball-in-hand. A hook means nothing if you foul getting there.'};
+    if(obNear)score=Math.max(0,score-20);
+    const verdict=score>=80?'Lock-up safety':score>=60?'Solid safety':score>=40?'Loose safety':'Weak — they can shoot';
+    const tag=(blocked?'Hooked':(hide===0.5?'Half-screened':'Not hidden'))+' · '+(dist>0.6?'long':dist>0.32?'mid-distance':'short')+' · cue '+(railS>0.5?'on a rail':'in the open');
+    const leaks=[];
+    if(!blocked)leaks.push(hide===0.5?'they can still see an edge of the ball':'they have a clear, open look');
+    if(dist<0.32)leaks.push('the cue ball is close to the object ball, so even hooked a soft kick frees them');
+    if(railS<0.4&&blocked)leaks.push('the cue ball sits out in the open — room to draw or follow back to a shot');
+    if(obNear)leaks.push('the object ball ended near a pocket — they may bank it or sell out');
+    const outcome=tag+(leaks.length?(' — weakness: '+leaks.join('; ')+'.'):' — a genuine lock-up.');
+    return{score,verdict,vc:score>=60?COL.green:score>=40?COL.amber:COL.red,outcome};
+  }
+  function applyGrade(call,sim){
+    const g=grade(call,sim);
+    document.getElementById('decScore').textContent=g.foul?'✕':g.score;
+    const ve=document.getElementById('decVerdict');ve.textContent=g.verdict;ve.style.color=g.vc;
+    document.getElementById('decOutcome').textContent=g.outcome;
+    game.last=g.foul?0:g.score;game.shot=true;
+    const sc=cur,matched=(call===sc.smart);
+    document.getElementById('decTip').innerHTML=(matched?'<b>Smart call.</b> '+sc.why:'<b>Risky call.</b> The percentage play here was to <b>'+(sc.smart==='run'?'run it':'play safe')+'</b> — '+sc.why)+(g.foul?' Plus the execution fouled — re-take it.':'');
+  }
+  function aimDir(){const r=S.aim*Math.PI/180;return v(Math.cos(r),Math.sin(r));}
+  function handlePos(){return add(S.cue,mul(aimDir(),14));}
+  function drawPath(path,col){for(let i=1;i<path.length;i++)felt.line(path[i-1],path[i],col,2);}
+  function draw(){
+    felt.clear();felt.table();
+    S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));
+    if(rested&&RESULT){
+      const sim=RESULT;
+      drawPath(sim.cuePath,'rgba(84,182,214,.22)');if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.18)');
+      if(S.call==='safe'&&!sim.scratch&&!sim.obPocketed){const blocked=clearanceBetween(sim.cueFinal,sim.obFinal)<0;felt.line(sim.cueFinal,sim.obFinal,blocked?COL.green:COL.red,blocked?3:2.4,blocked?[]:[6,5]);}
+      if(!sim.obPocketed)felt.ball(sim.obFinal,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});
+      if(sim.scratch)felt.ghost(sim.cueFinal);else felt.ball(sim.cueFinal,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+    } else {
+      if(LAST){drawPath(LAST.cuePath,'rgba(84,182,214,.5)');if(LAST.obPath)drawPath(LAST.obPath,'rgba(231,162,62,.4)');felt.ghost(LAST.cueFinal);if(LAST.obPath)felt.ghost(LAST.obFinal);
+        if(LAST.obPocketed)felt.marker(LAST.obFinal,COL.green);if(LAST.scratch)felt.marker(LAST.cueFinal,COL.red);}
+      felt.ball(S.ob,BALLCOL.ob,'',{halo:'rgba(231,162,62,.65)'});
+      felt.ball(S.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      const hp=handlePos();felt.line(S.cue,hp,'rgba(236,210,138,.55)',2,[4,4]);
+      const x=felt.ctx,c=felt.P(hp);x.save();x.beginPath();x.arc(c.x,c.y,7,0,7);x.fillStyle=COL.brass;x.fill();x.strokeStyle='#1a1206';x.lineWidth=1.5;x.stroke();x.restore();
+    }
+    if(MODEL&&MODEL.show)drawModel();
+  }
+  function drawModel(){const sim=MODEL.sim;
+    for(let i=1;i<sim.cuePath.length;i++)felt.line(sim.cuePath[i-1],sim.cuePath[i],'rgba(236,210,138,.92)',2.4,[7,5]);
+    if(sim.obPath)for(let i=1;i<sim.obPath.length;i++)felt.line(sim.obPath[i-1],sim.obPath[i],'rgba(236,210,138,.5)',2,[7,5]);
+    felt.ghost(sim.cueFinal);
+    if(MODEL.call==='run'&&sim.obPocketed)felt.marker(sim.obFinal,COL.brass2);
+    else if(!sim.obPocketed)felt.ball(sim.obFinal,BALLCOL.ob,'',{halo:'rgba(236,210,138,.55)'});
+  }
+  function preview(){rested=false;LAST=simulateShot(S.cue,aimDir(),S.power,S.vy,S.vx,S.ob,S.blockers);draw();}
+  function alongPath(path,frac){if(path.length<2)return path[0];let segs=[],total=0;for(let i=1;i<path.length;i++){const L=len(sub(path[i],path[i-1]));segs.push({a:path[i-1],b:path[i],L,acc:total});total+=L;}const d=frac*total;for(const s of segs){if(d<=s.acc+s.L)return add(s.a,mul(sub(s.b,s.a),(d-s.acc)/(s.L||1)));}return path[path.length-1];}
+  function shoot(){
+    if(animating)return;
+    if(!S.call){document.getElementById('decTip').innerHTML='Pick <b>Run it</b> or <b>Play safe</b> first, then shoot.';return;}
+    const sim=LAST||simulateShot(S.cue,aimDir(),S.power,S.vy,S.vx,S.ob,S.blockers);animating=true;
+    const dur=650,t0=Date.now();
+    function frame(){const p=Math.min(1,(Date.now()-t0)/dur);
+      const cp=alongPath(sim.cuePath,p),op=sim.obPath?alongPath(sim.obPath,Math.max(0,(p-0.35)/0.65)):S.ob;
+      felt.clear();felt.table();drawPath(sim.cuePath,'rgba(84,182,214,.22)');if(sim.obPath)drawPath(sim.obPath,'rgba(231,162,62,.18)');
+      S.blockers.forEach(b=>felt.ball(b,BALLCOL.blk,'',{}));felt.ball(op,BALLCOL.ob,'',{halo:'rgba(231,162,62,.6)'});felt.ball(cp,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+      if(p<1)requestAnimationFrame(frame);else{animating=false;rested=true;RESULT=sim;draw();applyGrade(S.call,sim);}
+    }
+    requestAnimationFrame(frame);
+  }
+  function applyLayout(lay){cur=lay;S.cue={x:lay.cue.x,y:lay.cue.y};S.ob={x:lay.ob.x,y:lay.ob.y};S.blockers=lay.blockers.map(b=>({x:b.x,y:b.y}));
+    S.aim=Math.atan2(S.ob.y-S.cue.y,S.ob.x-S.cue.x)*180/Math.PI;S.call=null;rested=false;game.shot=false;game.last=0;
+    document.querySelectorAll('#decCall .btn').forEach(b=>b.classList.remove('active'));
+    document.getElementById('decScore').textContent='—';
+    const ve=document.getElementById('decVerdict');ve.textContent='Pick a call';ve.style.color='';
+    document.getElementById('decOutcome').textContent='choose Run or Safe, then shoot';
+    document.getElementById('decTip').innerHTML='Read the table, commit to <b>Run it</b> or <b>Play safe</b>, then play the shot.';
+    MODEL=null;document.getElementById('decModelBox').style.display='none';document.getElementById('decModel').classList.remove('active');
+    preview();}
+  function newLayout(){commitRound();applyLayout(genLayout());}
+  // spin pad
+  (function(){const sp=document.getElementById('decSpin'),sx=sp.getContext('2d'),dpr=Math.min(window.devicePixelRatio||1,2),size=86;
+    sp.width=size*dpr;sp.height=size*dpr;sx.setTransform(dpr,0,0,dpr,0,0);
+    function pad(){sx.clearRect(0,0,size,size);const c=size/2,rad=size/2-5;const g=sx.createRadialGradient(c-rad*0.3,c-rad*0.35,rad*0.1,c,c,rad);g.addColorStop(0,'#fbf8ee');g.addColorStop(1,'#cbc4ad');sx.fillStyle=g;sx.beginPath();sx.arc(c,c,rad,0,7);sx.fill();sx.strokeStyle='rgba(0,0,0,.25)';sx.lineWidth=1;sx.stroke();sx.strokeStyle='rgba(0,0,0,.16)';sx.beginPath();sx.moveTo(c-rad,c);sx.lineTo(c+rad,c);sx.moveTo(c,c-rad);sx.lineTo(c,c+rad);sx.stroke();const tx=c+S.vx*rad*0.78,ty=c-S.vy*rad*0.78;sx.beginPath();sx.arc(tx,ty,6,0,7);sx.fillStyle='#c8102e';sx.fill();sx.strokeStyle='#fff';sx.lineWidth=1.5;sx.stroke();}
+    function lbl(){const p=[];if(S.vy>0.25)p.push('follow');else if(S.vy<-0.25)p.push('draw');if(S.vx>0.25)p.push('right');else if(S.vx<-0.25)p.push('left');document.getElementById('decSpinLabel').textContent=p.length?p.join('-'):'center';}
+    function set(e){const r=sp.getBoundingClientRect(),c=size/2,rad=size/2-5;let dx=(e.clientX-r.left)*(size/r.width)-c,dy=(e.clientY-r.top)*(size/r.height)-c;const m=Math.hypot(dx,dy),mx=rad*0.92;if(m>mx){dx*=mx/m;dy*=mx/m;}S.vx=_clamp(dx/(rad*0.78),-1,1);S.vy=_clamp(-dy/(rad*0.78),-1,1);pad();lbl();preview();}
+    let down=false;sp.onpointerdown=e=>{down=true;sp.setPointerCapture(e.pointerId);set(e);};sp.onpointermove=e=>{if(down)set(e);};sp.onpointerup=sp.onpointercancel=()=>{down=false;};
+    pad();lbl();
+  })();
+  let drag=null;
+  cv.onpointerdown=e=>{const t=felt.T(e.clientX,e.clientY),hp=handlePos();const cands=[['aim',len(sub(t,hp)),R*1.8],['cue',len(sub(t,S.cue)),R*1.9],['ob',len(sub(t,S.ob)),R*1.9]];let k=null,best=1e9;cands.forEach(([key,dd,th])=>{if(dd<th&&dd<best){best=dd;k=key;}});if(k){drag=k;cv.classList.add('dragging');cv.setPointerCapture(e.pointerId);}};
+  cv.onpointermove=e=>{if(!drag)return;const t=felt.T(e.clientX,e.clientY);if(drag==='aim')S.aim=Math.atan2(t.y-S.cue.y,t.x-S.cue.x)*180/Math.PI;else S[drag]=clampPlay(t);preview();};
+  cv.onpointerup=cv.onpointercancel=()=>{drag=null;cv.classList.remove('dragging');};
+  document.getElementById('decCall').addEventListener('click',e=>{const b=e.target.closest('[data-call]');if(!b)return;S.call=b.dataset.call;document.querySelectorAll('#decCall .btn').forEach(x=>x.classList.toggle('active',x===b));if(rested&&RESULT)applyGrade(S.call,RESULT);});
+  const pw=document.getElementById('decPower');pw.oninput=()=>{S.power=+pw.value;document.getElementById('decPowVal').textContent='· '+S.power;preview();};
+  document.getElementById('decPowVal').textContent='· '+S.power;
+  document.getElementById('decShoot').onclick=shoot;
+  document.getElementById('decReset').onclick=()=>applyLayout(cur);
+  document.getElementById('decNew').onclick=()=>newLayout();
+  document.getElementById('decModel').onclick=()=>{
+    const btn=document.getElementById('decModel'),box=document.getElementById('decModelBox');
+    if(MODEL&&MODEL.show){MODEL.show=false;box.style.display='none';btn.classList.remove('active');draw();return;}
+    const m=modelShot();m.show=true;MODEL=m;box.style.display='';box.innerHTML=m.note;btn.classList.add('active');draw();
+  };
+  felt.onResize=()=>{rested?draw():preview();};RESIZE.decide=()=>{felt.resize();rested?draw():preview();};
+  try{if(typeof window!=='undefined'&&window.__TEST__){window.__decGrade=grade;window.__decGen=genLayout;window.__decClearance=clearanceBetween;window.__decModel=modelShot;window.__decModelState=()=>MODEL;window.__decApply=applyLayout;}}catch(e){}
+  updateStats();applyLayout(genLayout());
+
+  /* ---------- decision-reps deck ---------- */
+  const W=BALLCOL;
+  const CARDS=[
+    {title:'9-ball · the 9 is buried',
+     balls:[{x:30,y:38,c:W.cue,l:''},{x:33,y:14,c:W[7],l:'7'},{x:78,y:30,c:W[9],l:'9'},{x:71,y:31,c:W[2],l:''},{x:74,y:24,c:W[2],l:''}],
+     scene:'You have a decent look at the 7, but the 9 sits dead behind a cluster with no clean position route.',
+     a:'Run it',b:'Two-way safe',rec:'Two-way safe',
+     why:'Forcing position on a buried 9 is how leads evaporate. Play the 7 thin to a rail as a two-way: you either get a usable angle on the 9, or you hook them. Open the 9-cluster only when you can keep a shot afterward.'},
+    {title:'8-ball · one ball back, table open',
+     balls:[{x:24,y:25,c:W.cue,l:''},{x:40,y:18,c:W[3],l:''},{x:84,y:40,c:W[8],l:'8'}],
+     scene:"You're on the last solid with the 8 across the table. The solid is comfortable and the 8 is open near the corner.",
+     a:'Run it',b:'Play safe',rec:'Run it',
+     why:'This is the time to commit. You have an angle on the key ball that flows to the 8 with natural roll. Pick the pocket on the 8 first, then play the solid to leave that angle — and run your routine, do not rush.'},
+    {title:'8-ball · cluster still closed late',
+     balls:[{x:30,y:40,c:W.cue,l:''},{x:55,y:25,c:W[5],l:''},{x:72,y:11,c:W[6],l:''},{x:76,y:14,c:W[6],l:''},{x:60,y:42,c:W[8],l:'8'}],
+     scene:'Two of your balls are still frozen together near the rail. You have one open ball and the 8 is clear. You forgot to open the cluster earlier.',
+     a:'Shoot open ball, hope',b:'Break cluster now',rec:'Break cluster now',
+     why:'Your open ball is the insurance ball — use it. Break the cluster on this shot while you still have the 8 as a fallback. Pocket the open ball first and the cluster stays closed, and you have thrown away your only tool to open it.'},
+    {title:'9-ball · hooked on the 3',
+     balls:[{x:18,y:12,c:W.cue,l:''},{x:30,y:14,c:W[2],l:''},{x:70,y:38,c:W[3],l:'3'}],
+     scene:'Your opponent left you hooked — a blocker sits between the cue ball and the 3, which is across the table near a pocket.',
+     a:'Soft kick to hit',b:'Kick to hit + safe',rec:'Kick to hit + safe',
+     why:'Just rattling the 3 may sell out the rack since it is near a pocket. Use the mirror system to find the equal-angle line, then control speed so the cue ball dies behind a blocker after contact. Hit AND leave them tough.'},
+    {title:'8-ball · straight on the 8, no angle',
+     balls:[{x:50,y:40,c:W.cue,l:''},{x:50,y:24,c:W[8],l:'8'}],
+     scene:'You ran out beautifully but arrived dead straight on the 8 — just a long, perfectly straight shot to the corner.',
+     a:'Shoot it firm',b:'Stop-shot it dead-center',rec:'Stop-shot it dead-center',
+     why:'No position needed — this is the moment to slow your heart rate, not your stroke. Center ball, smooth acceleration, full follow-through. The straight-in 8 is missed by tightening up, so run the same routine you used all rack.'},
+    {title:'9-ball · 50/50 combo vs safe',
+     balls:[{x:26,y:30,c:W.cue,l:''},{x:46,y:28,c:W[4],l:'4'},{x:52,y:31,c:W[9],l:'9'}],
+     scene:'There is a makeable-ish 4-9 combination to win, but it is maybe a coin flip. The straight safety on the 4 is easy and would leave them long.',
+     a:'Go for the combo',b:'Play the safe',rec:'Play the safe',
+     why:'A 50% game-winner is a 50% game-loser. Unless you need a low-percentage swing to catch up, take the high-percentage safety, force a long kick or weak hit, and win with ball-in-hand. Save the gamble for when you are behind.'}
+  ];
+  const deck=document.getElementById('decideDeck');
+  CARDS.forEach(c=>{
+    const el=document.createElement('div');el.className='panel dcard';
+    el.innerHTML=`<div style="margin:-4px -4px 10px">${svgMini(c.balls)}</div>
+      <h3 class="sub" style="margin-top:0">${c.title}</h3>
+      <div class="scene">${c.scene}</div>
+      <div class="choices">
+        <button class="btn sm" data-c="a">${c.a}</button>
+        <button class="btn sm" data-c="b">${c.b}</button>
+      </div>
+      <div class="reveal">
+        <div class="choiceLabel" style="color:var(--brass2)">A strong player: ${c.rec}</div>
+        <p class="note" style="margin-top:6px">${c.why}</p>
+      </div>`;
+    const rev=el.querySelector('.reveal');
+    el.querySelectorAll('[data-c]').forEach(btn=>btn.onclick=()=>{
+      el.querySelectorAll('[data-c]').forEach(b=>b.classList.remove('active'));btn.classList.add('active');
+      const chose=btn.dataset.c==='a'?c.a:c.b;const right=(chose===c.rec);
+      btn.style.borderColor=right?'rgba(98,185,134,.7)':'rgba(223,106,79,.7)';
+      rev.classList.add('show');
+    });
+    deck.appendChild(el);
+  });
+};
+
+/* =========================================================================
+   STORAGE (with in-memory fallback)
+   ========================================================================= */
+const MEM={};const HAS_STORE=!!(window.storage&&window.storage.get);
+async function sGet(k){if(!HAS_STORE)return (k in MEM)?MEM[k]:null;try{const r=await window.storage.get(k);return r?JSON.parse(r.value):null;}catch(e){return null;}}
+async function sSet(k,val){if(!HAS_STORE){MEM[k]=val;return true;}try{await window.storage.set(k,JSON.stringify(val));return true;}catch(e){MEM[k]=val;return false;}}
+async function sDel(k){if(!HAS_STORE){delete MEM[k];return;}try{await window.storage.delete(k);}catch(e){}}
+
+/* =========================================================================
+   MODULE: TABLE DRILLS
+   ========================================================================= */
+const DRILLS=[
+  {id:'stop',area:'Foundation',diff:'★',name:'Stop-Shot Ladder',
+   balls:[{x:50,y:25,c:BALLCOL.cue},{x:35,y:25,c:BALLCOL[3]},{x:48,y:25,c:BALLCOL[3]},{x:62,y:25,c:BALLCOL[3]},{x:76,y:25,c:BALLCOL[3]}],
+   how:'Place 8 object balls in a line at increasing distance from the cue ball. Pocket each with a pure stop shot — center-ball hit, cue ball dead in its tracks. Mark where the cue ball should freeze with a chalk cube.',
+   score:'Score 1 for every cue ball that stops inside a cube-length of the contact point. Out of 8.',
+   prog:'Lengthen the distances as you improve. The stop shot is the parent of all cue-ball control — own it first.',max:8},
+  {id:'speed',area:'Foundation',diff:'★★',name:'Up-and-Down Speed Control',
+   balls:[{x:24,y:25,c:BALLCOL.cue},{x:40,y:25,c:BALLCOL[2]}],
+   how:'Pot one ball, then send the cue ball up-table to land in numbered target zones (mark 5 zones with chalk). Call the zone before each shot, then work back down-table.',
+   score:'1 point per called zone the cue ball stops inside. Run up and back = out of 10.',
+   prog:'Shrink the zones over time. This is the biggest fix for balls that "linger" — most position errors are speed, not aim.',max:10},
+  {id:'wagon',area:'Position',diff:'★★',name:'Wagon Wheel',
+   balls:[{x:50,y:30,c:BALLCOL.cue},{x:50,y:18,c:BALLCOL[5]}],
+   how:'One object ball, one cue position. Pocket the OB and steer the cue ball to each of 9 target balls fanned around the table — using draw, stun, and follow to change the angle off the same shot.',
+   score:'1 point per target the cue ball reaches cleanly. Out of 9.',
+   prog:'This drills the 90° and 30° rules live: feel how spin rotates the cue path off one fixed contact.',max:9},
+  {id:'ghost',area:'Closing',diff:'★★★',name:'Progressive Ghost',
+   balls:[{x:28,y:30,c:BALLCOL.cue},{x:46,y:16,c:BALLCOL[2]},{x:64,y:38,c:BALLCOL[3]},{x:82,y:20,c:BALLCOL[9],l:'9'}],
+   how:'Play the ghost (an opponent who never misses): take ball-in-hand and try to run out. Start with just 3 balls + the money ball placed randomly.',
+   score:'Out of 10 racks, count how many you run out. Hit 9–10/10 at a ball count, then add a ball.',
+   prog:'The definitive closing drill. Move from 3 balls to 4, 5, and beyond — it tracks the exact skill you are losing.',max:10},
+  {id:'keyball',area:'Closing',diff:'★★★',name:'Key-Ball End Game',
+   balls:[{x:26,y:24,c:BALLCOL.cue},{x:44,y:40,c:BALLCOL[5]},{x:70,y:14,c:BALLCOL[6]},{x:80,y:38,c:BALLCOL[8],l:'8'}],
+   how:'Scatter your last 3 balls + the 8. Before shooting, say out loud which is your KEY ball and what angle you want on the 8. Then run it in that order.',
+   score:'1 point per rack where you both called the key ball correctly and ran out. Out of 10.',
+   prog:'Forces the backward-planning habit. The goal is not just to run out — it is to arrive on the 8 with the angle you predicted.',max:10},
+  {id:'insurance',area:'Closing',diff:'★★★',name:'Insurance Breakout',
+   balls:[{x:30,y:38,c:BALLCOL.cue},{x:60,y:12,c:BALLCOL[2]},{x:64,y:14,c:BALLCOL[2]},{x:40,y:28,c:BALLCOL[5]},{x:84,y:40,c:BALLCOL[8],l:'8'}],
+   how:'Set a 2-ball cluster plus one open "insurance" ball and the 8. Break the cluster apart on a shot while keeping a makeable ball to continue. Never break it as your last act.',
+   score:'1 point per rack you break the cluster AND have a shot afterward. Out of 10.',
+   prog:'The root fix for "last two balls linger." Practice opening clusters with a soft follow/stun roll into them, not a hard smash.',max:10},
+  {id:'hide',area:'Safety',diff:'★★',name:'Hide-Behind-Target',
+   balls:[{x:24,y:30,c:BALLCOL.cue},{x:46,y:24,c:BALLCOL[2]},{x:74,y:16,c:BALLCOL.ob}],
+   how:'Place the ball you must hit, a blocker, and a target hiding spot. Play the object ball to a rail while rolling the cue ball behind the blocker — control ONE ball, not both.',
+   score:'1 point per rep where your opponent would be fully hooked (no straight line to the OB). Out of 10.',
+   prog:'Alternate which ball you control. Then add distance and aim to freeze the cue ball to the rail for a lock-up.',max:10},
+  {id:'kick',area:'Escape',diff:'★★★',name:'Line-of-Balls Mirror Kick',
+   balls:[{x:18,y:40,c:BALLCOL.cue},{x:40,y:12,c:BALLCOL[3]},{x:58,y:12,c:BALLCOL[5]},{x:76,y:12,c:BALLCOL[6]}],
+   how:'Line several object balls along a rail. Using the mirror / 2-to-1 system, kick one rail to hit each in turn. Then go "perpetual": from wherever the cue ball lands, kick at the next one.',
+   score:'1 point per clean one-rail hit, out of the number of balls in your line (scale to 10).',
+   prog:'Calibrate your table — note if it plays long or short and adjust the aim diamond accordingly. Builds real escape confidence.',max:10}
+];
+function sparkline(vals,max){
+  if(!vals||!vals.length)return '<div class="hint">no sessions logged yet</div>';
+  const w=220,h=34,n=vals.length,pad=3,mx=Math.max(max||10,...vals);
+  const pts=vals.map((val,i)=>{const x=pad+(n===1?(w-2*pad)/2:i/(n-1)*(w-2*pad));const y=h-pad-(val/mx)*(h-2*pad);return [x.toFixed(1),y.toFixed(1)];});
+  const path=pts.map((p,i)=>(i?'L':'M')+p[0]+' '+p[1]).join(' ');
+  const dots=pts.map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2" fill="#ecd28a"/>`).join('');
+  return `<svg class="spark" viewBox="0 0 ${w} ${h}"><path d="${path}" fill="none" stroke="#c8a24c" stroke-width="2"/>${dots}</svg>`;
+}
+INIT.drills=function(){
+  document.getElementById('drillStoreNote').textContent=HAS_STORE?'Your scores save automatically on this device.':'Scores log for this session only (persistent storage unavailable here).';
+  const list=document.getElementById('drillList');
+  const prefersReduced=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+  const drillCtl={};
+  const io=('IntersectionObserver' in window)?new IntersectionObserver(es=>{es.forEach(e=>{const c=drillCtl[e.target.getAttribute('data-drill')];if(!c)return;e.isIntersecting?c.start():c.stop();});},{threshold:0.35}):null;
+  async function hydrate(d){
+    const arr=(await sGet('rl:'+d.id))||[];
+    document.getElementById('spark_'+d.id).innerHTML=sparkline(arr,d.max);
+    document.getElementById('best_'+d.id).textContent=arr.length?('best '+Math.max(...arr)+'/'+d.max+' · '+arr.length+' logged'):'';
+  }
+  DRILLS.forEach(d=>{
+    const card=document.createElement('div');card.className='panel drill';
+    card.innerHTML=`
+      <div class="meta"><span class="pill">${d.area}</span><span class="pill mono">${d.diff}</span></div>
+      <h3 class="sub" style="margin:6px 0 0">${d.name}</h3>
+      <div style="margin:6px 0"><canvas class="drillcv" id="cv_${d.id}" data-drill="${d.id}"></canvas><div class="drillcv-cap"><span class="hint" id="cap_${d.id}">${d.id==='insurance'?'demo shows the breakout approach · a real cluster scatter can’t be simulated':'animated demo · tap to replay'}</span></div>
+        <div class="drill-run">
+          <span class="hint">setups</span>
+          <input type="number" class="cntfield" id="cnt_${d.id}" min="1" max="30" value="10">
+          <button class="btn sm" id="run_${d.id}">▸ Deal</button>
+          <button class="btn sm ghosted" id="nxt_${d.id}" style="display:none">Next ▸</button>
+          <span class="rep" id="rep_${d.id}"></span>
+        </div>
+        <div class="rep" id="res_${d.id}" style="margin-top:2px"></div>
+      </div>
+      <div class="body"><b>Setup &amp; how —</b> ${d.how}</div>
+      <div class="body"><b>Score —</b> ${d.score}</div>
+      <div class="body"><b>Progress it —</b> ${d.prog}</div>
+      <div class="score-in">
+        <span class="hint">log a score:</span>
+        <input type="number" min="0" max="${d.max}" id="in_${d.id}" placeholder="0–${d.max}">
+        <button class="btn sm" id="save_${d.id}" style="flex:0 0 auto">Log</button>
+        <span class="hint" id="best_${d.id}"></span>
+      </div>
+      <div id="spark_${d.id}">${sparkline(null,d.max)}</div>`;
+    list.appendChild(card);
+    (function(){
+      const cv=document.getElementById('cv_'+d.id);if(!cv)return;const felt=new Felt(cv);
+      let raf=null,to=null,loopIdx=0,playing=false,mode='demo',curSetup=null,curTarget=null,clickPt=null,scores={},setN=10,setIdx=0;
+      const base=buildDrillDemo(d,0);
+      function drawMarkers(ms){if(!ms||!ms.length)return;const x=felt.ctx;ms.forEach(m=>{const c=felt.P(m),r=felt.rad(R)*(m.r||1.1);x.save();x.beginPath();x.arc(c.x,c.y,r,0,7);x.setLineDash(m.dash?[3,3]:[]);x.strokeStyle=m.col||'rgba(236,210,138,.8)';x.lineWidth=1.6;x.stroke();if(m.label){x.setLineDash([]);x.fillStyle=m.col||'rgba(236,210,138,.85)';x.font='700 8px "Space Mono"';x.textAlign='center';x.textBaseline='middle';x.fillText(m.label,c.x,c.y+r+7);}x.restore();});}
+      function staticFrame(){felt.clear();felt.table();drawMarkers(base.markers);base.balls.forEach(b=>felt.ball(b,b.c,b.l||'',{}));felt.ball(base.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});}
+      function drawLayout(L){felt.clear();felt.table();drawMarkers(L.markers);L.balls.forEach(b=>felt.ball(b,b.c,b.l||'',{}));felt.ball(L.cue,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});}
+      function drawScored(){if(!curSetup)return;drawLayout(curSetup);const x=felt.ctx;
+        if(curTarget){const c=felt.P(curTarget),r=felt.rad(R)*1.25;x.save();x.setLineDash([3,3]);x.strokeStyle='rgba(236,210,138,.95)';x.lineWidth=1.8;x.beginPath();x.arc(c.x,c.y,r,0,7);x.stroke();x.setLineDash([]);x.beginPath();x.moveTo(c.x-4,c.y);x.lineTo(c.x+4,c.y);x.moveTo(c.x,c.y-4);x.lineTo(c.x,c.y+4);x.stroke();x.fillStyle='rgba(236,210,138,.95)';x.font='700 8px "Space Mono"';x.textAlign='center';x.textBaseline='middle';x.fillText('target',c.x,c.y-r-5);x.restore();}
+        if(clickPt&&curTarget){const a=felt.P(clickPt),t=felt.P(curTarget);x.save();x.setLineDash([4,4]);x.strokeStyle='rgba(223,106,79,.85)';x.lineWidth=1.5;x.beginPath();x.moveTo(a.x,a.y);x.lineTo(t.x,t.y);x.stroke();x.restore();felt.ghost(clickPt);const c2=felt.P(clickPt);x.save();x.fillStyle='rgba(84,182,214,.95)';x.font='700 8px "Space Mono"';x.textAlign='center';x.textBaseline='middle';x.fillText('your cue',c2.x,c2.y+felt.rad(R)+8);x.restore();}}
+      function avgScore(){const v=Object.values(scores);return v.length?Math.round(v.reduce((a,b)=>a+b,0)/v.length):null;}
+      function refreshRes(){const el=document.getElementById('res_'+d.id);if(mode!=='setups'){el.textContent='';return;}const a=avgScore(),n=Object.keys(scores).length;
+        if(clickPt&&curTarget){const dl=len(sub(clickPt,curTarget));el.innerHTML='<b style="color:var(--brass2)">Δ '+(dl/(2*R)).toFixed(1)+' ball · '+scores[setIdx]+'/100</b>'+(a!=null?' · avg '+a+' ('+n+'/'+setN+')':'');}
+        else el.textContent='shoot, then tap where your cue stopped'+(a!=null?' · avg '+a+' ('+n+'/'+setN+')':'');}
+      function dealCurrent(){curSetup=randomSetup(d);curTarget=setupTarget(d,curSetup);clickPt=null;drawScored();updateRunUI();refreshRes();}
+      function updateRunUI(){const runB=document.getElementById('run_'+d.id),nxtB=document.getElementById('nxt_'+d.id),rep=document.getElementById('rep_'+d.id);
+        if(mode==='setups'){runB.textContent='↺ Demo';nxtB.style.display='';const last=setIdx>=setN;nxtB.disabled=last;nxtB.classList.toggle('ghosted',last);rep.textContent='setup '+setIdx+' / '+setN+(last?' · run complete':'');}
+        else{runB.textContent='▸ Deal';nxtB.style.display='none';nxtB.disabled=false;rep.textContent='';}}
+      function enterSetups(){const cf=document.getElementById('cnt_'+d.id);let n=parseInt(cf&&cf.value,10);if(isNaN(n))n=10;n=Math.max(1,Math.min(30,n));mode='setups';playing=false;clearTimers();setN=n;setIdx=1;scores={};dealCurrent();}
+      function nextSetup(){if(mode!=='setups'||setIdx>=setN)return;setIdx++;dealCurrent();}
+      function exitSetups(){mode='demo';curSetup=null;curTarget=null;clickPt=null;scores={};clearTimers();staticFrame();updateRunUI();refreshRes();}
+      function scoreClick(e){if(mode!=='setups'||!curTarget)return;clickPt=clampPlay(felt.T(e.clientX,e.clientY));const dl=len(sub(clickPt,curTarget));scores[setIdx]=Math.round(100*Math.exp(-(dl*dl)/200));drawScored();refreshRes();}
+      function clearTimers(){if(raf)cancelAnimationFrame(raf);if(to)clearTimeout(to);raf=null;to=null;}
+      function stop(){playing=false;clearTimers();if(mode==='setups'&&curSetup)drawScored();else staticFrame();}
+      function playSteps(after){
+        const demo=buildDrillDemo(d,loopIdx),steps=demo.steps,balls=demo.balls,potted={};let si=0;
+        function runStep(){
+          if(si>=steps.length){to=setTimeout(()=>{if(after)after();},750);return;}
+          const st=steps[si],sim=st.sim,dur=820+sim.cuePath.length*45;let t0=null;
+          function frame(ts){if(t0==null)t0=ts;const p=Math.min(1,(ts-t0)/dur);
+            felt.clear();felt.table();drawMarkers(demo.markers);
+            for(let i=1;i<sim.cuePath.length;i++)felt.line(sim.cuePath[i-1],sim.cuePath[i],'rgba(84,182,214,.16)',2);
+            if(sim.obPath&&!st.staticOb)for(let i=1;i<sim.obPath.length;i++)felt.line(sim.obPath[i-1],sim.obPath[i],'rgba(231,162,62,.14)',2);
+            balls.forEach((b,idx)=>{if(potted[idx]||idx===st.obIdx)return;felt.ball(b,b.c,b.l||'',{});});
+            const tgt=balls[st.obIdx],op=(st.staticOb||!sim.obPath)?tgt:_alongPath(sim.obPath,Math.max(0,(p-0.25)/0.75));
+            if(st.staticOb||!(sim.obPocketed&&p>0.95))felt.ball(op,tgt.c,tgt.l||'',{});
+            const cp=_alongPath(sim.cuePath,p);
+            if(sim.scratch&&p>0.95)felt.ghost(cp);else felt.ball(cp,BALLCOL.cue,'',{halo:'rgba(84,182,214,.85)'});
+            if(p<1){raf=requestAnimationFrame(frame);}else{if(sim.obPocketed&&!st.staticOb)potted[st.obIdx]=1;si++;to=setTimeout(runStep,270);}
+          }
+          raf=requestAnimationFrame(frame);
+        }
+        runStep();
+      }
+      function loop(){if(!playing)return;staticFrame();to=setTimeout(()=>{if(playing)playSteps(()=>{loopIdx++;loop();});},350);}
+      function start(){if(playing||prefersReduced||mode==='setups')return;playing=true;loop();}
+      cv.addEventListener('click',(e)=>{if(mode==='setups'){scoreClick(e);return;}if(playing){stop();}else{playing=true;playSteps(()=>{if(playing){loopIdx++;loop();}});}});
+      document.getElementById('run_'+d.id).onclick=()=>{mode==='setups'?exitSetups():enterSetups();};
+      document.getElementById('nxt_'+d.id).onclick=()=>nextSetup();
+      drillCtl[d.id]={start,stop,_enter:enterSetups,_next:nextSetup,_click:scoreClick,_target:()=>curTarget,_scores:()=>scores,_setIdx:()=>setIdx,_setN:()=>setN,_felt:felt};staticFrame();if(io)io.observe(cv);
+    })();
+    document.getElementById('save_'+d.id).onclick=async()=>{
+      const inp=document.getElementById('in_'+d.id);let val=parseInt(inp.value,10);
+      if(isNaN(val))return;val=Math.max(0,Math.min(d.max,val));
+      let arr=(await sGet('rl:'+d.id))||[];arr.push(val);if(arr.length>30)arr=arr.slice(-30);
+      await sSet('rl:'+d.id,arr);inp.value='';hydrate(d);
+    };
+    hydrate(d);
+  });
+  document.getElementById('drillWipe').onclick=async()=>{
+    for(const d of DRILLS){await sDel('rl:'+d.id);}
+    DRILLS.forEach(d=>{document.getElementById('spark_'+d.id).innerHTML=sparkline(null,d.max);document.getElementById('best_'+d.id).textContent='';});
+  };
+  document.getElementById('drillExport').onclick=async()=>{
+    const out={};for(const d of DRILLS){out[d.name]=(await sGet('rl:'+d.id))||[];}
+    const txt=JSON.stringify(out,null,2);
+    try{await navigator.clipboard.writeText(txt);document.getElementById('drillStoreNote').textContent='Log copied to clipboard ✓';}
+    catch(e){document.getElementById('drillStoreNote').textContent='Copy failed — your log: '+txt;}
+  };
+  try{if(typeof window!=='undefined'&&window.__TEST__)window.__drillCtl=drillCtl;}catch(e){}
+};
+/* deep links from the new home: legacy/index.html#<tab id> */
+function showFromHash(){var id=location.hash.slice(1);if(TABS.some(function(t){return t[0]===id;}))show(id);}
+showFromHash();window.addEventListener('hashchange',showFromHash);
+</script>
+</body>
+</html>
