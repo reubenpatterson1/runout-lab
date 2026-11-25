@@ -33,3 +33,23 @@ test('firstBallOnRay: tie goes to lower layout index; miss is null; segmentPoint
   assert.ok(near(firstBallOnRay(from, dir, [B('a', 10, 0)], [])?.t ?? NaN, 10 - 2 * R, 1e-12));
   assert.ok(near(segmentPointDistance({ x: 5, y: 3 }, from, { x: 10, y: 0 }), 3, 1e-12));
 });
+test('mirrorLanes: open table two-rail count and widths', () => {
+  const cue = B('cue', 30, 25), ob = B('ob', 60, 25);
+  const m = mirrorLanes(cue, [cue, ob], ['ob'], ['cue']);
+  assert.equal(m.n2, 4); assert.ok(near(m.w1, 4.5733, 1e-3), String(m.w1)); assert.ok(near(m.w2, 2.5811, 1e-3), String(m.w2));
+});
+test('mirrorLanes: side-mouth span excludes top/bottom bounces at x=50', () => {
+  const cue = B('cue', 30, 25), ob = B('ob', 70, 25);
+  assert.equal(mirrorLanes(cue, [cue, ob], ['ob'], ['cue']).n1, 1);
+});
+test('visibility: a tie between target and a later-indexed blocker counts as blocked', () => {
+  const cue = B('cue', 30, 25), ob = B('ob', 32.25, 25), blk = B('b1', 30, 27.25);
+  assert.equal(visibility(cue, ob, [cue, ob, blk], ['cue']), 0.5);
+});
+test('mirrorLanes: a cue frozen to a rail gets no one-rail lane off that rail (R20)', () => {
+  const ob = B('ob', 60, 10);
+  const frozen = B('cue', 30, R), off = B('cue', 30, R + 0.5);
+  const f = mirrorLanes(frozen, [frozen, ob], ['ob'], ['cue']);
+  const o = mirrorLanes(off, [off, ob], ['ob'], ['cue']);
+  assert.ok(near(o.w1, 8.21, 0.05), String(o.w1)); assert.ok(f.w1 < 4, String(f.w1)); assert.ok(f.n1 < o.n1);
+});

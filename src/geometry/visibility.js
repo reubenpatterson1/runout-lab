@@ -34,6 +34,15 @@ function sweepHits(from, dir, balls, excludeIds) {
 }
 
 /**
+ * Earliest hit; ties (within 1e-9 in t) sorted by lower layout index.
+ * @param {{id:string, idx:number, t:number}[]} hits non-empty
+ */
+function tiedFirst(hits) {
+  const tMin = Math.min(...hits.map((h) => h.t));
+  return hits.filter((h) => h.t - tMin <= TIE).sort((p, q) => p.idx - q.idx);
+}
+
+/**
  * First ball hit by a 2R-radius sweep along the ray; ties (within 1e-9 in t) go to the lower layout index.
  * @param {{x:number,y:number}} from
  * @param {{x:number,y:number}} dir unit
@@ -44,9 +53,7 @@ function sweepHits(from, dir, balls, excludeIds) {
 export function firstBallOnRay(from, dir, balls, excludeIds) {
   const hits = sweepHits(from, dir, balls, excludeIds);
   if (hits.length === 0) return null;
-  const tMin = Math.min(...hits.map((h) => h.t));
-  const tied = hits.filter((h) => h.t - tMin <= TIE);
-  tied.sort((p, q) => p.idx - q.idx);
+  const tied = tiedFirst(hits);
   return { id: tied[0].id, t: tied[0].t };
 }
 
@@ -70,8 +77,7 @@ export function visibility(from, target, balls, excludeIds) {
     const dir = { x: ux * c - uy * s, y: ux * s + uy * c };
     const hits = sweepHits(from, dir, balls, excludeIds);
     if (hits.length === 0) continue;
-    const tMin = Math.min(...hits.map((h) => h.t));
-    const tied = hits.filter((h) => h.t - tMin <= TIE);
+    const tied = tiedFirst(hits);
     if (tied.length === 1 && tied[0].id === target.id) count++;
   }
   return count / V_SAMPLES;

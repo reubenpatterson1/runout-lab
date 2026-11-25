@@ -1,5 +1,5 @@
 // @ts-check
-import { R, W, H, CORNER_MOUTH } from '../engine/constants.js';
+import { R, W, H, CORNER_MOUTH, EPS_LAYOUT } from '../engine/constants.js';
 import { clearance } from './clearance.js';
 
 const A = CORNER_MOUTH / Math.SQRT2;
@@ -25,7 +25,7 @@ function reflect(p, rail) {
  */
 function intersect(p, q, rail) {
   const d = rail.axis === 'x' ? q.x - p.x : q.y - p.y;
-  if (d === 0) return null;
+  if (d === 0) return null; // parallel: both points lie on the reflection line, so the candidate is rejected
   const t = ((rail.axis === 'x' ? rail.v - p.x : rail.v - p.y)) / d;
   return { x: p.x + t * (q.x - p.x), y: p.y + t * (q.y - p.y) };
 }
@@ -37,6 +37,11 @@ function inSpan(p, rail) {
     return (x >= A + R && x <= 47.5 - R) || (x >= 52.5 + R && x <= W - A - R);
   }
   return p.y >= A + R && p.y <= H - A - R;
+}
+
+/** @param {{x:number,y:number}} p @param {{axis:string,v:number}} rail */
+function onRail(p, rail) {
+  return Math.abs((rail.axis === 'x' ? p.x : p.y) - rail.v) < EPS_LAYOUT;
 }
 
 /**
@@ -75,6 +80,8 @@ export function lanesFromSamples(samples, stepDeg) {
 
 /**
  * Cheap one- and two-rail mirror kick-lane approximation.
+ * A rail is skipped as a bounce rail when the ball the leg starts from lies within EPS_LAYOUT of its
+ * reflection line: a frozen ball's "kick" off its own rail is really the direct shot (R20).
  * @param {{x:number,y:number}} from
  * @param {import('../types.js').Ball[]} balls
  * @param {string[]} targetIds
@@ -93,6 +100,7 @@ export function mirrorLanes(from, balls, targetIds, excludeIds) {
     if (!T) continue;
     const exclFinal = [...excludeIds, tid];
     for (const rail of RAILS) {
+      if (onRail(from, rail)) continue;
       const image = reflect(T, rail);
       const P = intersect(from, image, rail);
       if (!P || !inSpan(P, rail)) continue;
@@ -102,6 +110,7 @@ export function mirrorLanes(from, balls, targetIds, excludeIds) {
       w1 = Math.max(w1, width(image));
     }
     for (const r1 of RAILS) {
+      if (onRail(from, r1)) continue;
       for (const r2 of RAILS) {
         if (r1 === r2) continue;
         const T2 = reflect(T, r2);
@@ -109,7 +118,7 @@ export function mirrorLanes(from, balls, targetIds, excludeIds) {
         const P1 = intersect(from, T12, r1);
         if (!P1) continue;
         const P2 = intersect(P1, T2, r2);
-        if (!P2) continue;
+        if (!P2 || onRail(P1, r2)) continue;
         if (!inSpan(P1, r1) || !inSpan(P2, r2)) continue;
         if (clearance(from, P1, balls, excludeIds) < 0) continue;
         if (clearance(P1, P2, balls, excludeIds) < 0) continue;
