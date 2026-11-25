@@ -7,11 +7,12 @@ import { roundLayout, spacingOk, measureBand, bankSearch } from './bank-search.j
 
 /**
  * @param {{j: number, family: number, seed: number, genBand: import('../src/types.js').Band, skipCells: import('../src/types.js').Band[]}} job
- * @param {{grid: import('../src/search/grid.js').Grid, nFull: number, nTop: number, failJ?: number}} cfg
+ * @param {{grid: import('../src/search/grid.js').Grid, nFull: number, nTop: number, failJ?: number, slowJ?: number}} cfg
  * @returns {any}
  */
 export function runJob(job, cfg) {
   const { j, family, seed, genBand } = job;
+  if (cfg.slowJ === j) Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 20000); // test-only hook
   if (cfg.failJ === j) throw new Error('injected failure'); // test-only hook
   const head = { j, family, seed, genBand };
   const lay = generate(family, seed, genBand);

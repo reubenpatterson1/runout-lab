@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { FIXED_LAYOUTS } from '../src/deal/fixed.js';
-import { newFamilyState, commitResult, assembleBank, formatReport, buildBank } from '../scripts/build-bank.js';
+import { routeResult, newFamilyState, commitResult, assembleBank, formatReport, buildBank } from '../scripts/build-bank.js';
 const cfg = { cap: 2, maxNonNull: 6, timeCapMs: 1e12 };
 const best = (total) => ({ shot: { aimDeg: 0, speed: 30, spin: { x: 0, y: 0 } }, score: /** @type {any} */ ({ total }) });
 const m = (j, seed, band, total, skipped = false) => ({ j, family: 2, seed, genBand: 'easy', kind: 'measured', layout: /** @type {any} */ ({}), share: 0.2, band, skipped, best: skipped ? null : best(total) });
@@ -65,17 +65,39 @@ test('larger build: jobs-independent with real entries; crash leaves no out; sta
   await buildBank({ ...tiny, jobs: 3, out: c + 'b.json', checkpoint: c + 'c.json' });
   assert.equal(readFileSync(c + 'b.json', 'utf8'), sa);
 });
-test('examples with many workers: 3 real examples despite leftover family results', async () => {
-  const d = dir();
-  const r = await buildBank({ ...tiny, examples: true, jobs: 8, out: d + 'b.json', checkpoint: d + 'c.json' });
-  assert.deepEqual(r.bank.examples.map((e) => e.name), FIXED_LAYOUTS.map((f) => f.name));
-  assert.ok(r.bank.examples.every((e) => e && e.layout));
-  assert.ok(r.report.includes('example open hook'));
-});
 test('a job that throws is a counted reject with reason error and the build completes', async () => {
   const d = dir();
   const r = await buildBank({ ...tiny, jobs: 2, failJ: 1, out: d + 'b.json', checkpoint: d + 'c.json' });
   assert.ok(r.bank);
   assert.ok(r.report.includes('errors: 1'));
   assert.ok(/error family 2 j=1 seed \d+: Error: injected failure/.test(r.report));
+});
+
+test('routeResult routes by message shape in each phase, never by error', () => {
+  const st = { family: 2, stop: null };
+  const fam = { j: 3, family: 2, seed: 5, kind: 'null' }, famErr = { j: 3, family: 2, seed: 5, error: 'Error: x' };
+  const ex = { i: 1, example: { name: 'n' } }, exErr = { i: 1, error: 'Error: y' };
+  assert.equal(routeResult('examples', fam, null), 'ignore');
+  assert.equal(routeResult('examples', famErr, null), 'ignore');
+  assert.equal(routeResult('examples', ex, null), 'example');
+  assert.equal(routeResult('examples', exErr, null), 'example-error');
+  assert.equal(routeResult('family', fam, st), 'family-commit');
+  assert.equal(routeResult('family', famErr, st), 'family-commit');
+  assert.equal(routeResult('family', ex, st), 'ignore');
+  assert.equal(routeResult('family', exErr, st), 'ignore');
+  assert.equal(routeResult('family', { ...fam, family: 3 }, st), 'ignore');
+  assert.equal(routeResult('family', fam, { family: 2, stop: 'full' }), 'ignore');
+});
+test('examples run before any family job; a throwing family job does not poison the examples', async () => {
+  const d = dir(), log = [];
+  const r = await buildBank({ ...tiny, examples: true, jobs: 8, failJ: 1, dispatchLog: log, out: d + 'b.json', checkpoint: d + 'c.json' });
+  assert.deepEqual(log.slice(0, 3).sort(), ['example 0', 'example 1', 'example 2']);
+  assert.ok(log.slice(3).every((x) => x.startsWith('family')));
+  assert.equal(JSON.parse(readFileSync(d + 'c.json', 'utf8')).examples.length, 3);
+  assert.ok(r.report.startsWith('WARNING: 1 job errors'));
+});
+test('watchdog rejects a stuck job with context and keeps the checkpoint', async () => {
+  const d = dir();
+  await assert.rejects(buildBank({ ...tiny, jobs: 2, slowJ: 1, watchdogMs: 300, out: d + 'b.json', checkpoint: d + 'c.json' }), /worker timeout family 2 j=1 seed \d+/);
+  assert.ok(existsSync(d + 'c.json')); assert.ok(!existsSync(d + 'b.json'));
 });

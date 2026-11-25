@@ -104,6 +104,21 @@ export function assembleBank(states, examples, hash, cfg) {
   return { v: 1, modelHash: hash, params: { families: cfg.families, target: cfg.target, cap: cfg.cap, speedCap: 130 }, coverage, entries, examples };
 }
 
+/**
+ * Route a worker result by message shape (R39): example results carry `i` and no `j`; family results carry `j` + `family`.
+ * Never routes on `error`.
+ * @param {'examples'|'family'} phase
+ * @param {any} res
+ * @param {{family: number, stop: string|null}|null} state current family state (family phase)
+ * @returns {'family-commit'|'example'|'example-error'|'ignore'}
+ */
+export function routeResult(phase, res, state) {
+  const isExample = res.i !== undefined && res.j === undefined;
+  if (phase === 'examples') return isExample ? (res.error ? 'example-error' : 'example') : 'ignore';
+  if (isExample || !state || res.j === undefined || res.family !== state.family || state.stop !== null) return 'ignore';
+  return 'family-commit';
+}
+
 /** @param {number} ms */
 const hm = (ms) => {
   const m = Math.floor(ms / 60000);
@@ -117,7 +132,9 @@ const hm = (ms) => {
  */
 export function formatReport(bank, states, elapsedMs) {
   const target = bank.params.target;
-  const lines = ['family\tband\tgenerated\tvalid\tcount\ttarget\tshortfall'];
+  const nErr = states.reduce((a, s) => a + s.errors, 0);
+  const lines = nErr > 0 ? [`WARNING: ${nErr} job errors`] : [];
+  lines.push('family\tband\tgenerated\tvalid\tcount\ttarget\tshortfall');
   for (const c of bank.coverage) lines.push([c.family, c.band, c.generated, c.valid, c.count, target, Math.max(0, target - c.count)].join('\t'));
   for (const c of bank.coverage) if (c.count < target) lines.push(`SHORTFALL family ${c.family} band ${c.band}: ${c.count}/${target}`);
   for (const s of states) lines.push(`family ${s.family} stopped: ${s.stop} at j=${s.j} (nonNull ${s.nonNull}, elapsed ${hm(s.elapsedMs)})`);
@@ -135,7 +152,7 @@ export async function buildBank(opts = {}) {
     families = ACTIVE_FAMILIES, jobs = os.availableParallelism(), target = 100, cap = 100, maxNonNull = 2000,
     timeCapMs = 3 * 3600e3, grid = BANK_GRID, nFull = N_FULL, nTop = TOP_N, examples = true,
     out = root + 'data/safety-bank.json', checkpoint = root + '.bank-build/checkpoint.json', fresh = false,
-    crashAfterCommits = Infinity, failJ = undefined, log = (/** @type {string} */ s) => process.stderr.write(s + '\n'),
+    crashAfterCommits = Infinity, failJ = undefined, slowJ = undefined, watchdogMs = 15 * 60e3, dispatchLog = undefined, log = (/** @type {string} */ s) => process.stderr.write(s + '\n'),
   } = opts;
   const t0 = performance.now();
   const hash = modelHash(root);
@@ -162,7 +179,7 @@ export async function buildBank(opts = {}) {
     renameSync(tmp, checkpoint);
   };
 
-  const workers = Array.from({ length: jobs }, () => new Worker(new URL('./bank-worker.js', import.meta.url), { workerData: { grid, nFull, nTop, failJ } }));
+  const workers = Array.from({ length: jobs }, () => new Worker(new URL('./bank-worker.js', import.meta.url), { workerData: { grid, nFull, nTop, failJ, slowJ } }));
   /** @type {Worker[]} */
   const idle = [...workers];
   /** @type {((res: any, w: Worker) => void)|null} */
@@ -174,22 +191,57 @@ export async function buildBank(opts = {}) {
   let fail = () => {};
   const failed = new Promise((_, rej) => { fail = rej; });
   failed.catch(() => {});
+  /** @param {any} m */
+  const what = (m) => (m.example ? `example i=${m.i}` : `family ${m.family} j=${m.j} seed ${m.seed}`);
   /** @param {Worker} w @param {string} why */
   const infra = (w, why) => {
-    const m = cur.get(w);
-    fail(new Error(m && !m.example ? `worker failed family ${m.family} j=${m.j} seed ${m.seed}: ${why}` : `worker failed (no job in flight): ${why}`));
+    const c = cur.get(w);
+    fail(new Error(c ? `worker failed ${what(c.m)}: ${why}` : `worker failed (no job in flight): ${why}`));
   };
   for (const w of workers) {
-    w.on('message', (res) => { cur.delete(w); idle.push(w); if (onResult) onResult(res, w); });
+    w.on('message', (res) => {
+      const c = cur.get(w);
+      if (c) clearTimeout(c.timer);
+      cur.delete(w); idle.push(w); if (onResult) onResult(res, w);
+    });
     w.on('error', (e) => infra(w, String(e && e.message || e)));
     w.on('exit', (c) => { if (!closing) infra(w, 'unexpected exit code ' + c); });
   }
   /** @param {Worker} w @param {any} m */
-  const post = (w, m) => { cur.set(w, m); w.postMessage(m); };
+  const post = (w, m) => {
+    const timer = setTimeout(() => fail(new Error(`worker timeout ${what(m)}`)), watchdogMs);
+    cur.set(w, { m, timer });
+    if (dispatchLog) dispatchLog.push(m.example ? `example ${m.i}` : `family ${m.family} j=${m.j}`);
+    w.postMessage(m);
+  };
   let commits = 0;
   let crashed = false;
 
   try {
+    if (examples && !(exs && exs.length)) { // R39: examples first, while all workers are idle
+      /** @type {import('../src/types.js').BankExample[]} */
+      const got = [];
+      await Promise.race([failed, new Promise((resolve, reject) => {
+        let next = 0, done = 0;
+        const pump = () => {
+          while (idle.length && next < FIXED_LAYOUTS.length) post(/** @type {Worker} */ (idle.pop()), { example: true, i: next++ });
+        };
+        onResult = (res) => {
+          const route = routeResult('examples', res, null);
+          if (route === 'example-error') { reject(new Error(`worker failed example i=${res.i}: ${String(res.error).split('\n')[0]}`)); return; }
+          if (route === 'example') {
+            got[res.i] = res.example;
+            if (++done === FIXED_LAYOUTS.length) { resolve(undefined); return; }
+          }
+          pump();
+        };
+        pump();
+      })]);
+      onResult = null;
+      exs = got;
+      save();
+    }
+
     for (const state of states) {
       if (state.stop !== null) continue;
       const carried = state.elapsedMs;
@@ -208,7 +260,7 @@ export async function buildBank(opts = {}) {
           }
         };
         onResult = (res) => {
-          if (res.example || res.family !== state.family || state.stop !== null || crashed) { pump(); return; }
+          if (routeResult('family', res, state) !== 'family-commit' || crashed) { pump(); return; }
           buf.set(res.j, res);
           let wrote = false;
           while (buf.has(state.j) && state.stop === null) {
@@ -231,28 +283,6 @@ export async function buildBank(opts = {}) {
       if (crashed) return { bank: null, report: '' };
     }
 
-    if (examples && !(exs && exs.length)) {
-      /** @type {import('../src/types.js').BankExample[]} */
-      const got = [];
-      await Promise.race([failed, new Promise((resolve, reject) => {
-        let next = 0, done = 0;
-        const pump = () => {
-          while (idle.length && next < FIXED_LAYOUTS.length) post(/** @type {Worker} */ (idle.pop()), { example: true, i: next++ });
-        };
-        onResult = (res) => {
-          if (!res.example && !res.error) { pump(); return; } // leftover family result
-          if (res.error) { reject(new Error(`worker failed example ${res.i}: ${String(res.error).split('\n')[0]}`)); return; }
-          got[res.i] = res.example;
-          if (++done === FIXED_LAYOUTS.length) resolve(undefined);
-          else pump();
-        };
-        pump();
-      })]);
-      onResult = null;
-      exs = got;
-      save();
-    }
-
     if (modelHash(root) !== hash || buildHash(root) !== bHash) throw new Error('model files changed during build');
     const bank = assembleBank(states, examples ? exs ?? [] : [], hash, { families, target, cap });
     mkdirSync(dirname(out), { recursive: true });
@@ -261,6 +291,7 @@ export async function buildBank(opts = {}) {
     return { bank, report: formatReport(bank, states, states.reduce((a, s) => a + s.elapsedMs, 0) || performance.now() - t0) };
   } finally {
     closing = true;
+    for (const c of cur.values()) clearTimeout(c.timer);
     await Promise.all(workers.map((w) => w.terminate()));
   }
 }
