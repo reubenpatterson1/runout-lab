@@ -1,10 +1,11 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 26;
-export const HASH = '734338ad04a8c4f9410774aa7c15b02c093e50eb1486dc8521cc55243e5fe304';
+export const VERSION = 27;
+export const HASH = 'f200315676e865b8a5aecf5064088cefd5a77cd9346948b9ceae3156d9079c4a';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
+  'data/safety-bank.json',
   'fonts/OFL-Archivo.txt',
   'fonts/OFL-Oswald.txt',
   'fonts/OFL-SpaceMono.txt',

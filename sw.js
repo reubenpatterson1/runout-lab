@@ -1,4 +1,4 @@
-// runout-lab sw v26
+// runout-lab sw v27
 // @ts-check
 import { VERSION, FILES, CACHE_PREFIX } from './src/precache.js';
 import { makeHandlers } from './src/sw-core.js';
