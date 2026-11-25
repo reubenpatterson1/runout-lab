@@ -57,6 +57,7 @@ test('R27: memo + branch-and-bound give results deep-equal to the reference path
     const fast = { kickCalls: 0 }, ref = { kickCalls: 0 };
     assert.deepEqual(runSearch(l, DIFFICULTY_GRID, { stats: fast }), runSearch(l, DIFFICULTY_GRID, { reference: true, stats: ref }));
     assert.ok(fast.kickCalls <= ref.kickCalls);
+    if (l !== layA) assert.ok(fast.kickCalls < ref.kickCalls, `${fast.kickCalls} vs ${ref.kickCalls}`);
   }
 });
 test('R28: validateDeal stops at the first full total >= 70; suggest never early-exits', () => {
@@ -64,6 +65,10 @@ test('R28: validateDeal stops at the first full total >= 70; suggest never early
   const full = runSearch(layA, DIFFICULTY_GRID);
   assert.ok(full.best && full.best.score.total >= v.best.score.total);
   assert.equal(full.shareGe70, v.share);
+  const early = { kickCalls: 0 }, noStop = { kickCalls: 0 };
+  runSearch(layA, DIFFICULTY_GRID, { stopAtTotal: 70, stats: early }); runSearch(layA, DIFFICULTY_GRID, { stats: noStop });
+  assert.ok(early.kickCalls < noStop.kickCalls, `${early.kickCalls} vs ${noStop.kickCalls}`);
+  assert.deepEqual(suggest(layA, { stopAtTotal: 70 }), suggest(layA));
 });
 test('shareGe70 equals an independent Stage-A-only recount (pinned 5/108)', () => {
   const l = randomLayout(14, 5);
