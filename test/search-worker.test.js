@@ -42,3 +42,10 @@ test('client resolves by id, rejects errors, terminate rejects pending; client n
   const src = readFileSync(new URL('../src/search/client.js', import.meta.url), 'utf8');
   assert.ok(!src.includes('JSON.parse') && !src.includes('fetch('));
 });
+test('client calls after terminate or a fatal worker error reject immediately', async () => {
+  const c1 = createSearchClient(fakeWorker(createHandler(load)));
+  c1.terminate(); await assert.rejects(c1.info(), /terminated/);
+  let w; const c2 = createSearchClient(() => { w = fakeWorker(createHandler(load))(); return w; });
+  const p = c2.info(); w.onerror({ message: 'boom' });
+  await assert.rejects(p, /boom/); await assert.rejects(c2.deal(5, 0, []), /boom/);
+});

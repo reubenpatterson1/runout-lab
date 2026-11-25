@@ -9,6 +9,8 @@ const defaultFactory = () => new Worker(new URL('./worker.js', import.meta.url),
 export function createSearchClient(factory = defaultFactory) {
   const worker = factory();
   let nextId = 1;
+  /** @type {Error|null} */
+  let dead = null;
   /** @type {Map<number, {resolve: (v: any) => void, reject: (e: Error) => void}>} */
   const pending = new Map();
   worker.onmessage = (e) => {
@@ -20,12 +22,13 @@ export function createSearchClient(factory = defaultFactory) {
   };
   worker.onerror = (ev) => {
     const err = new Error(ev?.message ?? 'worker error');
+    dead = err;
     const all = [...pending.values()];
     pending.clear();
     for (const p of all) p.reject(err);
   };
   /** @param {object} req @returns {Promise<any>} */
-  const call = (req) => new Promise((resolve, reject) => {
+  const call = (req) => dead ? Promise.reject(new Error(dead.message)) : new Promise((resolve, reject) => {
     const id = nextId++;
     pending.set(id, { resolve, reject });
     worker.postMessage({ id, ...req });
@@ -45,6 +48,7 @@ export function createSearchClient(factory = defaultFactory) {
     /** @param {Layout} layout @param {Scored|null} [best] */
     suggest: (layout, best) => call({ type: 'suggest', layout, best: best ?? null }),
     terminate: () => {
+      dead = new Error('terminated');
       worker.terminate();
       const err = new Error('terminated');
       const all = [...pending.values()];
