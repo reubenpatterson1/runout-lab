@@ -1,8 +1,9 @@
 // @ts-check
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync, readFileSync } from 'node:fs';
+import { mkdtempSync, readFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
+import { FIXED_LAYOUTS } from '../src/deal/fixed.js';
 import { newFamilyState, commitResult, assembleBank, formatReport, buildBank } from '../scripts/build-bank.js';
 const cfg = { cap: 2, maxNonNull: 6, timeCapMs: 1e12 };
 const best = (total) => ({ shot: { aimDeg: 0, speed: 30, spin: { x: 0, y: 0 } }, score: /** @type {any} */ ({ total }) });
@@ -44,4 +45,37 @@ test('buildBank output is independent of --jobs and survives crash + resume', as
   await buildBank({ ...base, jobs: 2, out: c + 'b.json', checkpoint: c + 'c.json' });
   assert.equal(readFileSync(c + 'b.json', 'utf8'), readFileSync(a + 'b.json', 'utf8'));
   const bank = JSON.parse(readFileSync(a + 'b.json', 'utf8')); assert.equal(bank.v, 1); assert.equal(bank.coverage.length, 3);
+});
+
+const tiny = { families: [2], cap: 1, maxNonNull: 8, grid: { offsets: [-0.46, 0, 0.46], offsets2: [-0.46, 0.46], speeds: [40], spins: [{ x: 0, y: 0 }] }, nFull: 3, nTop: 1, examples: false, log: () => {} };
+const dir = () => mkdtempSync(tmpdir() + '/bank-') + '/';
+
+test('larger build: jobs-independent with real entries; crash leaves no out; stale checkpoint rejected', async () => {
+  const a = dir(), b = dir(), c = dir();
+  await buildBank({ ...tiny, jobs: 1, out: a + 'b.json', checkpoint: a + 'c.json' });
+  await buildBank({ ...tiny, jobs: 4, out: b + 'b.json', checkpoint: b + 'c.json' });
+  const sa = readFileSync(a + 'b.json', 'utf8');
+  assert.equal(sa, readFileSync(b + 'b.json', 'utf8'));
+  const bank = JSON.parse(sa);
+  assert.ok(bank.entries.length >= 2, 'entries ' + bank.entries.length);
+  assert.ok(bank.coverage.some((r) => r.count === 1));
+  const cr = await buildBank({ ...tiny, jobs: 3, out: c + 'b.json', checkpoint: c + 'c.json', crashAfterCommits: 3 });
+  assert.equal(cr.bank, null); assert.ok(!existsSync(c + 'b.json'));
+  await assert.rejects(buildBank({ ...tiny, cap: 2, jobs: 2, out: c + 'b.json', checkpoint: c + 'c.json' }), /stale checkpoint/);
+  await buildBank({ ...tiny, jobs: 3, out: c + 'b.json', checkpoint: c + 'c.json' });
+  assert.equal(readFileSync(c + 'b.json', 'utf8'), sa);
+});
+test('examples with many workers: 3 real examples despite leftover family results', async () => {
+  const d = dir();
+  const r = await buildBank({ ...tiny, examples: true, jobs: 8, out: d + 'b.json', checkpoint: d + 'c.json' });
+  assert.deepEqual(r.bank.examples.map((e) => e.name), FIXED_LAYOUTS.map((f) => f.name));
+  assert.ok(r.bank.examples.every((e) => e && e.layout));
+  assert.ok(r.report.includes('example open hook'));
+});
+test('a job that throws is a counted reject with reason error and the build completes', async () => {
+  const d = dir();
+  const r = await buildBank({ ...tiny, jobs: 2, failJ: 1, out: d + 'b.json', checkpoint: d + 'c.json' });
+  assert.ok(r.bank);
+  assert.ok(r.report.includes('errors: 1'));
+  assert.ok(/error family 2 j=1 seed \d+: Error: injected failure/.test(r.report));
 });

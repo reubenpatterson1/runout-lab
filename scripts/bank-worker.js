@@ -7,11 +7,12 @@ import { roundLayout, spacingOk, measureBand, bankSearch } from './bank-search.j
 
 /**
  * @param {{j: number, family: number, seed: number, genBand: import('../src/types.js').Band, skipCells: import('../src/types.js').Band[]}} job
- * @param {{grid: import('../src/search/grid.js').Grid, nFull: number, nTop: number}} cfg
+ * @param {{grid: import('../src/search/grid.js').Grid, nFull: number, nTop: number, failJ?: number}} cfg
  * @returns {any}
  */
 export function runJob(job, cfg) {
   const { j, family, seed, genBand } = job;
+  if (cfg.failJ === j) throw new Error('injected failure'); // test-only hook
   const head = { j, family, seed, genBand };
   const lay = generate(family, seed, genBand);
   if (!lay) return { ...head, kind: 'null' };
@@ -33,5 +34,12 @@ export function runExample(f, cfg) {
 
 if (!isMainThread && parentPort) {
   const port = parentPort;
-  port.on('message', (m) => port.postMessage(m.example ? { i: m.i, example: runExample(FIXED_LAYOUTS[m.i], workerData) } : runJob(m, workerData)));
+  port.on('message', (m) => {
+    try {
+      port.postMessage(m.example ? { i: m.i, example: runExample(FIXED_LAYOUTS[m.i], workerData) } : runJob(m, workerData));
+    } catch (e) {
+      const error = e instanceof Error ? e.stack : String(e);
+      port.postMessage(m.example ? { i: m.i, error } : { j: m.j, family: m.family, seed: m.seed, error });
+    }
+  });
 }
