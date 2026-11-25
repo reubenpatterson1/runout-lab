@@ -20,7 +20,8 @@ export function gateFor(sim, layout) {
 }
 
 /**
- * Ids in layout order.
+ * Ids in layout order. 9-ball invariant: legalIds = [lowest id] and ids are numeric strings
+ * (the dealer must satisfy this; the opponent then targets the lowest ball left after the shot).
  * @param {import('../types.js').Rules} rules
  * @param {import('../types.js').Ball[]} balls
  * @param {string} cueId
@@ -73,13 +74,14 @@ export function scoreSafety(layout, shot) {
     };
   }
   const nTargets = opponentTargets(layout.rules, nominal.final, cueId);
+  if (!nTargets.length) throw new Error('invalid layout: no opponent targets');
   const nPos = scorePosition(nominal.final, cueId, nTargets);
   const nomLanes = { n1: nPos.kick.n1, w1: nPos.kick.w1, n2: nPos.kick.n2, w2: nPos.kick.w2 };
-  /** @param {import('../types.js').Ball[]} a @param {string} id @param {import('../types.js').Ball[]} b */
-  const near = (a, id, b) => {
-    const p = a.find((q) => q.id === id), q = b.find((r) => r.id === id);
-    return !!p && !!q && Math.hypot(p.x - q.x, p.y - q.y) <= 2.25;
-  };
+  /** @param {import('../types.js').Ball[]} fin */
+  const allNear = (fin) => fin.every((p) => {
+    const q = nominal.final.find((r) => r.id === p.id);
+    return !!q && Math.hypot(p.x - q.x, p.y - q.y) <= 2.25;
+  });
   const scores = [];
   for (let i = 0; i < ROBUST_GRID.length; i++) {
     if (i === 4) { scores.push(nPos.score); continue; }
@@ -88,7 +90,7 @@ export function scoreSafety(layout, shot) {
     if (gateFor(sim, layout)) { scores.push(0); continue; }
     const targets = opponentTargets(layout.rules, sim.final, cueId);
     const same = targets.length === nTargets.length && targets.every((id, k) => id === nTargets[k]);
-    const reuse = nPos.V < 1 && same && near(sim.final, cueId, nominal.final) && targets.every((id) => near(sim.final, id, nominal.final));
+    const reuse = nPos.V < 1 && same && allNear(sim.final);
     scores.push(scorePosition(sim.final, cueId, targets, reuse ? { kick: nomLanes } : {}).score);
   }
   const agg = aggregate(scores, null);
