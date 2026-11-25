@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 18;
-export const HASH = 'f22621bc45e46425af03c543c06e9f0cff9a704d89735fd028082f7d4da3fe9a';
+export const VERSION = 19;
+export const HASH = 'a7902e7136720237b870e6e360d7a9113980a527405b9190ad739cabaf02aa9a';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -35,6 +35,8 @@ export const FILES = [
   'src/geometry/visibility.js',
   'src/home.js',
   'src/precache.js',
+  'src/search/grid.js',
+  'src/search/search.js',
   'src/sw-core.js',
   'src/sw-register.js',
   'src/types.js',
