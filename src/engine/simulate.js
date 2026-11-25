@@ -177,8 +177,10 @@ export function simulate(layout, shot, opts = {}) {
           if (Math.hypot(p.x - pk.x, p.y - pk.y) > POCKET_NEAR) continue;
           const m0 = mouthDistance(p.x, p.y, k);
           const co = cx[i] * pk.out.x + cy[i] * pk.out.y;
-          if (!(m0 <= 0 && co > EPS_V)) continue;
-          const tau = -m0 / co;
+          let tau;
+          if (m0 > 0) tau = 0; // R19: already past the mouth line
+          else if (co > EPS_V) tau = -m0 / co;
+          else continue;
           if (tau > rem) continue;
           if (better(tau, TYPE_POCKET, i, k)) best = { tau, type: TYPE_POCKET, i, j: k };
         }
@@ -186,8 +188,8 @@ export function simulate(layout, shot, opts = {}) {
         for (let k = 0; k < JAWS.length; k++) {
           const J = JAWS[k];
           const dx = p.x - J.x, dy = p.y - J.y;
-          if (Math.hypot(dx, dy) > POCKET_NEAR) continue;
           const d = Math.hypot(dx, dy);
+          if (d > POCKET_NEAR) continue;
           let tau;
           if (d <= R + EPS_D) {
             tau = 0;

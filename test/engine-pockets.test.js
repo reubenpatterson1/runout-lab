@@ -3,7 +3,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { simulate } from '../src/engine/simulate.js';
 import { validateLayout } from '../src/engine/layout.js';
-import { R, CORNER_MOUTH } from '../src/engine/constants.js';
+import { POCKETS, mouthDistance } from '../src/engine/table.js';
+import { R, CORNER_MOUTH, POCKET_NEAR } from '../src/engine/constants.js';
 import { B, L, aimAt, ev, mulberry, randomLayout } from './helpers.js';
 
 const a = CORNER_MOUTH / Math.SQRT2;
@@ -38,8 +39,20 @@ test('no non-pocketed final ball is outside the table over 200 random shots', ()
     const s = simulate(lay, { aimDeg: rnd() * 360, speed: 10 + rnd() * 150, spin: { x: rnd() * 1.2 - 0.6, y: rnd() * 2 - 1 } });
     pocketedTotal += s.pocketed.length;
     assert.equal(s.final.length + s.pocketed.length, lay.balls.length);
-    const v = validateLayout({ ...lay, balls: s.final, rules: { kind: 'designated', legalIds: [] } });
-    assert.ok(v.ok || v.reason !== 'off-table', `shot ${i}: ${JSON.stringify(v)}`);
+    const v = validateLayout({ balls: s.final, cueId: s.final[0]?.id ?? 'cue', rules: { kind: 'designated', legalIds: [] } });
+    assert.ok(v.ok || v.reason === 'missing-cue', `shot ${i}: ${JSON.stringify(v)}`);
+    for (const b of s.final) {
+      for (let k = 0; k < POCKETS.length; k++) {
+        if (Math.hypot(b.x - POCKETS[k].x, b.y - POCKETS[k].y) <= POCKET_NEAR) assert.ok(mouthDistance(b.x, b.y, k) <= 0, `shot ${i}: ${b.id} past mouth ${k}`);
+      }
+    }
   }
   assert.ok(pocketedTotal > 0);
+});
+test('R19 regression: ball left just past a mouth line by a jaw event is still captured', () => {
+  const lay = randomLayout(196151, 14);
+  const s = simulate(lay, { aimDeg: 162.98464260064065, speed: 158.21831265464425, spin: { x: -0.4693811424076557, y: 0.6097998502664268 } });
+  assert.ok(s.pocketed.includes('cue')); assert.ok(s.scratch);
+  const v = validateLayout({ ...lay, balls: s.final.map((b) => ({ id: b.id, x: b.x, y: b.y })).concat([{ id: 'cue', x: 50, y: 25 }]), rules: { kind: 'designated', legalIds: ['o1'] } });
+  assert.ok(v.ok, JSON.stringify(v));
 });
