@@ -2,7 +2,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { R } from '../src/engine/constants.js';
-import { kickEase } from '../src/eval/kick.js';
+import { kickEase, kickLanes } from '../src/eval/kick.js';
 import { combineScore, cueRestriction, scorePosition } from '../src/eval/position.js';
 import { B } from './helpers.js';
 
@@ -16,11 +16,11 @@ test('fixture formula: full hook, mid-table, one wide one-rail lane in 55–80',
 test('Fixture 1 (layout): ringed OB, cue frozen on the head rail → ≥ 90, no one-rail lane', () => {
   const ring = [0, 1, 2, 3, 4, 5].map((k) => B(`b${k}`, 60 + 2 * R * Math.cos((k * Math.PI) / 3), 25 + 2 * R * Math.sin((k * Math.PI) / 3)));
   const p = scorePosition([B('cue', R, 25), B('ob', 60, 25), ...ring], 'cue', ['ob']);
-  assert.equal(p.V, 0); assert.equal(p.kick.n1, 0); assert.ok(p.score >= 90);
+  assert.equal(p.V, 0); assert.equal(p.kick.n1, 0); assert.equal(p.kick.rails, 3); assert.equal(p.kick.K, 1); assert.ok(p.score >= 90);
 });
 test('Fixture 2 (layout): full hook mid-table with open one-rail lanes → 55–80', () => {
   const p = scorePosition([B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)], 'cue', ['ob']);
-  assert.equal(p.V, 0); assert.ok(p.kick.n1 >= 1); assert.ok(p.score >= 55 && p.score <= 80, String(p.score));
+  assert.equal(p.V, 0); assert.ok(p.kick.n1 >= 1); assert.equal(p.kick.rails, 1); assert.ok(p.score >= 55 && p.score <= 80, String(p.score));
 });
 test('Fixture 3: half-visible OB scores ≥ 30 below the same layout fully hooked', () => {
   const hooked = scorePosition([B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)], 'cue', ['ob']);
@@ -31,9 +31,13 @@ test('Fixture 4: open OB near a pocket at short range ≤ 25', () => {
   const p = scorePosition([B('cue', 80, 20), B('ob', 93, 7)], 'cue', ['ob']); assert.equal(p.V, 1); assert.ok(p.score <= 25);
 });
 test('cue restriction is 100% when frozen and 0 mid-table', () => { assert.equal(cueRestriction({ x: R, y: 25 }), 1); assert.equal(cueRestriction({ x: 50, y: 25 }), 0); });
-test('kick info reports computed=false only when nominal V === 1', () => {
-  const open = scorePosition([B('cue', 80, 20), B('ob', 93, 7)], 'cue', ['ob']);
-  assert.equal(open.kick.computed, false);
-  const hooked = scorePosition([B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)], 'cue', ['ob']);
-  assert.equal(hooked.kick.computed, true);
+test('frozen cue: no phantom lane from bouncing off its own rail (R21)', () => {
+  const balls = [B('cue', R, 25), B('ob', 40, 15)];
+  const lanes = kickLanes(balls, 'cue', ['ob']);
+  assert.ok(lanes.w1 < 8, JSON.stringify(lanes));
+  assert.equal(lanes.n2, 0, JSON.stringify(lanes));
+});
+test('kickLanes is deterministic', () => {
+  const balls = [B('cue', 30, 25), B('b1', 36, 25), B('ob', 60, 25)];
+  assert.deepEqual(kickLanes(balls, 'cue', ['ob']), kickLanes(balls, 'cue', ['ob']));
 });

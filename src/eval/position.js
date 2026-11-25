@@ -1,5 +1,5 @@
 // @ts-check
-import { R } from '../engine/constants.js';
+import { R, W, H } from '../engine/constants.js';
 import { POCKETS } from '../engine/table.js';
 import { visibility } from '../geometry/visibility.js';
 import { clearance } from '../geometry/clearance.js';
@@ -20,7 +20,7 @@ export function combineScore({ V, D, K, Q }) {
 
 /** @param {{x:number,y:number}} cue @returns {number} */
 export function cueRestriction(cue) {
-  const railD = Math.max(0, Math.min(cue.x - R, 100 - R - cue.x, cue.y - R, 50 - R - cue.y));
+  const railD = Math.max(0, Math.min(cue.x - R, W - R - cue.x, cue.y - R, H - R - cue.y));
   return clamp(1 - railD / (4 * R), 0, 1);
 }
 
@@ -61,17 +61,11 @@ export function directThreat(cue, target, balls, cueId, V) {
 }
 
 /**
- * @typedef {{n1:number,w1:number,n2:number,w2:number,computed:boolean}} KickInfo
- * `computed` is false when the lanes are all-zero placeholders (nominal V === 1, lanes never evaluated);
- * callers (R5) may reuse lanes for another layout only when `computed` is true.
- */
-
-/**
  * @param {import('../types.js').Ball[]} balls
  * @param {string} cueId
  * @param {string[]} targetIds
  * @param {{cheap?: boolean, kick?: {n1:number,w1:number,n2:number,w2:number}}} [opts]
- * @returns {{score:number,V:number,D:number,Q:number,kick:KickInfo}}
+ * @returns {{score:number,V:number,D:number,Q:number,kick:import('../types.js').KickInfo}}
  */
 export function scorePosition(balls, cueId, targetIds, opts = {}) {
   const cue = /** @type {import('../types.js').Ball} */ (balls.find((b) => b.id === cueId));
@@ -83,16 +77,14 @@ export function scorePosition(balls, cueId, targetIds, opts = {}) {
     D = Math.max(D, directThreat(cue, t, balls, cueId, v));
   }
   const Q = cueRestriction(cue);
-  /** @type {KickInfo} */
-  let kick;
+  /** @type {{n1:number,w1:number,n2:number,w2:number}} */
+  let lanes = { n1: 0, w1: 0, n2: 0, w2: 0 };
   let K = 0;
-  if (V === 1) {
-    kick = { n1: 0, w1: 0, n2: 0, w2: 0, computed: false };
-  } else {
-    const lanes = opts.kick ?? (opts.cheap ? mirrorLanes(cue, balls, targetIds, [cueId]) : kickLanes(balls, cueId, targetIds));
-    kick = { ...lanes, computed: true };
+  if (V < 1) {
+    lanes = opts.kick ?? (opts.cheap ? mirrorLanes(cue, balls, targetIds, [cueId]) : kickLanes(balls, cueId, targetIds));
     K = 1 - kickEase(lanes);
   }
+  const rails = V > 0 ? 0 : lanes.n1 ? 1 : lanes.n2 ? 2 : 3;
   const score = combineScore({ V, D, K, Q });
-  return { score, V, D, Q, kick };
+  return { score, V, D, Q, kick: { rails, ...lanes, K } };
 }

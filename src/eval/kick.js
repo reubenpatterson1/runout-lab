@@ -1,10 +1,10 @@
 // @ts-check
-import { R, W, H } from '../engine/constants.js';
+import { R, W, H, EPS_LAYOUT } from '../engine/constants.js';
 import { simulate } from '../engine/simulate.js';
 import { firstBallOnRay } from '../geometry/visibility.js';
 import { lanesFromSamples } from '../geometry/kick-lanes.js';
 
-export const KICK_SPEED = 60;
+export const KICK_SPEED = 90;
 export const KICK_STEP_DEG = 1;
 
 /**
@@ -34,6 +34,9 @@ export function kickLanes(balls, cueId, targetIds) {
   for (let k = 0; k < 360; k++) {
     const rad = (k * Math.PI) / 180;
     const dir = { x: Math.cos(rad), y: Math.sin(rad) };
+    // R21: a frozen cue's bounce off its own rail is the mirrored direct shot, not a kick.
+    if ((dir.x > 0 && W - R - cue.x < EPS_LAYOUT) || (dir.x < 0 && cue.x - R < EPS_LAYOUT)
+      || (dir.y > 0 && H - R - cue.y < EPS_LAYOUT) || (dir.y < 0 && cue.y - R < EPS_LAYOUT)) { samples.push(0); continue; }
     const hit = firstBallOnRay(cue, dir, balls, [cueId]);
     if (hit && hit.t < railDistance(cue, dir)) { samples.push(0); continue; }
     const sim = simulate(
