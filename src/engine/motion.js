@@ -1,6 +1,10 @@
 // @ts-check
 import { G, MU_SLIDE, MU_ROLL, SPIN_DECAY, TIP, SPEED_MIN, SPEED_MAX } from './constants.js';
 
+/**
+ * w = (wx, wy) is the spin's contact-free rolling velocity in in/s; the ball is rolling iff v = w.
+ * wz is side spin in in/s; wz > 0 is right english, counter-clockwise seen from above.
+ */
 /** @typedef {{id:string,x:number,y:number,vx:number,vy:number,wx:number,wy:number,wz:number,state:'stopped'|'sliding'|'rolling'|'pocketed'}} BallState */
 
 /**

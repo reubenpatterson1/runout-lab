@@ -31,3 +31,10 @@ test('Cushions: running english lengthens, reverse shortens (>= 3 deg)', () => {
   const none = outDeg(at45(40)); assert.ok(outDeg(at45(40, -30)) >= none + 3); assert.ok(outDeg(at45(40, 30)) <= none - 3);
 });
 test('Cushions: below V_REST the ball does not bounce', () => { assert.equal(cushionRebound({ vn: 0.3, vt: 5, wz: 0 }).vn, 0); });
+test('advanceBall composes across step sizes', () => {
+  const mk = () => ({ id: 'c', x: 20, y: 20, state: 'sliding', ...strike({ aimDeg: 30, speed: 120, spin: { x: 0.4, y: -0.6 } }) });
+  const a = mk(), b = mk();
+  advanceBall(a, 40);
+  for (let i = 0; i < 4000; i++) advanceBall(b, 0.01);
+  near(a.x, b.x, 1e-6); near(a.y, b.y, 1e-6); near(a.vx, b.vx, 1e-6); near(a.vy, b.vy, 1e-6);
+});

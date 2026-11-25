@@ -7,6 +7,7 @@ const clamp = (x, lo, hi) => Math.min(hi, Math.max(lo, x));
  * Cushion response in the wall frame (n = outward normal, t = (n.y, -n.x)).
  * vn > 0 means moving into the cushion. Positive wz moves the contact point along +t,
  * so english is running iff sign(wz) = -sign(vt).
+ * Precondition: vn > 0 (approaching the cushion); callers must not call it for separating contacts. Does not modify the rolling velocity w (the caller handles R3b).
  * @param {{vn: number, vt: number, wz: number}} c
  * @returns {{vn: number, vt: number, wz: number}}
  */
