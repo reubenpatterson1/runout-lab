@@ -421,5 +421,11 @@ These follow the Task 13 investigation, `.superpowers/sdd/2026-11-24-runout-lab-
    - Backlog item added.
    - Sections 11, 16, 17, 18 and 18a.4.
 4. 2026-11-25 [OWNER]: Banking added as new drill priority 1, ahead of Execute the Close.
+5. **Stage 2 owner decisions, 2026-11-25 [OWNER].**
+   - Order: Stage 1b UI, then the module ports (§16 order), then Banking and the other new drills. Banking does not jump ahead of the ports.
+   - One model-change window, one safety-bank rebuild and one coverage review: cushion fixes E1 (`E_MIN` 0.794) and E2 (cushion removes 0.75 of roll into the rail) with their four test amendments (banking spec), the pocket-model fix (two-way spec), the engine `opts.tune` hook (speed-window spec) and the distance-safety update M1 with families 4 and 5 (module-ports spec). Approved.
+   - Visual direction: adopt the legacy look now used by `index.html` for now. The mockup round (§18.1, §18a.1) is skipped.
+   - Hints: a bank deal shows its stored best shot instantly; Suggest runs only for edited layouts. This replaces the 1.5 s seeded-Suggest budget (stage1b-ui spec).
+   - All other open questions in the 2026-11-25 specs stand at their stated defaults unless the owner says otherwise.
 
 Not edited here and now stale: the implementation plan's Global Constraints 9–11, `.superpowers/sdd/2026-11-24-runout-lab-stage1a-foundation/global-constraints.md`, the plan's `combineScore`, `ROBUST_GRID` and Task 13 and Task 16 text, and rulings R9 and R15. They must be reconciled with this section before work resumes.
