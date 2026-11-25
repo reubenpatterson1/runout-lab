@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 24;
-export const HASH = '8910a9ffd8975d77cbe80a0b47ae73e68e99660ef62ffcb0c036564a92c3cf2d';
+export const VERSION = 25;
+export const HASH = '17c9be1ab8808731d493cc7ffacb53839d25b3d89dc574925b7beff533b12bcd';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -43,5 +43,7 @@ export const FILES = [
   'src/sw-core.js',
   'src/sw-register.js',
   'src/types.js',
+  'src/ui/session-store.js',
+  'src/ui/wake-lock.js',
   'sw.js',
 ];
