@@ -23,6 +23,18 @@ test('validateLayout rejections', () => {
   assert.equal(r([{ id: 'cue', x: 20, y: 25 }, { id: 'cue', x: 60, y: 25 }], []), 'duplicate-id');
   assert.equal(r([{ id: 'cue', x: 20, y: 25 }], ['ob']), 'unknown-legal-id');
   assert.equal(r([{ id: 'cue', x: 0.5, y: 25 }], []), 'off-table');
+  assert.equal(r([{ id: 'cue', x: NaN, y: 25 }], []), 'off-table');
   assert.equal(r([{ id: 'cue', x: 1.2, y: 1.2 }], []), 'in-pocket');
   assert.equal(r([{ id: 'cue', x: 20, y: 25 }, { id: 'ob', x: 20 + 2 * R - 0.02, y: 25 }]), 'overlap');
+});
+test('CUSHIONS normals in order', () => {
+  assert.deepEqual(CUSHIONS.map((c) => [c.nx, c.ny]), [[0, -1], [0, -1], [0, 1], [0, 1], [-1, 0], [1, 0]]);
+});
+test('POCKETS out vectors in order', () => {
+  const q = Math.SQRT1_2;
+  const exp = [[-q, -q], [0, -1], [q, -q], [-q, q], [0, 1], [q, q]];
+  POCKETS.forEach((p, i) => { assert.ok(Math.abs(p.out.x - exp[i][0]) < 1e-12 && Math.abs(p.out.y - exp[i][1]) < 1e-12); });
+});
+test('POCKETS jaws are [2i, 2i+1]', () => {
+  POCKETS.forEach((p, i) => assert.deepEqual(p.jaws, [2 * i, 2 * i + 1]));
 });

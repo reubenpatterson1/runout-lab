@@ -22,7 +22,7 @@ export function validateLayout(layout) {
     if (!ids.has(id)) return { ok: false, reason: 'unknown-legal-id' };
   }
   for (const b of balls) {
-    if (b.x < 0 || b.x > W || b.y < 0 || b.y > H) return { ok: false, reason: 'off-table' };
+    if (!(b.x >= 0 && b.x <= W && b.y >= 0 && b.y <= H)) return { ok: false, reason: 'off-table' };
     for (const c of CUSHIONS) {
       if (segDist(b.x, b.y, c) < R - EPS_LAYOUT) return { ok: false, reason: 'off-table' };
     }
