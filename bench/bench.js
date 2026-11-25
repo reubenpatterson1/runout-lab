@@ -15,9 +15,12 @@ const median = (a) => {
 
 let longTasks = 0;
 let longTaskSupported = false;
+/** @type {PerformanceObserver | null} */
+let observer = null;
 if (typeof PerformanceObserver !== 'undefined' && PerformanceObserver.supportedEntryTypes?.includes('longtask')) {
   longTaskSupported = true;
-  new PerformanceObserver((list) => { longTasks += list.getEntries().length; }).observe({ type: 'longtask', buffered: true });
+  observer = new PerformanceObserver((list) => { longTasks += list.getEntries().length; });
+  observer.observe({ type: 'longtask', buffered: true });
 } else {
   print('longtask API unsupported');
 }
@@ -65,18 +68,21 @@ async function main() {
     unseeded.push(uMs);
     print(`${e.family} ${e.band} ${e.id} seeded ${f1(sMs)} total ${r.best.score.total} (stored ${e.best.score.total}) unseeded ${f1(uMs)}`);
   }
+  await new Promise((res) => requestAnimationFrame(() => res(undefined)));
   tracking = false;
   c.terminate();
 
   const seededMax = seeded.length ? Math.max(...seeded) : 0;
   const unseededMax = unseeded.length ? Math.max(...unseeded) : 0;
-  print(`bank load ${f1(loadMs)} (fetch ${f1(fetchMs)}, parse ${f1(parseMs)} in worker)`);
+  if (info.timing) print(`bank load ${f1(loadMs)} (fetch ${f1(fetchMs)}, parse ${f1(parseMs)} in worker)`);
+  else print(`bank load ${f1(loadMs)} (fetch n/a, parse n/a in worker)`);
   print(`worker round trip median ${f1(median(rt))} max ${f1(Math.max(...rt))}`);
   print(`seeded suggest max ${f1(seededMax)} ≤ 1500: ${seededMax <= 1500 ? 'PASS' : 'FAIL'}`);
   print(`seeded suggest below stored: ${below} (must be 0): ${below === 0 ? 'PASS' : 'FAIL'}`);
   print(`unseeded suggest median ${f1(median(unseeded))} max ${f1(unseededMax)} (report only)`);
+  if (longTaskSupported && observer) longTasks += observer.takeRecords().length;
   if (longTaskSupported) print(`main-thread long tasks: ${longTasks} (must be 0): ${longTasks === 0 ? 'PASS' : 'FAIL'}`);
-  else print('main-thread long tasks: n/a (must be 0): FAIL');
+  else print('main-thread long tasks: n/a (longtask API unsupported; use max rAF gap)');
   print(`max rAF gap ${f1(maxGap)}`);
   print('DONE');
 }

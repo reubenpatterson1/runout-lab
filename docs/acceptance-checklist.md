@@ -2,6 +2,8 @@
 
 Work through the sections in order. For each item, do the Steps, compare with Expected, then tick pass or fail. Fill in Notes, Device and OS version every time.
 
+> Sections 1, 2, 3, 5 and 6 run against the deployed site, https://reubenpatterson1.github.io/runout-lab/, after `stage-1a` is merged to `main`. An iPad cannot use the offline features from a computer on the local network.
+
 ## 1. Wake lock in the installed iPad app (do this first)
 
 **Steps**
@@ -47,14 +49,15 @@ OS version:
 ## 3. Suggest time and bank load on device
 
 **Steps**
-1. While online, open `/bench/` on the iPad.
-2. Open `/bench/` on the phone (iPhone 12 or Pixel 6a class).
+1. While online, open https://reubenpatterson1.github.io/runout-lab/bench/ on the iPad.
+2. Open https://reubenpatterson1.github.io/runout-lab/bench/ on the phone (iPhone 12 or Pixel 6a class).
 3. Write down the bank load and parse times.
 
 **Expected**
-- `seeded suggest max ≤ 1500: PASS`
-- `below stored: 0`
-- `long tasks: 0`
+- `seeded suggest max <ms> ≤ 1500: PASS`
+- `seeded suggest below stored: 0 (must be 0): PASS`
+- `main-thread long tasks: 0 (must be 0): PASS`
+- On iPad/iPhone Safari the long-task line reads `main-thread long tasks: n/a (longtask API unsupported; use max rAF gap)`. There, the check is `max rAF gap` under 50 ms instead.
 - Bank load and parse times are recorded in Notes. Unseeded Suggest is report-only and does not pass or fail.
 
 - [ ] Result: pass / fail
@@ -261,3 +264,7 @@ Band thresholds are not retuned (R33). Any engine, geometry or eval change requi
 | Node bench, seeded Suggest max | 1848.6 ms |
 | Chrome 4× proxy bench, seeded Suggest max | 1751.4 ms (worker unthrottled) |
 | `RUNOUT_FULL=1 npm test` | 167/167 pass in 108 s, re-scoring all 858 entries (family 1: 114, family 2: 111, family 3: 101, family 6: 201, family 7: 203, family 8: 128) |
+
+## Known limitations
+
+- Cushion rebound angle is not smooth above about 150 in/s. Every bank shot is at most 130 in/s, so the bank is unaffected. The fix is in frozen physics code and will be bundled into the next bank rebuild.
