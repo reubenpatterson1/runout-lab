@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 1;
-export const HASH = '1d9dc011e33ed17ce45f3eb521ea65b852f9396ebc8c7d09d60e08683aa01bdc';
+export const VERSION = 2;
+export const HASH = 'ad92b3ff41e29bde440a1652da66c2d776cea63b3ba63ddd6aa8d507f97733c6';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -21,5 +21,9 @@ export const FILES = [
   'legacy/index.html',
   'manifest.webmanifest',
   'runout-lab.html',
+  'src/home.js',
   'src/precache.js',
+  'src/sw-core.js',
+  'src/sw-register.js',
+  'sw.js',
 ];

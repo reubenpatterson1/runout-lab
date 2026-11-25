@@ -1919,5 +1919,6 @@ INIT.drills=function(){
 function showFromHash(){var id=location.hash.slice(1);if(TABS.some(function(t){return t[0]===id;}))show(id);}
 showFromHash();window.addEventListener('hashchange',showFromHash);
 </script>
+<script>if('serviceWorker' in navigator){navigator.serviceWorker.register('../sw.js',{type:'module',scope:'../',updateViaCache:'none'}).catch(function(){});}</script>
 </body>
 </html>

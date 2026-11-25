@@ -32,3 +32,6 @@ test('listShipped excludes non-shipped paths', () => {
   const s = listShipped(root);
   assert.ok(!s.some((p) => /^(test|docs|scripts|bench|node_modules)\//.test(p) || p.split('/').some((x) => x.startsWith('.')) || p === 'package.json'));
 });
+test('RF5 sw.js line 1 matches VERSION', () => {
+  assert.equal(readFileSync(root + 'sw.js', 'utf8').split('\n')[0], `// runout-lab sw v${VERSION}`);
+});
