@@ -111,6 +111,8 @@ export function mount(el, params) {
   const client = createSearchClient();
   const store = createSessionStore('study-safety', /** @type {SafetySession|null} */ (null));
   const view = createTableView(canvas);
+  const aimRo = new ResizeObserver(() => { if (shown === 'ready' && working && phase === 'aiming') drawAiming(); });
+  aimRo.observe(canvas);
 
   let gen = 0;
   /** @type {'session'|'deal'|'example'} */
@@ -333,6 +335,9 @@ export function mount(el, params) {
     hint = null;
     hintText = null;
     shown = 'ready';
+    linkboxEl.replaceChildren();
+    clearTimeout(copyTimer);
+    copyBtn.textContent = 'Copy link';
     canvas.setAttribute('aria-label', tableLabel(working, aim));
     render();
     drawAiming();
@@ -421,6 +426,7 @@ export function mount(el, params) {
   function showSummary() {
     shown = 'summary';
     studioEl.hidden = true;
+    if (summaryEl) summaryEl.remove();
     const s = summary(/** @type {SafetySession} */ (session));
     const avg = /** @type {number} */ (s.average);
     const root = document.createElement('div');
@@ -724,6 +730,7 @@ export function mount(el, params) {
     client.terminate();
     spinPad.destroy();
     speedCtl.destroy();
+    aimRo.disconnect();
     view.destroy();
   };
 }
