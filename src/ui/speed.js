@@ -38,9 +38,9 @@ export function createSpeedControl(container, opts) {
   root.className = 'speed';
   root.innerHTML =
     '<div class="speed-row">' +
-    '<button type="button" class="speed-btn" data-dir="-1" aria-label="Slower">&minus;</button>' +
+    '<button type="button" class="btn speed-btn" data-dir="-1" aria-label="Slower">&minus;</button>' +
     '<input type="range" min="8" max="130" step="1" aria-label="Speed">' +
-    '<button type="button" class="speed-btn" data-dir="1" aria-label="Faster">+</button>' +
+    '<button type="button" class="btn speed-btn" data-dir="1" aria-label="Faster">+</button>' +
     '</div><output class="speed-out" aria-live="polite"></output>';
   const input = /** @type {HTMLInputElement} */ (root.querySelector('input'));
   const out = /** @type {HTMLOutputElement} */ (root.querySelector('output'));
@@ -70,7 +70,7 @@ export function createSpeedControl(container, opts) {
   return {
     get: () => value,
     /** @param {number} v */
-    set(v) { value = clampSpeed(v); show(); },
+    set(v) { value = v; show(); },
     /** @param {boolean} b */
     setDisabled(b) {
       input.disabled = b;
