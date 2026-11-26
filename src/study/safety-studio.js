@@ -7,12 +7,13 @@ import { createSpinPad } from '../ui/spin-pad.js';
 import { createSpeedControl, SPEED_DEFAULT } from '../ui/speed.js';
 import { createTableView, ballStyles } from '../ui/table-view.js';
 import { play } from '../ui/player.js';
+import { PICK_PX, pickBall, clampToPlay, moveBall } from '../ui/ball-drag.js';
 import { newSession, addDeal, applyReroll, recordShot, advance, usedIds, average, summary } from './safety-session.js';
 import { controlState, openAction } from './safety-state.js';
 import {
   GATE_TEXT, LOADING_TEXT, LOAD_ERROR_TEXT, SHOT_ERROR_TEXT, SCORING_TEXT, NEW_SESSION_CONFIRM, COPIED_TEXT, EXAMPLE_LINKS,
   verdict, verdictTone, sessionVerdict, breakdownRows, familyName, statusLine, contextLine, noAltText, hintLines, announceText,
-  tableLabel, dealLink, scoreCell,
+  tableLabel, dealLink, scoreCell, searchingText,
 } from './safety-copy.js';
 import { MISSING_DEAL_TEXT } from '../deal/bank.js';
 
@@ -69,6 +70,11 @@ export function mount(el, params) {
       </div>
       <div class="result-row"><button type="button" class="btn" data-act="try" hidden>Try this shot</button></div>
     </div>
+    <div class="edit-row" hidden>
+      <button type="button" class="btn" data-act="move">Move balls</button>
+      <button type="button" class="btn active" data-act="done">Done</button>
+      <button type="button" class="btn" data-act="restore">Restore layout</button>
+    </div>
     <p class="sr-only" aria-live="polite"></p>
   </div>
 </div>`;
@@ -97,6 +103,10 @@ export function mount(el, params) {
   const hintBtn = /** @type {HTMLButtonElement} */ (q('[data-act=hint]'));
   const nextBtn = /** @type {HTMLButtonElement} */ (q('[data-act=next]'));
   const tryBtn = /** @type {HTMLButtonElement} */ (q('[data-act=try]'));
+  const editRowEl = /** @type {HTMLElement} */ (q('.edit-row'));
+  const moveBtn = /** @type {HTMLButtonElement} */ (q('[data-act=move]'));
+  const doneBtn = /** @type {HTMLButtonElement} */ (q('[data-act=done]'));
+  const restoreBtn = /** @type {HTMLButtonElement} */ (q('[data-act=restore]'));
   const liveEl = /** @type {HTMLElement} */ (q('.sr-only'));
 
   const examplesEl = /** @type {HTMLElement} */ (q('[data-slot=examples]'));
@@ -108,10 +118,10 @@ export function mount(el, params) {
     examplesEl.append(a);
   });
 
-  const client = createSearchClient();
+  let client = createSearchClient();
   const store = createSessionStore('study-safety', /** @type {SafetySession|null} */ (null));
   const view = createTableView(canvas);
-  const aimRo = new ResizeObserver(() => { if (shown === 'ready' && working && phase === 'aiming') drawAiming(); });
+  const aimRo = new ResizeObserver(() => { if (shown === 'ready' && working) { if (phase === 'aiming') drawAiming(); else if (phase === 'editing') drawEditing(); } });
   aimRo.observe(canvas);
 
   let gen = 0;
@@ -123,7 +133,7 @@ export function mount(el, params) {
   let dealt = null;
   /** @type {Layout|null} */
   let working = null;
-  const edited = false;
+  let edited = false;
   /** @type {'aiming'|'result'|'editing'} */
   let phase = 'aiming';
   /** @type {null|'replay'|'search'|'load'} */
@@ -148,6 +158,17 @@ export function mount(el, params) {
   let copyTimer;
   /** @type {HTMLElement|null} */
   let summaryEl = null;
+  /** @type {ReturnType<typeof setInterval>|undefined} */
+  let searchTimer;
+  /** @type {HTMLElement|null} */
+  let searchEl = null;
+  let searchSecs = 0;
+  /** @type {Scored|null} */
+  let prevHint = null;
+  /** @type {string[]|null} */
+  let prevHintText = null;
+  /** @type {{id: string, from: {x: number, y: number}, at: {x: number, y: number}}|null} */
+  let editDrag = null;
 
   const spinPad = createSpinPad(q('[data-slot=spin]'), { onChange: (s) => { spin = { x: s.x, y: s.y }; drawAiming(); } });
   const speedCtl = createSpeedControl(q('[data-slot=speed]'), { onChange: (v) => { speed = v; drawAiming(); } });
@@ -172,6 +193,11 @@ export function mount(el, params) {
   function setNotice(t) {
     noticeEl.textContent = t;
     noticeEl.hidden = t === '';
+  }
+  function stopSearchTimer() {
+    clearInterval(searchTimer);
+    searchTimer = undefined;
+    searchEl = null;
   }
   function stopPlayer() {
     if (player) player.cancel();
@@ -219,6 +245,16 @@ export function mount(el, params) {
       highlight: working.rules.legalIds,
     });
   }
+  /** @param {Layout} layout */
+  function drawBalls(layout) {
+    view.draw({ balls: layout.balls, ...ballStyles(layout.balls), highlight: layout.rules.legalIds });
+  }
+  function drawEditing() {
+    if (!working || shown !== 'ready' || phase !== 'editing' || canvas.clientWidth === 0) return;
+    if (!editDrag) { drawBalls(working); return; }
+    const d = editDrag;
+    drawBalls({ ...working, balls: working.balls.map((b) => (b.id === d.id ? { id: b.id, x: d.at.x, y: d.at.y } : b)) });
+  }
   function aimChanged() {
     drawAiming();
     if (!working) return;
@@ -228,6 +264,19 @@ export function mount(el, params) {
 
   function renderScore() {
     scorePanel.replaceChildren();
+    searchEl = null;
+    if (pending === 'search') {
+      const p = document.createElement('p');
+      p.textContent = searchingText(searchSecs);
+      searchEl = p;
+      const c = document.createElement('button');
+      c.type = 'button';
+      c.className = 'btn';
+      c.setAttribute('data-act', 'cancel');
+      c.textContent = 'Cancel';
+      scorePanel.append(p, c);
+      return;
+    }
     if (!score) {
       const p = document.createElement('p');
       p.textContent = SCORING_TEXT;
@@ -313,6 +362,10 @@ export function mount(el, params) {
     apply(nextBtn, cs.next);
     nextBtn.textContent = cs.nextLabel;
     apply(tryBtn, cs.tryShot);
+    apply(moveBtn, cs.moveBalls);
+    apply(doneBtn, cs.done);
+    apply(restoreBtn, cs.restore);
+    editRowEl.hidden = [cs.moveBalls, cs.done, cs.restore].every((v) => v === 'hidden');
     if (phase === 'result') renderScore();
     renderHint();
   }
@@ -330,6 +383,9 @@ export function mount(el, params) {
     speedCtl.set(speed);
     phase = 'aiming';
     pending = null;
+    stopSearchTimer();
+    edited = false;
+    editDrag = null;
     score = null;
     counted = false;
     hint = null;
@@ -550,7 +606,105 @@ export function mount(el, params) {
     drawAiming();
   }
 
+  function suggestEdited() {
+    const g = ++gen;
+    stopPlayer();
+    setNotice('');
+    prevHint = hint;
+    prevHintText = hintText;
+    hint = null;
+    hintText = null;
+    pending = 'search';
+    searchSecs = 0;
+    stopSearchTimer();
+    render();
+    searchTimer = setInterval(() => {
+      searchSecs++;
+      if (searchEl) searchEl.textContent = searchingText(searchSecs);
+    }, 1000);
+    const layout = structuredClone(/** @type {Layout} */ (working));
+    client.suggest(layout, null).then((res) => {
+      if (g !== gen) return;
+      stopSearchTimer();
+      const best = /** @type {Scored|null} */ (res.best);
+      if (!best) {
+        pending = null;
+        hintText = hintLines(null);
+        render();
+        return;
+      }
+      pending = 'replay';
+      render();
+      client.simulate(layout, best.shot).then((sim) => {
+        if (g !== gen) return;
+        player = play(view, sim, { ...ballStyles(layout.balls), cueId: layout.cueId }, {
+          onDone: () => {
+            if (g !== gen) return;
+            player = null;
+            pending = null;
+            hint = best;
+            hintText = hintLines(best);
+            render();
+          },
+        });
+      }, searchFail(g));
+    }, searchFail(g));
+  }
+  /** @param {number} g */
+  function searchFail(g) {
+    return (/** @type {unknown} */ err) => {
+      if (g !== gen || /** @type {Error} */ (err).message === 'terminated') return;
+      stopSearchTimer();
+      stopPlayer();
+      pending = null;
+      hint = prevHint;
+      hintText = prevHintText;
+      setNotice(SHOT_ERROR_TEXT);
+      render();
+    };
+  }
+  function cancelSearch() {
+    gen++;
+    stopSearchTimer();
+    stopPlayer();
+    client.terminate();
+    client = createSearchClient();
+    pending = null;
+    hint = prevHint;
+    hintText = prevHintText;
+    render();
+  }
+
+  function enterEdit() {
+    gen++;
+    stopPlayer();
+    setNotice('');
+    phase = 'editing';
+    render();
+    drawEditing();
+  }
+  function leaveEdit() {
+    editDrag = null;
+    phase = 'aiming';
+    render();
+    drawAiming();
+  }
+  function restoreLayout() {
+    gen++;
+    stopPlayer();
+    working = structuredClone(dealt.layout);
+    edited = false;
+    editDrag = null;
+    hint = null;
+    hintText = null;
+    phase = 'aiming';
+    pending = null;
+    render();
+    drawAiming();
+  }
+
   function showHint() {
+    if (edited) { suggestEdited(); return; }
     const best = dealt.best;
     if (!best) {
       hint = null;
@@ -663,6 +817,10 @@ export function mount(el, params) {
     else if (act === 'hint') showHint();
     else if (act === 'try') tryShot();
     else if (act === 'copy') copyLink();
+    else if (act === 'move') enterEdit();
+    else if (act === 'done') leaveEdit();
+    else if (act === 'restore') restoreLayout();
+    else if (act === 'cancel') cancelSearch();
     else if (act === 'next') next();
     else if (act === 'secondary') {
       const kind = secondaryBtn.dataset.kind;
@@ -685,6 +843,17 @@ export function mount(el, params) {
   const hitAt = (cx, cy) => hitsHandle(handleNow(), view.toTable(cx, cy), view.pxPerIn);
   /** @param {PointerEvent} e */
   const onDown = (e) => {
+    if (phase === 'editing') {
+      if (shown !== 'ready' || !working || pending !== null) return;
+      const p = view.toTable(e.clientX, e.clientY);
+      const id = pickBall(working.balls, p, PICK_PX / view.pxPerIn);
+      if (id === null) return;
+      const b = /** @type {import('../types.js').Ball} */ (working.balls.find((q) => q.id === id));
+      editDrag = { id, from: { x: b.x, y: b.y }, at: clampToPlay(p) };
+      canvas.setPointerCapture?.(e.pointerId);
+      drawEditing();
+      return;
+    }
     if (!aimEnabled() || !working || !hitAt(e.clientX, e.clientY)) return;
     dragging = true;
     dragBack = handleSide(cueBall(), aim, view.pxPerIn);
@@ -692,15 +861,44 @@ export function mount(el, params) {
   };
   /** @param {PointerEvent} e */
   const onMove = (e) => {
+    if (editDrag) {
+      editDrag.at = clampToPlay(view.toTable(e.clientX, e.clientY));
+      drawEditing();
+      return;
+    }
     if (!dragging || !working) return;
     aim = aimFromDrag(cueBall(), view.toTable(e.clientX, e.clientY), dragBack);
     aimChanged();
   };
-  const onUp = () => { dragging = false; };
+  /** @param {PointerEvent} e */
+  const onUp = (e) => {
+    dragging = false;
+    if (!editDrag || !working) return;
+    const d = editDrag;
+    editDrag = null;
+    const next = e.type === 'pointerup' ? moveBall(working, d.id, view.toTable(e.clientX, e.clientY)) : null;
+    if (next) {
+      const nb = /** @type {import('../types.js').Ball} */ (next.balls.find((q) => q.id === d.id));
+      if (nb.x !== d.from.x || nb.y !== d.from.y) {
+        working = next;
+        edited = true;
+        hint = null;
+        hintText = null;
+        render();
+      }
+    }
+    drawEditing();
+  };
   /** @param {TouchEvent} e */
   const onTouch = (e) => {
     const t = e.touches[0];
-    if (t && aimEnabled() && hitAt(t.clientX, t.clientY)) e.preventDefault();
+    if (!t) return;
+    if (phase === 'editing') {
+      if (shown === 'ready' && working && pending === null
+        && pickBall(working.balls, view.toTable(t.clientX, t.clientY), PICK_PX / view.pxPerIn) !== null) e.preventDefault();
+      return;
+    }
+    if (aimEnabled() && hitAt(t.clientX, t.clientY)) e.preventDefault();
   };
   /** @param {KeyboardEvent} e */
   const onKey = (e) => {
@@ -726,6 +924,7 @@ export function mount(el, params) {
     stopPlayer();
     clearTimeout(labelTimer);
     clearTimeout(copyTimer);
+    stopSearchTimer();
     studioEl.removeEventListener('click', onClick);
     client.terminate();
     spinPad.destroy();
