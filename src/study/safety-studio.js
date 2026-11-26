@@ -759,6 +759,7 @@ export function mount(el, params) {
       });
     }, (err) => {
       if (g !== gen || /** @type {Error} */ (err).message === 'terminated') return;
+      reviveIfDead();
       pending = null;
       setNotice(SHOT_ERROR_TEXT);
       render();
@@ -793,6 +794,7 @@ export function mount(el, params) {
       else { pending = null; render(); }
     }, (err) => {
       if (g !== gen || /** @type {Error} */ (err).message === 'terminated') return;
+      reviveIfDead();
       pending = null;
       setNotice(LOAD_ERROR_TEXT);
       render();
@@ -943,6 +945,7 @@ export function mount(el, params) {
   canvas.addEventListener('pointermove', onMove);
   canvas.addEventListener('pointerup', onUp);
   canvas.addEventListener('pointercancel', onUp);
+  canvas.addEventListener('lostpointercapture', onUp);
   canvas.addEventListener('touchstart', onTouch, { passive: false });
   canvas.addEventListener('keydown', onKey);
 
