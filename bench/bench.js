@@ -55,6 +55,8 @@ async function main() {
   const cases = await c.sample(2);
   /** @type {number[]} */ const seeded = [];
   /** @type {number[]} */ const unseeded = [];
+  /** @type {number[]} */ const replay = [];
+  /** @type {number[]} */ const scoreMs = [];
   let below = 0;
   for (const e of cases) {
     t = performance.now();
@@ -66,6 +68,12 @@ async function main() {
     await c.suggest(e.layout);
     const uMs = performance.now() - t;
     unseeded.push(uMs);
+    t = performance.now();
+    await c.simulate(e.layout, e.best.shot);
+    replay.push(performance.now() - t);
+    t = performance.now();
+    await c.score(e.layout, e.best.shot);
+    scoreMs.push(performance.now() - t);
     print(`${e.family} ${e.band} ${e.id} seeded ${f1(sMs)} total ${r.best.score.total} (stored ${e.best.score.total}) unseeded ${f1(uMs)}`);
   }
   await new Promise((res) => requestAnimationFrame(() => res(undefined)));
@@ -73,11 +81,15 @@ async function main() {
   c.terminate();
 
   const seededMax = seeded.length ? Math.max(...seeded) : 0;
+  const replayMax = replay.length ? Math.max(...replay) : 0;
+  const scoreMax = scoreMs.length ? Math.max(...scoreMs) : 0;
   const unseededMax = unseeded.length ? Math.max(...unseeded) : 0;
   if (info.timing) print(`bank load ${f1(loadMs)} (fetch ${f1(fetchMs)}, parse ${f1(parseMs)} in worker)`);
   else print(`bank load ${f1(loadMs)} (fetch n/a, parse n/a in worker)`);
   print(`worker round trip median ${f1(median(rt))} max ${f1(Math.max(...rt))}`);
-  print(`seeded suggest max ${f1(seededMax)} ≤ 1500: ${seededMax <= 1500 ? 'PASS' : 'FAIL'}`);
+  print(`hint replay round trip median ${f1(median(replay))} max ${f1(replayMax)} ≤ 250: ${replayMax <= 250 ? 'PASS' : 'FAIL'}`);
+  print(`score round trip median ${f1(median(scoreMs))} max ${f1(scoreMax)} (report only)`);
+  print(`seeded suggest median ${f1(median(seeded))} max ${f1(seededMax)} (report only; hints use the stored best since 2026-11-25)`);
   print(`seeded suggest below stored: ${below} (must be 0): ${below === 0 ? 'PASS' : 'FAIL'}`);
   print(`unseeded suggest median ${f1(median(unseeded))} max ${f1(unseededMax)} (report only)`);
   if (longTaskSupported && observer) longTasks += observer.takeRecords().length;

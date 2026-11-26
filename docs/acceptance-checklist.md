@@ -1,4 +1,4 @@
-# Runout Lab: Stage 1a owner acceptance checklist
+# Runout Lab: Stage 1a and 1b owner acceptance checklist
 
 Work through the sections in order. For each item, do the Steps, compare with Expected, then tick pass or fail. Fill in Notes, Device and OS version every time.
 
@@ -33,12 +33,12 @@ OS version:
 3. Turn on airplane mode.
 4. Launch the app from the home screen.
 5. Open Table Drills (legacy).
-6. After Plan 1b: play one Safety Studio session from the bank.
+6. Play one Safety Studio session from the bank (see §8).
 
 **Expected**
 - The home screen loads with no network.
 - Table Drills (legacy) opens and shows correct fonts.
-- After Plan 1b: the Safety Studio session plays from the bank.
+- The Safety Studio session plays from the bank (see §8).
 
 - [ ] Result: pass / fail
 
@@ -54,11 +54,11 @@ OS version:
 3. Write down the bank load and parse times.
 
 **Expected**
-- `seeded suggest max <ms> ≤ 1500: PASS`
+- `seeded suggest median <ms> max <ms> (report only; hints use the stored best since 2026-11-25)`
 - `seeded suggest below stored: 0 (must be 0): PASS`
 - `main-thread long tasks: 0 (must be 0): PASS`
 - On iPad/iPhone Safari the long-task line reads `main-thread long tasks: n/a (longtask API unsupported; use max rAF gap)`. There, the check is `max rAF gap` under 50 ms instead.
-- Bank load and parse times are recorded in Notes. Unseeded Suggest is report-only and does not pass or fail.
+- Bank load and parse times are recorded in Notes. Seeded and unseeded Suggest are report-only and does not pass or fail.
 
 - [ ] Result: pass / fail
 
@@ -89,11 +89,11 @@ Over budget: 2 of 26 cases (family 6 easy 1574.2 ms, family 6 hard 1751.4 ms).
 - The screen stays smooth either way, because the search runs in the background worker.
 
 Pick one:
-- [ ] **Show the bank's stored best shot instantly for bank layouts, and run the search only for edited layouts (recommended; Plan 1b UI wiring, no rebuild)**
+- [x] **Show the bank's stored best shot instantly for bank layouts, and run the search only for edited layouts (recommended; Plan 1b UI wiring, no rebuild)** Decided by the owner 2026-11-25 (spec §21.5).
 - [ ] **Accept a slower hint with a progress indicator**
 - [ ] **Shrink the Suggest grid (changes src/search/grid.js, which is in the bank's model hash, so it needs a ~2 h bank rebuild)**
 
-## 4. Frame rate (after Plan 1b)
+## 4. Frame rate (see §8.3)
 
 **Steps**
 1. Open the animation player and play a shot.
@@ -249,11 +249,170 @@ Option meanings: **accept shortfall** / **approve generator-range change for thi
 > - Each family stopped at its 2,000-layout limit, not its time cap. Raising that limit, or changing the easy threshold, is a bank rebuild of about 2 hours with no app code change.
 >
 > Pick one:
-> - [ ] **accept thin easy band for Stage 1**
+> - [x] **accept thin easy band for Stage 1** Decided by the owner 2026-11-25 (spec §21.5).
 > - [ ] **rebuild with a higher layout limit**
 > - [ ] **revisit the easy threshold (spec change)**
 
 Band thresholds are not retuned (R33). Any engine, geometry or eval change requires a rebuild (GC15).
+
+## 8. Stage 1b
+
+Items 8.1 to 8.10 run on the deployed site after `stage-1b` is merged, except where noted.
+
+### 8.1 Hint speed
+
+**Steps**
+1. On the iPad, open the bench page.
+2. On a bank deal in Safety Studio, tap Show a good safety.
+
+**Expected**
+- The bench prints `hint replay round trip … ≤ 250: PASS`.
+- The replay starts at once.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.2 No freeze
+
+**Steps**
+1. In Chrome, open the bench page and read the long-task line. In Safari, read `max rAF gap`.
+2. Take a shot, score it, play a replay, run an edited-layout Suggest and load a bank deal.
+
+**Expected**
+- Chrome shows `main-thread long tasks: 0`.
+- Safari shows `max rAF gap` under 50 ms during shot, score, replay, edited Suggest and bank load.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.3 Smooth replay
+
+**Steps**
+1. Play a replay of about 5 s while recording frame times.
+
+**Expected**
+- At least 95% of frame gaps are 20 ms or less.
+- The maximum frame gap is under 50 ms.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.4 Phone fit at 390 × 664 and 412 × 780
+
+**Steps**
+1. Open Safety Studio at 390 × 664, then at 412 × 780.
+
+**Expected**
+- Aim, spin, speed and Shoot are visible with no scrolling at both sizes.
+
+- [ ] Result: pass / fail
+
+Notes:
+Dev-machine pre-check (Chromium, 2026-11-26): at 390 × 664 session mode Shoot bottom 644 px, single (?deal=) mode Shoot bottom 663 px (1 px spare); at 412 × 780 Shoot bottom 675 px; no horizontal scroll at 320, 390, 412 and 1440.
+Device:
+OS version:
+
+### 8.5 Offline session
+
+**Steps**
+1. Open the installed app online once, then turn on airplane mode and cold-start it.
+2. Play 10 deals, using hints.
+
+**Expected**
+- All 10 deals play, including hints.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.6 Update mid-session
+
+**Steps**
+1. Deploy a new version while a session is in progress.
+2. Tap the update button.
+
+**Expected**
+- The app reloads into the same slot with earlier scores intact.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.7 Lighthouse accessibility
+
+**Steps**
+1. Run Lighthouse accessibility (mobile, Navigation) on `#/`, `#/study` and `#/study/safety`.
+
+**Expected**
+- Every score is at least 90.
+
+- [ ] Result: pass / fail
+
+Notes:
+Dev-machine pre-check: Lighthouse 12.2.1, mobile, headless Chrome: `#/` 100; `#/study` 100; `#/study/safety` 100.
+Device:
+OS version:
+
+### 8.8 Installable
+
+**Steps**
+1. Repeat §6.
+
+**Expected**
+- The manifest is reported as installable, as in §6.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
+
+### 8.9 Aim drag
+
+**Steps**
+1. On the iPad, drag the aim handle.
+2. Swipe elsewhere on the table.
+3. Do a two-finger pinch and a swipe on the felt (Task 8 check 5, not yet run).
+
+**Expected**
+- Dragging the handle never scrolls.
+- A swipe elsewhere on the table scrolls.
+
+- [ ] Result: pass / fail
+
+Notes:
+Touch swipe and pinch on the felt were not run on a device; run them here.
+Device:
+OS version:
+
+### 8.10 Table door
+
+**Steps**
+1. Open `#/table` and run the wake-lock test.
+2. In airplane mode, tap Table Drills.
+
+**Expected**
+- The wake-lock test works from `#/table`.
+- Table Drills opens the legacy drills offline.
+
+- [ ] Result: pass / fail
+
+Notes:
+Device:
+OS version:
 
 ## Build-time results
 
@@ -263,6 +422,10 @@ Band thresholds are not retuned (R33). Any engine, geometry or eval change requi
 | Bank entries | 858 |
 | Node bench, seeded Suggest max | 1848.6 ms |
 | Chrome 4× proxy bench, seeded Suggest max | 1751.4 ms (worker unthrottled) |
+| Stage 1b bench, hint replay round trip (Chrome page) | median 0.7 ms, max 1.6 ms, ≤ 250: PASS |
+| Stage 1b bench, score round trip (Chrome page, report only) | median 423.7 ms, max 662.1 ms |
+| Stage 1b bench, seeded suggest (Chrome page, report only) | median 453.3 ms, max 1738.1 ms |
+| Stage 1b bench, node | not applicable |
 | `RUNOUT_FULL=1 npm test` | 167/167 pass in 108 s, re-scoring all 858 entries (family 1: 114, family 2: 111, family 3: 101, family 6: 201, family 7: 203, family 8: 128) |
 
 ## Known limitations
