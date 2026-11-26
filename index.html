@@ -104,6 +104,38 @@ footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:v
 .speed-out{display:block;font-family:"Space Mono";font-size:.75rem;color:var(--ink)}
 canvas.felt{display:block;width:100%;height:auto;aspect-ratio:110/60;touch-action:manipulation}
 canvas.felt:focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
+.btn:disabled,.btn[aria-disabled=true]{opacity:.45;cursor:not-allowed}
+.spin-pad[aria-disabled=true]{opacity:.45}
+.studio{display:grid;gap:8px;padding-top:8px;grid-template-areas:"status" "table" "controls"}
+.area-status{grid-area:status}
+.area-table{grid-area:table}
+.area-controls{grid-area:controls;display:grid;gap:8px;align-content:start}
+.studio [hidden]{display:none!important}
+@media(min-width:900px){.studio{grid-template-columns:62% 1fr;grid-template-areas:"table status" "table controls";grid-template-rows:auto 1fr;gap:16px}}
+.screen-title{font-family:"Oswald";text-transform:uppercase;font-size:1.1rem;margin:0}
+.status{font-family:"Space Mono";font-size:.8rem;color:var(--muted);margin:0}
+.notice{margin:4px 0 0;color:var(--amber);font-size:.9rem}
+.table-msg{color:var(--muted);margin:0}
+.nudges{display:grid;grid-template-columns:repeat(4,1fr);gap:6px}
+.tip-speed{display:flex;gap:12px;align-items:center}
+.tip-speed [data-slot=speed]{flex:1}
+.shoot-row{display:flex;gap:8px}
+.shoot-row .btn{min-height:52px}
+.shoot-row .primary{flex:2}
+.shoot-row .btn:not(.primary){flex:1}
+.aiming>p,.result .panel p{margin:4px 0}
+.result-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+.studio .panel{padding:12px}
+.verdict{font-family:"Oswald";text-transform:uppercase;font-size:1.1rem}
+.total,.context{font-family:"Space Mono";font-size:.85rem}
+.tone-red{color:var(--red)}
+.tone-amber{color:var(--amber)}
+.tone-green{color:var(--green)}
+.links a,.summary a{display:inline-block;min-height:44px;line-height:44px;padding:0 6px;color:var(--brass2)}
+.linkbox{min-height:44px;width:100%;font-family:"Space Mono";font-size:.8rem}
+.summary table{width:100%;border-collapse:collapse;margin:12px 0}
+.summary th,.summary td{text-align:left;padding:4px 8px;border-bottom:1px solid var(--line)}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 </style>
 </head>
 <body>
@@ -116,7 +148,7 @@ canvas.felt:focus-visible{outline:2px solid var(--brass2);outline-offset:2px}
     <a class="tab" href="legacy/index.html#plan"><span class="ix">00</span>Diagnosis</a>
     <a class="tab" href="legacy/index.html#position"><span class="ix">01</span>Position Lab</a>
     <a class="tab" href="legacy/index.html#closer"><span class="ix">02</span>The Closer</a>
-    <a class="tab" href="legacy/index.html#safety"><span class="ix">03</span>Safety Studio</a>
+    <a class="tab" href="#/study/safety"><span class="ix">03</span>Safety Studio</a>
     <a class="tab" href="legacy/index.html#escape"><span class="ix">04</span>Escape Trainer</a>
     <a class="tab" href="legacy/index.html#decide"><span class="ix">05</span>Run or Safe?</a>
     <a class="tab" href="legacy/index.html#drills"><span class="ix">06</span>Table Drills</a>

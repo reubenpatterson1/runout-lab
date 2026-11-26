@@ -2,6 +2,7 @@
 import { matchRoute } from './ui/router.js';
 import { initUpdateBanner } from './ui/update-banner.js';
 import * as study from './study/index.js';
+import * as safety from './study/safety-studio.js';
 import * as table from './table/index.js';
 
 /**
@@ -24,7 +25,7 @@ function mountHome(el, _params) {
 }
 const home = { mount: mountHome };
 
-const SCREENS = { home, study, safety: home, table };
+const SCREENS = { home, study, safety, table };
 
 /** @type {() => void} */
 let unmount = () => {};

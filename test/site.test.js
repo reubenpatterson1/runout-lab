@@ -5,12 +5,14 @@ import { readFileSync, existsSync } from 'node:fs';
 import { posix } from 'node:path';
 const root = new URL('../', import.meta.url);
 const read = (p) => readFileSync(new URL(p, root), 'utf8');
-const IDS = ['plan', 'position', 'closer', 'safety', 'escape', 'decide', 'drills'];
+const IDS = ['plan', 'position', 'closer', 'escape', 'decide', 'drills'];
 
 test('home links every legacy module in one tap', () => {
   const html = read('index.html');
   for (const id of IDS) assert.ok(html.includes(`href="legacy/index.html#${id}"`), id);
   assert.ok(!/user-scalable=no|maximum-scale/.test(html));
+  assert.ok(html.includes('href="#/study/safety"') && !html.includes('legacy/index.html#safety'));
+  const study = read('src/study/index.js'); assert.ok(study.includes('href="#/study/safety"') && !study.includes('legacy/index.html#safety') && study.includes("Ten dealt layouts. Each safety is scored by how hard your opponent's next shot is."));
 });
 test('shell: legacy look, brand links home, update banner, app.js, no home.js', () => {
   const html = read('index.html');
@@ -57,6 +59,7 @@ test('main thread never imports the engine simulation, eval or search (GC4)', ()
   assert.ok(g.has('src/ui/router.js') && g.has('src/table/index.js'));
   const bad = [...g].filter((f) => /^src\/(eval\/|engine\/(simulate|motion|cushion)\.js$|search\/(search|grid|handle|worker)\.js$)/.test(f));
   assert.deepEqual(bad, []);
+  for (const f of ['src/study/safety-studio.js', 'src/ui/player.js', 'src/ui/aim.js', 'src/ui/table-view.js', 'src/search/client.js']) assert.ok(g.has(f), f);
 });
 test('legacy page is the old app, self-hosted fonts, deep links', () => {
   const html = read('legacy/index.html');
