@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createSessionStore } from '../src/ui/session-store.js';
 import { createWakeLock } from '../src/ui/wake-lock.js';
+import { initUpdateBanner } from '../src/ui/update-banner.js';
 
 function mapStorage() {
   const m = new Map();
@@ -181,4 +182,11 @@ test('session: throwing localStorage getter degrades to memory-only', () => {
   } finally {
     if (desc) Object.defineProperty(globalThis, 'localStorage', desc); else delete globalThis.localStorage;
   }
+});
+test('update banner: hidden until onUpdateReady, then tapping applies', async () => {
+  const btn = { hidden: true, onclick: null }, apply = () => {};
+  /** @type {any} */ let opts = null;
+  await initUpdateBanner(/** @type {any} */ (btn), async (o) => { opts = o; return null; });
+  assert.equal(btn.hidden, true); opts.onUpdateReady(apply);
+  assert.equal(btn.hidden, false); assert.equal(btn.onclick, apply);
 });

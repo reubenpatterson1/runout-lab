@@ -1,7 +1,7 @@
 // @ts-check
 // Edited only by node scripts/stamp.js (VERSION and HASH); FILES is maintained by hand.
-export const VERSION = 32;
-export const HASH = '9848fb986d19c51fb2daa705429a387c1272cfd2212964229bb74745198e8cbb';
+export const VERSION = 33;
+export const HASH = 'ef7b83caacad3636320e6cf7167716f6b2090f06c86270dd099b8f1a59521ddd';
 export const CACHE_PREFIX = 'runout-lab-v';
 export const FILES = [
   './',
@@ -22,6 +22,7 @@ export const FILES = [
   'legacy/index.html',
   'manifest.webmanifest',
   'runout-lab.html',
+  'src/app.js',
   'src/deal/bank.js',
   'src/deal/families.js',
   'src/deal/fixed.js',
@@ -38,17 +39,20 @@ export const FILES = [
   'src/geometry/clearance.js',
   'src/geometry/kick-lanes.js',
   'src/geometry/visibility.js',
-  'src/home.js',
   'src/precache.js',
   'src/search/client.js',
   'src/search/grid.js',
   'src/search/handle.js',
   'src/search/search.js',
   'src/search/worker.js',
+  'src/study/index.js',
   'src/sw-core.js',
   'src/sw-register.js',
+  'src/table/index.js',
   'src/types.js',
+  'src/ui/router.js',
   'src/ui/session-store.js',
+  'src/ui/update-banner.js',
   'src/ui/wake-lock.js',
   'sw.js',
 ];
