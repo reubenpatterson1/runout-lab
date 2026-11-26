@@ -94,6 +94,14 @@ h1[tabindex="-1"]:focus{outline:none}
 #update[hidden]{display:none}
 .hint{font-size:.82rem;color:var(--muted);font-family:"Space Mono";letter-spacing:.04em;margin:8px 0 0}
 footer{margin-top:48px;padding-top:18px;border-top:1px solid var(--line);color:var(--muted);font-family:"Space Mono";font-size:.75rem;letter-spacing:.06em}
+.spin{display:flex;flex-direction:column;align-items:center;gap:6px}
+.spin-pad{width:96px;height:96px;border-radius:50%;background:#f2eedd;position:relative;touch-action:none}
+.spin-tip{position:absolute;width:12px;height:12px;border-radius:50%;background:var(--chalk);pointer-events:none}
+.spin-label{font-family:"Space Mono";font-size:.75rem;color:var(--ink)}
+.speed input[type=range]{width:100%;min-height:44px}
+.speed-row{display:flex;align-items:center;gap:8px}
+.speed-btn{min-width:44px;min-height:44px}
+.speed-out{display:block;font-family:"Space Mono";font-size:.75rem;color:var(--ink)}
 </style>
 </head>
 <body>
