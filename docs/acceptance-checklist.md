@@ -58,7 +58,7 @@ OS version:
 - `seeded suggest below stored: 0 (must be 0): PASS`
 - `main-thread long tasks: 0 (must be 0): PASS`
 - On iPad/iPhone Safari the long-task line reads `main-thread long tasks: n/a (longtask API unsupported; use max rAF gap)`. There, the check is `max rAF gap` under 50 ms instead.
-- Bank load and parse times are recorded in Notes. Seeded and unseeded Suggest are report-only and does not pass or fail.
+- Bank load and parse times are recorded in Notes. Seeded and unseeded Suggest are report-only and do not pass or fail.
 
 - [ ] Result: pass / fail
 
@@ -279,10 +279,11 @@ OS version:
 
 **Steps**
 1. In Chrome, open the bench page and read the long-task line. In Safari, read `max rAF gap`.
-2. Take a shot, score it, play a replay, run an edited-layout Suggest and load a bank deal.
+2. Take a shot, score it, play a replay, run an edited-layout Suggest and load a bank deal; record a Safari Timeline (iPad) or Chrome DevTools Performance trace while doing it.
 
 **Expected**
 - Chrome shows `main-thread long tasks: 0`.
+- No main-thread task over 50 ms in the trace.
 - Safari shows `max rAF gap` under 50 ms during shot, score, replay, edited Suggest and bank load.
 
 - [ ] Result: pass / fail
@@ -294,7 +295,7 @@ OS version:
 ### 8.3 Smooth replay
 
 **Steps**
-1. Play a replay of about 5 s while recording frame times.
+1. Play a replay of about 5 s while recording frame times (Safari Timeline or Chrome DevTools Performance panel).
 
 **Expected**
 - At least 95% of frame gaps are 20 ms or less.
@@ -317,7 +318,7 @@ OS version:
 - [ ] Result: pass / fail
 
 Notes:
-Dev-machine pre-check (Chromium, 2026-11-26): at 390 × 664 session mode Shoot bottom 644 px, single (?deal=) mode Shoot bottom 663 px (1 px spare); at 412 × 780 Shoot bottom 675 px; no horizontal scroll at 320, 390, 412 and 1440.
+Dev-machine pre-check (Chromium, 2026-11-25): at 390 × 664 session mode Shoot bottom 644 px, single (?deal=) mode Shoot bottom 663 px (1 px spare); at 412 × 780 Shoot bottom 675 px; no horizontal scroll at 320, 390, 412 and 1440.
 Device:
 OS version:
 
@@ -390,6 +391,7 @@ OS version:
 **Expected**
 - Dragging the handle never scrolls.
 - A swipe elsewhere on the table scrolls.
+- Pinch zooms the page; a swipe that starts on the felt (not on the handle or a ball) scrolls the page.
 
 - [ ] Result: pass / fail
 
@@ -426,6 +428,7 @@ OS version:
 | Stage 1b bench, score round trip (Chrome page, report only) | median 423.7 ms, max 662.1 ms |
 | Stage 1b bench, seeded suggest (Chrome page, report only) | median 453.3 ms, max 1738.1 ms |
 | Stage 1b bench, node | not applicable |
+| Stage 1b bench (Chrome page) | main-thread long tasks: 0 (must be 0): PASS; seeded suggest below stored: 0 (must be 0): PASS; max rAF gap 8.8 |
 | `RUNOUT_FULL=1 npm test` | 167/167 pass in 108 s, re-scoring all 858 entries (family 1: 114, family 2: 111, family 3: 101, family 6: 201, family 7: 203, family 8: 128) |
 
 ## Known limitations

@@ -85,7 +85,7 @@ export function breakdownRows(score) {
 }
 
 /** @param {string} s */
-const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+export const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
 
 /** @param {number} id */
 export function familyName(id) {

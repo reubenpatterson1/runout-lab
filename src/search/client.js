@@ -34,6 +34,7 @@ export function createSearchClient(factory = defaultFactory) {
     worker.postMessage({ id, ...req });
   });
   return {
+    get dead() { return dead !== null; },
     info: () => call({ type: 'info' }),
     /** @param {number} sessionSeed @param {number} slot @param {number[]} usedIds */
     deal: (sessionSeed, slot, usedIds) => call({ type: 'deal', sessionSeed, slot, usedIds }),

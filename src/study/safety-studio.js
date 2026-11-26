@@ -13,7 +13,7 @@ import { controlState, openAction } from './safety-state.js';
 import {
   GATE_TEXT, LOADING_TEXT, LOAD_ERROR_TEXT, SHOT_ERROR_TEXT, SCORING_TEXT, NEW_SESSION_CONFIRM, COPIED_TEXT, EXAMPLE_LINKS,
   verdict, verdictTone, sessionVerdict, breakdownRows, familyName, statusLine, contextLine, noAltText, hintLines, announceText,
-  tableLabel, dealLink, scoreCell, searchingText,
+  tableLabel, dealLink, scoreCell, searchingText, cap,
 } from './safety-copy.js';
 import { MISSING_DEAL_TEXT } from '../deal/bank.js';
 
@@ -107,6 +107,7 @@ export function mount(el, params) {
   const moveBtn = /** @type {HTMLButtonElement} */ (q('[data-act=move]'));
   const doneBtn = /** @type {HTMLButtonElement} */ (q('[data-act=done]'));
   const restoreBtn = /** @type {HTMLButtonElement} */ (q('[data-act=restore]'));
+  const linksEl = /** @type {HTMLElement} */ (q('.links'));
   const liveEl = /** @type {HTMLElement} */ (q('.sr-only'));
 
   const examplesEl = /** @type {HTMLElement} */ (q('[data-slot=examples]'));
@@ -169,6 +170,10 @@ export function mount(el, params) {
   let prevHintText = null;
   /** @type {{id: string, from: {x: number, y: number}, at: {x: number, y: number}}|null} */
   let editDrag = null;
+  let dragging = false;
+  let dragBack = false;
+  /** @type {number|null} */
+  let activePointer = null;
 
   const spinPad = createSpinPad(q('[data-slot=spin]'), { onChange: (s) => { spin = { x: s.x, y: s.y }; drawAiming(); } });
   const speedCtl = createSpeedControl(q('[data-slot=speed]'), { onChange: (v) => { speed = v; drawAiming(); } });
@@ -198,6 +203,11 @@ export function mount(el, params) {
     clearInterval(searchTimer);
     searchTimer = undefined;
     searchEl = null;
+  }
+  function reviveIfDead() {
+    if (!client.dead) return;
+    client.terminate();
+    client = createSearchClient();
   }
   function stopPlayer() {
     if (player) player.cancel();
@@ -230,7 +240,8 @@ export function mount(el, params) {
   function handleNow() {
     const cue = cueBall();
     const k = view.pxPerIn;
-    return handlePoint(cue, aim, k, handleSide(cue, aim, k));
+    const back = dragging ? dragBack : handleSide(cue, aim, k);
+    return handlePoint(cue, aim, k, back);
   }
 
   function drawAiming() {
@@ -325,6 +336,7 @@ export function mount(el, params) {
     msgEl.textContent = shown === 'loading' ? LOADING_TEXT : shown === 'error' ? LOAD_ERROR_TEXT : '';
     reloadBtn.hidden = shown !== 'error';
     aimingEl.hidden = !ready || phase !== 'aiming';
+    linksEl.hidden = pending !== null;
     resultEl.hidden = !ready || phase !== 'result';
     if (!ready) {
       statusEl.textContent = '';
@@ -413,7 +425,12 @@ export function mount(el, params) {
       pending = null;
       shown = 'error';
       working = null;
-      reloadAction = () => fetchLayout(run, done);
+      reloadAction = () => {
+        gen++;
+        client.terminate();
+        client = createSearchClient();
+        fetchLayout(run, done);
+      };
       render();
     });
   }
@@ -513,7 +530,7 @@ export function mount(el, params) {
       link.setAttribute('href', '#/study/safety?deal=' + r.id);
       link.textContent = String(r.n);
       n.append(link);
-      const cells = [familyName(r.family), r.band, scoreCell(r), String(r.best)].map((t) => {
+      const cells = [familyName(r.family), cap(r.band), scoreCell(r), String(r.best)].map((t) => {
         const td = document.createElement('td');
         td.textContent = t;
         return td;
@@ -536,6 +553,13 @@ export function mount(el, params) {
       working = null;
       newSessionFlow();
     });
+    if (noticeEl.textContent === MISSING_DEAL_TEXT) {
+      const n = document.createElement('p');
+      n.className = 'notice';
+      n.setAttribute('role', 'status');
+      n.textContent = MISSING_DEAL_TEXT;
+      root.append(n);
+    }
     root.append(h1, a, g, table, again);
     summaryEl = root;
     el.append(root);
@@ -568,6 +592,7 @@ export function mount(el, params) {
     const fail = (err) => {
       if (g !== gen || /** @type {Error} */ (err).message === 'terminated') return;
       gen++;
+      reviveIfDead();
       stopPlayer();
       phase = 'aiming';
       pending = null;
@@ -656,6 +681,7 @@ export function mount(el, params) {
       if (g !== gen || /** @type {Error} */ (err).message === 'terminated') return;
       stopSearchTimer();
       stopPlayer();
+      reviveIfDead();
       pending = null;
       hint = prevHint;
       hintText = prevHintText;
@@ -748,7 +774,7 @@ export function mount(el, params) {
     speedCtl.set(speed);
     phase = 'aiming';
     render();
-    drawAiming();
+    aimChanged();
   }
 
   function reroll() {
@@ -837,12 +863,11 @@ export function mount(el, params) {
   };
   studioEl.addEventListener('click', onClick);
 
-  let dragging = false;
-  let dragBack = false;
   /** @param {number} cx @param {number} cy */
   const hitAt = (cx, cy) => hitsHandle(handleNow(), view.toTable(cx, cy), view.pxPerIn);
   /** @param {PointerEvent} e */
   const onDown = (e) => {
+    if (e.button !== 0 || editDrag || dragging) return;
     if (phase === 'editing') {
       if (shown !== 'ready' || !working || pending !== null) return;
       const p = view.toTable(e.clientX, e.clientY);
@@ -850,17 +875,20 @@ export function mount(el, params) {
       if (id === null) return;
       const b = /** @type {import('../types.js').Ball} */ (working.balls.find((q) => q.id === id));
       editDrag = { id, from: { x: b.x, y: b.y }, at: clampToPlay(p) };
+      activePointer = e.pointerId;
       canvas.setPointerCapture?.(e.pointerId);
       drawEditing();
       return;
     }
     if (!aimEnabled() || !working || !hitAt(e.clientX, e.clientY)) return;
     dragging = true;
+    activePointer = e.pointerId;
     dragBack = handleSide(cueBall(), aim, view.pxPerIn);
     canvas.setPointerCapture?.(e.pointerId);
   };
   /** @param {PointerEvent} e */
   const onMove = (e) => {
+    if (e.pointerId !== activePointer) return;
     if (editDrag) {
       editDrag.at = clampToPlay(view.toTable(e.clientX, e.clientY));
       drawEditing();
@@ -872,6 +900,8 @@ export function mount(el, params) {
   };
   /** @param {PointerEvent} e */
   const onUp = (e) => {
+    if (e.pointerId !== activePointer) return;
+    activePointer = null;
     dragging = false;
     if (!editDrag || !working) return;
     const d = editDrag;

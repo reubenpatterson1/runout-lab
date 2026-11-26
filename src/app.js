@@ -53,6 +53,6 @@ function show(focus) {
   }
 }
 
+initUpdateBanner(/** @type {HTMLButtonElement} */ (document.getElementById('update')));
 show(false);
 addEventListener('hashchange', () => show(true));
-initUpdateBanner(/** @type {HTMLButtonElement} */ (document.getElementById('update')));
