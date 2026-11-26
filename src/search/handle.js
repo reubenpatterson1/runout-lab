@@ -3,6 +3,8 @@
 /** @typedef {import('../types.js').Scored} Scored */
 /** @typedef {import('../types.js').Layout} Layout */
 import { suggest } from './search.js';
+import { simulate } from '../engine/simulate.js';
+import { scoreSafety } from '../eval/safety.js';
 import { dealSlot, rerollSlot, entryById, exampleBySlug, sampleCells } from '../deal/bank.js';
 
 /**
@@ -29,6 +31,8 @@ export function createHandler(loadBank) {
         const result = suggest(msg.layout, { seedShots: best ? [{ ...best.shot, known: best.score }] : [] });
         return { id, type: 'result', result };
       }
+      if (msg.type === 'simulate') return { id, type: 'result', result: simulate(msg.layout, msg.shot, { record: true }) };
+      if (msg.type === 'score') return { id, type: 'result', result: scoreSafety(msg.layout, msg.shot) };
       const known = ['info', 'deal', 'reroll', 'byId', 'example', 'sample'];
       if (!known.includes(msg.type)) return { id, type: 'error', message: 'unknown request type: ' + msg.type };
       const { bank, timing } = await getBank();

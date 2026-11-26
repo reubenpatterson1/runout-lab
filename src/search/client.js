@@ -47,6 +47,10 @@ export function createSearchClient(factory = defaultFactory) {
     sample: (n) => call({ type: 'sample', n }),
     /** @param {Layout} layout @param {Scored|null} [best] */
     suggest: (layout, best) => call({ type: 'suggest', layout, best: best ?? null }),
+    /** @param {Layout} layout @param {any} shot */
+    simulate: (layout, shot) => call({ type: 'simulate', layout, shot }),
+    /** @param {Layout} layout @param {any} shot */
+    score: (layout, shot) => call({ type: 'score', layout, shot }),
     terminate: () => {
       dead = new Error('terminated');
       worker.terminate();

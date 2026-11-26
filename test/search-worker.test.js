@@ -5,6 +5,8 @@ import { readFileSync } from 'node:fs';
 import { createHandler } from '../src/search/handle.js';
 import { createSearchClient } from '../src/search/client.js';
 import { suggest } from '../src/search/search.js';
+import { simulate } from '../src/engine/simulate.js';
+import { scoreSafety } from '../src/eval/safety.js';
 import { dealSlot, entryById } from '../src/deal/bank.js';
 const text = readFileSync(new URL('../data/safety-bank.json', import.meta.url), 'utf8');
 const bank = JSON.parse(text);
@@ -48,4 +50,18 @@ test('client calls after terminate or a fatal worker error reject immediately', 
   let w; const c2 = createSearchClient(() => { w = fakeWorker(createHandler(load))(); return w; });
   const p = c2.info(); w.onerror({ message: 'boom' });
   await assert.rejects(p, /boom/); await assert.rejects(c2.deal(5, 0, []), /boom/);
+});
+test('simulate and score through the handler deep-equal direct calls on 3 bank entries, without the bank', async () => {
+  const h = createHandler(() => Promise.reject(new Error('must not load the bank')));
+  for (const e of [bank.entries[0], bank.entries[400], bank.entries[bank.entries.length - 1]]) {
+    assert.deepEqual(await h({ id: 1, type: 'simulate', layout: e.layout, shot: e.best.shot }), { id: 1, type: 'result', result: simulate(e.layout, e.best.shot, { record: true }) });
+    assert.deepEqual(await h({ id: 2, type: 'score', layout: e.layout, shot: e.best.shot }), { id: 2, type: 'result', result: scoreSafety(e.layout, e.best.shot) });
+  }
+  const e = bank.entries[0];
+  assert.deepEqual(await h({ id: 3, type: 'simulate', layout: { ...e.layout, cueId: 'zz' }, shot: e.best.shot }), { id: 3, type: 'error', message: 'invalid layout: missing-cue' });
+});
+test('client.simulate and client.score resolve with the worker results', async () => {
+  const c = createSearchClient(fakeWorker(createHandler(load))), e = bank.entries[1];
+  assert.deepEqual(await c.simulate(e.layout, e.best.shot), simulate(e.layout, e.best.shot, { record: true }));
+  assert.deepEqual(await c.score(e.layout, e.best.shot), e.best.score);
 });
